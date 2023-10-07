@@ -11,8 +11,9 @@ const SignupSteptwo = () => {
     const navigate = useNavigate();
 
     const handleContinue = () => {
+
         if (selectedOption) {
-          navigate('/signup/step-three', { state: { option: selectedOption } });
+          navigate(`/signup/step-three`, { state: { option: selectedOption } });
         }
       };
 
@@ -39,9 +40,9 @@ const SignupSteptwo = () => {
                     value={selectedOption}
                 >
                     <option value="">-- Select an Option --</option>
-                    <option value="pregnant">Pregnant Woman</option>
+                    <option value="pregnant woman">Pregnant Woman</option>
                     <option value="driver">Driver</option>
-                    <option value="healthcare">Health Care Provider</option>
+                    <option value="healthcare provider">Health Care Provider</option>
                 </select>
                 </div>
                 <button onClick={handleContinue} disabled={!selectedOption}
