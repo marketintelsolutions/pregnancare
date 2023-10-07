@@ -19,7 +19,7 @@ const Landing = () => {
             <div className='flex items-center'><Logo aria-label="logo"/></div>
             <div className='flex gap-5 items-center'><Link to='/about' className='text-black text-center text-base font-medium leading-5'>About</Link>
             <Link to='/signin' className='text-black text-center text-base font-medium leading-5'>Sign in</Link>
-            <button className='py-3 px-5 bg-[#DB3E4D] items-center rounded-md border-none text-white text-base leading-5'>Create an account</button>
+            <Link to='/signup' className='py-3 px-5 bg-[#DB3E4D] items-center rounded-md border-none text-white text-base leading-5'>Create an account</Link>
             </div>
         </nav>
         
