@@ -3,9 +3,18 @@ import background from '../../assets/images/background.svg'
 import {ReactComponent as Logo} from '../../assets/logos/whiteLogo.svg'
 import arrowRight from '../../assets/logos/arrowRight.svg'
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const SignupSteptwo = () => {
     const [selectedOption, setSelectedOption] = useState('');
+
+    const navigate = useNavigate();
+
+    const handleContinue = () => {
+        if (selectedOption) {
+          navigate('/signup/step-three', { state: { option: selectedOption } });
+        }
+      };
 
     const handleOptionChange = (e) => {
         setSelectedOption(e.target.value);
@@ -35,9 +44,8 @@ const SignupSteptwo = () => {
                     <option value="healthcare">Health Care Provider</option>
                 </select>
                 </div>
-                <button 
-                className={`rounded-md bg-[#3058A6] py-3 px-6 text-white text-sm font-medium leading-5 border-[1px] cursor-pointer hover:bg-white hover:border-[#3058A6] hover:text-[#3058A6] transition linear ${!selectedOption ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={!selectedOption}
+                <button onClick={handleContinue} disabled={!selectedOption}
+                className={`rounded-md bg-[#3058A6] py-3 px-6 text-white text-sm text-center font-medium leading-5 border-[1px] cursor-pointer hover:bg-white hover:border-[#3058A6] hover:text-[#3058A6] transition linear ${!selectedOption ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                 Continue
                 </button>

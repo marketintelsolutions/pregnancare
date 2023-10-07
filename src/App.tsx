@@ -5,6 +5,7 @@ import Landing from './pages/Landing';
 import Signin from './pages/auth/Signin';
 import Signup from './pages/auth/Signup';
 import SignupSteptwo from './pages/auth/SignupSteptwo';
+import SignupStepthree from './pages/auth/SignupStepthree';
 
 const App = () => {
     return (
@@ -14,6 +15,7 @@ const App = () => {
             <Route path='/signin' element={<Signin/>}/>
             <Route path='/signup' element={<Signup/>}/>
             <Route path='/signup/step-two' element={<SignupSteptwo/>}/>
+            <Route path='/signup/step-three' element={<SignupStepthree/>}/>
         </Routes>
     )
 }
