@@ -15,6 +15,7 @@ const SignupSteptwo = () => {
       localStorage.removeItem("step");
 
       localStorage.setItem("step", "three");
+      localStorage.setItem("userType", `${selectedOption}`);
       navigate(`/signup/step-three`, { state: { option: selectedOption } });
     }
   };
@@ -25,8 +26,8 @@ const SignupSteptwo = () => {
 
   const currentStep = localStorage.getItem("step") || "one";
 
-  if (currentStep !== "two")
-    return <Navigate to={`/signup/step-${currentStep}`} />;
+  // if (currentStep !== "two")
+  //   return <Navigate to={`/signup/step-${currentStep}`} />;
 
   return (
     <section

@@ -45,6 +45,7 @@ const MotherForm = () => {
 
   // error flag for button
   const [isGeneralError, setIsGeneralError] = useState(false);
+  const [generalError, setGeneralError] = useState("");
 
   const navigate = useNavigate();
 
@@ -86,9 +87,14 @@ const MotherForm = () => {
           localStorage.removeItem("step");
 
           localStorage.setItem("step", "four");
+          localStorage.setItem("formData", JSON.stringify(formData));
+          setIsGeneralError(false);
+
           navigate("/signup/step-four", { state: { formData } });
         }
       } catch (error) {
+        setIsGeneralError(true);
+        setGeneralError(error.response.data);
         console.error("Error saving user:", error);
         // Handle error - maybe show an error message to the user
       }
@@ -268,7 +274,7 @@ const MotherForm = () => {
 
       {isGeneralError && (
         <span className="text-red-500 text-sm mt-4">
-          Complete all required fields.
+          {generalError || "Complete all required fields."}
         </span>
       )}
       <button

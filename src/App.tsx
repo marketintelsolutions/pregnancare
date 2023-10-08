@@ -10,6 +10,7 @@ import VerifyMail from "./pages/auth/VerifyMail";
 import ChoosePassword from "./pages/auth/ChoosePassword";
 import { SignupProgressProvider } from "./context/SignupProgress";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import PregnantDashboard from "./pages/dashboard/pregnantWoman/PregnantDashboard";
 
 const App = () => {
   return (
@@ -45,6 +46,12 @@ const App = () => {
         <Route path="/signup/step-three" element={<SignupStepthree />} />
         <Route path="/signup/step-four" element={<VerifyMail />} />
         <Route path="/signup/step-five" element={<ChoosePassword />} />
+
+        {/* DASHBOARD */}
+        <Route
+          path="dashboard/pregnant-woman"
+          element={<PregnantDashboard />}
+        />
       </Routes>
     </SignupProgressProvider>
   );
