@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "pregnancare",
+  "private_key_id": "84b7d0792aefa280188c81934c935af041274ca9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC+v7T/dGi7gVml\nqn0iotGJv24htQd9YSlWJ27ZqWPbbZh23vx9zxUnjHsIbOa8q1t0eVeEXQU+HGku\n+JjNuqsRDv/LoRfeXWOVY4Qe2Y8huvlDG+hnAcTXILFNlTa+LM3dpKPL/XOv1NWO\n5ysjAkEGV1suQ3vSJalpPi+rDcp9DxgCDsiAEvdl9kDOVqJU5TGDP06mtV/B5x8U\n8wle4aKsabDeHXvMwZ9oFQhIUsaixfGx9QD503h40IqOW4MxBBaSvxt2zNu1xSWD\nxJE/pBeRrkgxSnmkHEHLcfW+uQBo94iXKxxgoK6NMA/gK2j7yNbMtoQnXbsfyTQK\neizIJl7BAgMBAAECggEAFaafZf6B08ShFw2Esh1+gK7ekotgfAH/BeUobyLLr5Cf\nRWDWknYindBTd7eashAWK6CJR0Ais/PYGYmEmJdnSuKjtKqGkcoSX1bCHJlPpoG5\nQL2Gcciw3cU7csWsxsXBoTaKlAEi9DKJgfSpwAnFtTFNq3Dj+Uymj8hL81O3p92Q\nP4rUNEBaOJU11mHhz+argxnFsLmzmJqDLa3XpChURKWyS9Nds3M/UpDdYOS8AvLZ\nCXqAgnbWHJAE+nHyTBTdfC8FRg0iwq01YONuVzZt8IjWzSwrFbc+ZgUkq3D3x2cU\n/vqL4z5tb5YOK5EtSgPHKIJNkJCJjL2/tYkeRE/bJQKBgQDoHJ3TPP+OE3UjCN0b\nYp2VbPgFpPG3NwxGv3+WGhjKtVF9RQwMrnEOPZZW+c63lM6c7aoIjTEqX8RpAWnZ\nov9FaIWzKiMoVaC517NV+V7JsjGuSbz/XpEsUkdl/2Lemh5uX1bHQJdp8qOmJW8v\ncOj04TxWfqi8I5O4JP1g8ah6XQKBgQDSYVArfNsKpom9Zjmwu6FbWCETQG/FVjSq\nXeYkc36WqivG1JumYIVrDMWJWfAC6syql/c9mTKEFI1C0mdGFDq1Ksq5P4unoSbw\nholQCePWYP7kHmScO+nFaGNHSyp8rwLMhoid6zU3sqXAGMK3gn4JVOYBMz9JSyDG\n3fK065eXtQKBgBG4/aP/aFPk0HDYYGmS4g1iwJ1NttcScPGF9av0WihAJ/S0rPLa\n7u7zbOM/N7V0u0HoM69reHGP1mNeJELl2y/lhy/i68RMpXULLzpFTCOCY6C3KKMn\nCValAaacFWSByAkNZobYO7dvO2eYPCEXMfJgsEa6bQ/Qd5r72Azq5r5RAoGAMxD0\nCNpRwRATtymtLz0cObP2s1mcx+XY+tG4H3j5bVD5N1Y8QfKD8Cw1dtWh8NNVwsMI\nfKdHH9BtSZ8Q+m3Gols0wiqul44CibfedNMxvsPkmzLVcScJ46UnFBMmyQUiRMsT\nNmH1lQOEQFDCUxEVzuYQvpHV9tCJsDwHweq97VECgYEA1f/dtUndM6jpau99528u\nTFpmDZ6G9/zsKdzU5x47wD8EhuySP+tCu454ec9uHrhfZYhDOoUI+EQNRx8MxAuA\n+tE2EfgjbYP63GOTTDSBNrsSob2xCgHqsHga+Z96p6urEFMmrNd+2L9prw1gX2Dc\nROsj8PHrP7EmZA80UEyCjVE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-gzqo0@pregnancare.iam.gserviceaccount.com",
+  "client_id": "111534394805460783880",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-gzqo0%40pregnancare.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
