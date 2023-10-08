@@ -136,20 +136,48 @@ exports.storePassword = async (req, res) => {
             // User already exists, update the password
             const userId = userSnapshot.docs[0].id;
             await usersRef.doc(userId).update({ password: hashedPassword });
-        } else {
-            // // New user, add to Firestore
-            // await usersRef.add({
-            //     email,
-            //     password: hashedPassword
-            // });
-
-            res.status(404).json({ success: false, message: 'User does not exist or email invalid' });
         }
+        // else {
+        //     // // New user, add to Firestore
+        //     // await usersRef.add({
+        //     //     email,
+        //     //     password: hashedPassword
+        //     // });
+
+        //     res.status(404).json({ success: false, message: 'User does not exist or email invalid' });
+        // }
 
         console.log('password saved');
         res.status(200).json({ success: true });
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error storing password.' });
+    }
+}
+
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Fetch user by email from Firebase Firestore
+        const users = await admin.firestore().collection('users').where('email', '==', email).get();
+        if (users.empty) {
+            return res.status(400).json({ message: 'Invalid email address' });
+        }
+
+        const user = users.docs[0].data();
+
+        // Check password using bcrypt
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Incorrect password.' });
+        }
+
+        // If everything's okay, send a positive response
+        res.status(200).json({ message: 'Logged in successfully', user: user }); // Adjust the response as needed.
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { saveUser, verifyCode, resendCode, storePassword } = require('./controllers/userController');
+const { saveUser, verifyCode, resendCode, storePassword, login } = require('./controllers/userController');
 
 const PORT = 8080;
 
@@ -23,6 +23,7 @@ app.post('/saveUser', saveUser);
 app.post('/verifyCode', verifyCode);
 app.post('/resendCode', resendCode);
 app.post('/storePassword', storePassword);
+app.post('/login', login);
 
 
 app.listen(PORT, () => {
