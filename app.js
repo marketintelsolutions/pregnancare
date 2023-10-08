@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { saveUser, verifyCode, resendCode } = require('./controllers/userController');
+const bodyParser = require('body-parser');
+const { saveUser, verifyCode, resendCode, storePassword } = require('./controllers/userController');
 
 const PORT = 8080;
 
@@ -14,13 +15,14 @@ const corsOption = {
 };
 
 app.use(cors(corsOption));
-
+app.use(bodyParser.json());
 app.use(express.json());
 
 // ROUTES
 app.post('/saveUser', saveUser);
 app.post('/verifyCode', verifyCode);
 app.post('/resendCode', resendCode);
+app.post('/storePassword', storePassword);
 
 
 app.listen(PORT, () => {

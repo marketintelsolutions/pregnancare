@@ -2,6 +2,8 @@ const { saveUserDetails, generateCode } = require("../middleware/user");
 const nodemailer = require('nodemailer');
 const admin = require('firebase-admin');
 const db = require("../auth/firebase");
+const bcrypt = require('bcrypt');
+
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', // use your email service here
@@ -115,5 +117,39 @@ exports.verifyCode = async (req, res) => {
         }
     } else {
         res.status(400).send('Invalid code');
+    }
+}
+
+exports.storePassword = async (req, res) => {
+    console.log('request made');
+    const { password, email } = req.body;
+
+    try {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Store in Firebase Cloud Firestore
+        const usersRef = db.collection('users');
+        const userSnapshot = await usersRef.where('email', '==', email).get();
+
+        if (!userSnapshot.empty) {
+            // User already exists, update the password
+            const userId = userSnapshot.docs[0].id;
+            await usersRef.doc(userId).update({ password: hashedPassword });
+        } else {
+            // // New user, add to Firestore
+            // await usersRef.add({
+            //     email,
+            //     password: hashedPassword
+            // });
+
+            res.status(404).json({ success: false, message: 'User does not exist or email invalid' });
+        }
+
+        console.log('password saved');
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Error storing password.' });
     }
 }
