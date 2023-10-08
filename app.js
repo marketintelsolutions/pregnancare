@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { saveUser, verifyCode } = require('./controllers/userController');
+const { saveUser, verifyCode, resendCode } = require('./controllers/userController');
 
 const PORT = 8080;
 
@@ -19,8 +19,8 @@ app.use(express.json());
 
 // ROUTES
 app.post('/saveUser', saveUser);
-
 app.post('/verifyCode', verifyCode);
+app.post('/resendCode', resendCode);
 
 
 app.listen(PORT, () => {
