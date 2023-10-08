@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import background from "../../assets/images/background.svg";
 import exclaimationRed from "../../assets/logos/exclaimationRed.svg";
 import arrowRightWhite from "../../assets/logos/arrowRightWhite.svg";
@@ -10,12 +10,14 @@ const VerifyMail = () => {
   const [code, setCode] = useState(Array(5).fill("")); // Array of 5 empty strings
   const [seconds, setSeconds] = useState(60); // Setting initial time to 60 seconds.
   const [showResend, setShowResend] = useState(false);
+  const [error, setError] = useState("");
 
   const inputs = useRef([]);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const { email } = location.state.formData;
+  const { email } = location.state?.formData || "";
   //   console.log(email);
 
   useEffect(() => {
@@ -31,6 +33,8 @@ const VerifyMail = () => {
         return 0;
       });
     }, 1000);
+
+    inputs.current[0]?.focus();
 
     // Cleanup: clear the interval when the component unmounts.
     return () => clearInterval(timer);
@@ -80,13 +84,43 @@ const VerifyMail = () => {
       );
 
       // Handle the response data as needed, e.g.
-      console.log(response.data);
+      console.log(response);
+      if (response.status === 200) {
+        localStorage.removeItem("step");
+
+        localStorage.setItem("step", "five");
+        navigate("/signup/step-five");
+      }
     } catch (error) {
-      console.error("Error sending code:", error);
+      setError(error.response.data);
+      console.error(error.response.data);
+    }
+  };
+
+  //   RESEND EMAIL CODE
+  const handleResend = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/resendCode`,
+        {
+          email, // sends code as a single string
+        }
+      );
+
+      // Handle the response data as needed, e.g.
+      console.log(response);
+    } catch (error) {
+      setError(error.response.data);
+      console.error(error.response.data);
     }
   };
 
   const isCodeComplete = code.every((digit) => digit !== "");
+
+  const currentStep = localStorage.getItem("step") || "one";
+
+  if (currentStep !== "four")
+    return <Navigate to={`/signup/step-${currentStep}`} />;
 
   return (
     <section
@@ -124,10 +158,14 @@ const VerifyMail = () => {
               />
             ))}
           </div>
+          {error && <p className="text-[#FF4D4F]">{error}, Please try again</p>}
 
           <p className="text-center">
             {showResend ? (
-              <span className="cursor-pointer text-[#0C4C84]">
+              <span
+                className="cursor-pointer text-[#0C4C84]"
+                onClick={handleResend}
+              >
                 Resend Email
               </span>
             ) : (

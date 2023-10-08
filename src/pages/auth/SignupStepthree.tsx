@@ -1,7 +1,7 @@
 import React from "react";
 import background from "../../assets/images/background.svg";
 import { ReactComponent as Logo } from "../../assets/logos/whiteLogo.svg";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import DriverForm from "../../components/auth/DriverForm";
 import HealthcareForm from "../../components/auth/HealthcareForm";
 import MotherForm from "../../components/auth/MotherForm";
@@ -11,6 +11,11 @@ const SignupStepthree = () => {
   const location = useLocation();
   const formtype = location.state?.option;
   // console.log(formtype);
+
+  const currentStep = localStorage.getItem("step") || "one";
+
+  if (currentStep !== "three")
+    return <Navigate to={`/signup/step-${currentStep}`} />;
 
   return (
     <section

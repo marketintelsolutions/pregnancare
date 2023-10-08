@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface IFormData {
   email: string;
@@ -83,7 +83,10 @@ const MotherForm = () => {
           console.log("User saved successfully");
           // Handle success - maybe redirect or update UI
           // navigate("/signup/verify-email", { state: { mail: formData.email } });
-          navigate("/signup/verify-email", { state: { formData } });
+          localStorage.removeItem("step");
+
+          localStorage.setItem("step", "four");
+          navigate("/signup/step-four", { state: { formData } });
         }
       } catch (error) {
         console.error("Error saving user:", error);
