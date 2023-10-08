@@ -3,12 +3,17 @@ import background from "../../assets/images/background.svg";
 import { ReactComponent as Logo } from "../../assets/logos/whiteLogo.svg";
 import eyeSlash from "../../assets/logos/eyeSlash.svg";
 import arrowRight from "../../assets/logos/arrowRight.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isValidEmail, setIsValidEmail] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -18,6 +23,39 @@ const Signin = () => {
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     setIsValidEmail(validateEmail(e.target.value));
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/login`,
+        {
+          email,
+          password,
+        }
+      );
+
+      if (response.data.message === "Logged in successfully") {
+        console.log("login success");
+        console.log(response.data);
+
+        const { userType } = response.data.user;
+
+        // Handle successful login. Store user data, tokens, navigate or whatever you need
+        if (userType === "pregnant woman") {
+          navigate("/dashboard/pregnant-woman");
+        }
+      } else {
+        // Handle unsuccessful login
+        setErrorMessage(response.data.message);
+        console.error(response.data.message);
+      }
+    } catch (error) {
+      error.response
+        ? setErrorMessage(error.response.data.message)
+        : setErrorMessage(error.message);
+      console.error("Login error:", error);
+    }
   };
 
   return (
@@ -76,6 +114,8 @@ const Signin = () => {
                 name="password"
                 placeholder="****************"
                 className="rounded-lg p-3 bg-[#F4F4F4] placeholder-[#A8A8A8)] w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <img
                 src={eyeSlash}
@@ -88,7 +128,11 @@ const Signin = () => {
           <p className="text-right text-sm font-medium leading-4 text-[#0C4C84] cursor-pointer">
             Forgot password?
           </p>
-          <button className="rounded-md bg-[#3058A6] py-3 px-6 text-white text-sm font-medium leading-5 border-[1px] hover:bg-white hover:border-[#3058A6] hover:text-[#3058A6] transition linear">
+          {errorMessage && <p>{errorMessage}</p>}
+          <button
+            onClick={handleLogin}
+            className="rounded-md bg-[#3058A6] py-3 px-6 text-white text-sm font-medium leading-5 border-[1px] hover:bg-white hover:border-[#3058A6] hover:text-[#3058A6] transition linear"
+          >
             Login
           </button>
           <p className="text-center text-sm flex justify-center gap-1">

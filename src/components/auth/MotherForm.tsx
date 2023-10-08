@@ -11,6 +11,7 @@ interface IFormData {
   csection: string; // Same as above
   bloodGroup: string;
   genotype: string;
+  userType: string;
 }
 
 // This will represent the errors for each field.
@@ -29,6 +30,7 @@ const MotherForm = () => {
     csection: "",
     bloodGroup: "",
     genotype: "",
+    userType: "pregnant woman",
   });
 
   // FORM ERRORS
@@ -94,7 +96,9 @@ const MotherForm = () => {
         }
       } catch (error) {
         setIsGeneralError(true);
-        setGeneralError(error.response.data);
+        error.response
+          ? setGeneralError(error.response.data)
+          : setGeneralError(`error connecting to server, ${error.message}`);
         console.error("Error saving user:", error);
         // Handle error - maybe show an error message to the user
       }
