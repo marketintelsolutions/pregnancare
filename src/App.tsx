@@ -11,6 +11,7 @@ import ChoosePassword from "./pages/auth/ChoosePassword";
 import { SignupProgressProvider } from "./context/SignupProgress";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import PregnantDashboard from "./pages/dashboard/pregnantWoman/PregnantDashboard";
+import DriverDashboard from "./components/dashboard/driver/DriverDashboard";
 
 const App = () => {
   return (
@@ -52,6 +53,7 @@ const App = () => {
           path="dashboard/pregnant-woman"
           element={<PregnantDashboard />}
         />
+        <Route path="dashboard/driver" element={<DriverDashboard />} />
       </Routes>
     </SignupProgressProvider>
   );

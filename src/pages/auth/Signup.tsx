@@ -4,6 +4,14 @@ import { ReactComponent as Logo } from "../../assets/logos/whiteLogo.svg";
 import googleG from "../../assets/logos/googleG.svg";
 import arrowRight from "../../assets/logos/arrowRight.svg";
 import { Link, useNavigate } from "react-router-dom";
+// import { auth, googleProvider } from "../../firebase/firebaseConfig";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+} from "firebase/auth";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -11,6 +19,33 @@ const Signup = () => {
   const handleLogin = () => {
     navigate("/signup/step-two");
     localStorage.setItem("step", "two");
+  };
+
+  const handleGoogleLogin = async () => {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+
+    // Optional: You can add scopes or set custom parameters if needed
+    // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    // provider.setCustomParameters({ 'login_hint': 'user@example.com' });
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+
+      console.log("login successful");
+
+      // Logic after successful login
+      navigate("/signup/step-two");
+      localStorage.setItem("step", "two");
+    } catch (error) {
+      console.error("Google Sign-In Error", error);
+      // Handle the error as needed
+    }
   };
 
   return (

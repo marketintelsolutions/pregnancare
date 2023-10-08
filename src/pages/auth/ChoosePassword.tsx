@@ -66,6 +66,9 @@ const ChoosePassword = () => {
             if (userType === "pregnant woman") {
               setLoading(false);
               navigate("/dashboard/pregnant-woman");
+            } else if (userType === "driver") {
+              setLoading(false);
+              navigate("/dashboard/driver");
             }
           }, 6000);
 
