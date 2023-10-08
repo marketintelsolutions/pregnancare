@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface IFormData {
   email: string;
@@ -44,6 +46,8 @@ const MotherForm = () => {
   // error flag for button
   const [isGeneralError, setIsGeneralError] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -52,9 +56,9 @@ const MotherForm = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
 
     // Check for empty values and update the error state accordingly
     const newErrors: IFormErrors = {} as IFormErrors;
@@ -67,9 +71,24 @@ const MotherForm = () => {
     setIsGeneralError(Object.values(newErrors).some(Boolean));
 
     // Optionally, only proceed if there are no errors
-    if (isGeneralError) {
-      console.log(formData);
+    if (!isGeneralError) {
+      // console.log("hello", formData);
       // Do the form submission logic here
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/saveUser`,
+          formData
+        );
+        if (response.status === 200) {
+          console.log("User saved successfully");
+          // Handle success - maybe redirect or update UI
+          // navigate("/signup/verify-email", { state: { mail: formData.email } });
+          navigate("/signup/verify-email", { state: { formData } });
+        }
+      } catch (error) {
+        console.error("Error saving user:", error);
+        // Handle error - maybe show an error message to the user
+      }
     }
   };
 
