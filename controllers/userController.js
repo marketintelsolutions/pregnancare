@@ -19,13 +19,24 @@ exports.saveUser = async (req, res) => {
         const userData = req.body;
         const code = generateCode();
 
+        // Check if email already exists in the database
+        const usersRef = db.collection('users'); // assuming 'users' is the name of your user collection
+        const emailSnapshot = await usersRef.where('email', '==', userData.email).get();
+
+        if (!emailSnapshot.empty) {
+            console.log('Email already in use');
+            return res.status(400).send('Email already in use');
+        }
+
         // Send code to user's email
-        await transporter.sendMail({
-            from: 'your-email@gmail.com',
-            to: userData.email,
-            subject: 'Your 5-digit code',
-            text: `Your code is: ${code}`
-        });
+        if (userData.email) {
+            await transporter.sendMail({
+                from: 'your-email@gmail.com',
+                to: userData.email,
+                subject: 'Your 5-digit code',
+                text: `Your code is: ${code}`
+            });
+        }
 
         // Delete any existing code for the user
         const codesRef = db.collection('codes');
