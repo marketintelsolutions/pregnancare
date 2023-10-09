@@ -69,6 +69,8 @@ const ChoosePassword = () => {
             } else if (userType === "driver") {
               setLoading(false);
               navigate("/dashboard/driver");
+            } else if (userType === "healthcare provider") {
+              navigate("/dashboard/healthcare-provider");
             }
           }, 6000);
 

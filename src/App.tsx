@@ -11,7 +11,8 @@ import ChoosePassword from "./pages/auth/ChoosePassword";
 import { SignupProgressProvider } from "./context/SignupProgress";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import PregnantDashboard from "./pages/dashboard/pregnantWoman/PregnantDashboard";
-import DriverDashboard from "./components/dashboard/driver/DriverDashboard";
+import DriverDashboard from "./pages/dashboard/driver/DriverDashboard";
+import HealthcareDashboard from "./pages/dashboard/healthCare/HealthcareDashboard";
 
 const App = () => {
   return (
@@ -54,6 +55,10 @@ const App = () => {
           element={<PregnantDashboard />}
         />
         <Route path="dashboard/driver" element={<DriverDashboard />} />
+        <Route
+          path="dashboard/healthcare-provider"
+          element={<HealthcareDashboard />}
+        />
       </Routes>
     </SignupProgressProvider>
   );

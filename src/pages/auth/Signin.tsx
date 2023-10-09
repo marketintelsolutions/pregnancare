@@ -44,6 +44,10 @@ const Signin = () => {
         // Handle successful login. Store user data, tokens, navigate or whatever you need
         if (userType === "pregnant woman") {
           navigate("/dashboard/pregnant-woman");
+        } else if (userType === "driver") {
+          navigate("/dashboard/driver");
+        } else if (userType === "healthcare provider") {
+          navigate("/dashboard/healthcare-provider");
         }
       } else {
         // Handle unsuccessful login

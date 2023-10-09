@@ -1,7 +1,7 @@
 import React from "react";
-import Header from "../Header";
-import Sidebar from "../Sidebar";
-import DashboardDriver from "./DashboardDriver";
+import Header from "../../../components/dashboard/Header";
+import Sidebar from "../../../components/dashboard/Sidebar";
+import DashboardDriver from "../../../components/dashboard/driver/DashboardDriver";
 
 const DriverDashboard = () => {
   return (

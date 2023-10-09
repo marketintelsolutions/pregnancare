@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import useFormSubmit from "../../utils/helpers/useFormSubmit";
+import FieldError from "../FieldError";
 
 const MotherForm = () => {
   const initialData = {
@@ -44,9 +45,7 @@ const MotherForm = () => {
           value={formData.email}
           onChange={handleChange}
         />
-        {errors.email && (
-          <span className="text-red-500 text-sm">Email is required.</span>
-        )}
+        <FieldError error={errors.email} text="email is required" />
       </div>
       {/* FIRSTNAME */}
       <div className="flex flex-col gap-2">
@@ -65,9 +64,7 @@ const MotherForm = () => {
           value={formData.firstname}
           onChange={handleChange}
         />
-        {errors.firstname && (
-          <span className="text-red-500 text-sm">Firstname is required.</span>
-        )}
+        <FieldError error={errors.firstname} text="firstname is required" />
       </div>
       {/* AGE */}
       <div className="flex flex-col gap-2">
@@ -86,9 +83,7 @@ const MotherForm = () => {
           value={formData.age}
           onChange={handleChange}
         />
-        {errors.age && (
-          <span className="text-red-500 text-sm">Age is required.</span>
-        )}
+        <FieldError error={errors.age} text="age is required" />
       </div>
       {/* NUMBER OF CHILDREN */}
       <div className="flex flex-col gap-2">
@@ -107,9 +102,7 @@ const MotherForm = () => {
           value={formData.children}
           onChange={handleChange}
         />
-        {errors.children && (
-          <span className="text-red-500 text-sm">Children is required.</span>
-        )}
+        <FieldError error={errors.children} text="children is required" />
       </div>
       {/* NUMBER OF PET */}
       <div className="flex flex-col gap-2">
@@ -128,9 +121,7 @@ const MotherForm = () => {
           value={formData.pet}
           onChange={handleChange}
         />
-        {errors.pet && (
-          <span className="text-red-500 text-sm">Pet is required.</span>
-        )}
+        <FieldError error={errors.pet} text="Pet is required" />
       </div>
       {/* NUMBER OF C-SECTION */}
       <div className="flex flex-col gap-2">
@@ -149,9 +140,7 @@ const MotherForm = () => {
           value={formData.csection}
           onChange={handleChange}
         />
-        {errors.csection && (
-          <span className="text-red-500 text-sm">C-section is required.</span>
-        )}
+        <FieldError error={errors.csection} text="csection is required" />
       </div>
       {/* BLOOD GROUP */}
       <div className="flex flex-col gap-2">
@@ -170,9 +159,7 @@ const MotherForm = () => {
           value={formData.bloodGroup}
           onChange={handleChange}
         />
-        {errors.bloodGroup && (
-          <span className="text-red-500 text-sm">Blood Group is required.</span>
-        )}
+        <FieldError error={errors.bloodGroup} text="Blood Group is required" />
       </div>
       {/* GENOTYPE */}
       <div className="flex flex-col gap-2">
@@ -191,13 +178,11 @@ const MotherForm = () => {
           value={formData.genotype}
           onChange={handleChange}
         />
-        {errors.genotype && (
-          <span className="text-red-500 text-sm">Genotype is required.</span>
-        )}
+        <FieldError error={errors.genotype} text="genotype is required" />
       </div>
 
       {isGeneralError && (
-        <span className="text-red-500 text-sm mt-4">
+        <span className="text-danger-red text-sm mt-4">
           {generalError || "Complete all required fields."}
         </span>
       )}

@@ -9,7 +9,8 @@ import arrowRight from "../../assets/logos/arrowRight.svg";
 
 const SignupStepthree = () => {
   const location = useLocation();
-  const formtype = location.state?.option;
+  // const formtype = location.state?.option;
+  const formtype = localStorage.getItem("userType");
   // console.log(formtype);
 
   const currentStep = localStorage.getItem("step") || "one";

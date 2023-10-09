@@ -193,7 +193,7 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.genotype && (
-          <span className="text-red-500 text-sm">Genotype is required.</span>
+          <span className="text-danger-red text-sm">Genotype is required.</span>
         )}
       </div>
       {isGeneralError && (
