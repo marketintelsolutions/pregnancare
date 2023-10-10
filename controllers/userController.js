@@ -1,17 +1,11 @@
-const { saveUserDetails, generateCode } = require("../middleware/user");
-const nodemailer = require('nodemailer');
+const { saveUserDetails, generateCode, updateUserByEmail, getUserByEmail, transporter } = require("../middleware/authMiddleware");
 const admin = require('firebase-admin');
 const db = require("../auth/firebase");
 const bcrypt = require('bcrypt');
+const crypto = require('crypto')
+const nodemailer = require('nodemailer');
 
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail', // use your email service here
-    auth: {
-        user: 'mail.pacholdings@gmail.com',
-        pass: 'zwveytcpxozeopyx'   // replace with your email password
-    }
-});
+// const getAuth = () => admin.auth();
 
 exports.saveUser = async (req, res) => {
     console.log('request made');
@@ -191,4 +185,65 @@ exports.login = async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
     }
+}
+
+exports.resetEmail = async (req, res) => {
+    const { email } = req.body;
+
+    const userSnapshot = await getUserByEmail(req.body.email);
+
+    // if (!userSnapshot.exists) return res.status(404).send('No user with that email');
+    if (userSnapshot.empty) return res.status(404).send('No user with that email');
+
+    // const user = userSnapshot.data();
+
+    // Generate a token
+    const token = crypto.randomBytes(20).toString('hex');
+    const updates = {
+        passwordResetToken: token,
+        passwordResetExpires: Date.now() + 3600000 // 1 hour
+    };
+
+    await updateUserByEmail(req.body.email, updates);
+
+    // Send the email (using nodemailer for example)
+    mailtransporter = nodemailer.createTransport({
+        service: 'gmail', // use your email service here
+        auth: {
+            user: `mail.pacholdings@gmail.com`,
+            pass: `zwveytcpxozeopyx`  // replace with your email password
+        }
+    });
+
+    const mailOptions = {
+        to: email,
+        from: 'passwordreset@example.com',
+        subject: 'Password Reset',
+        text: 'Click this link to reset your password: ' + process.env.RESET_PASSWORD_BASE_URL + token
+    };
+    mailtransporter.sendMail(mailOptions, (err) => {
+        res.send('Reset password link sent');
+    });
+}
+
+exports.resetPassword = async (req, res) => {
+    const usersRef = db.collection('users');
+    const snapshot = await usersRef.where('passwordResetToken', '==', req.params.token).get();
+
+    if (snapshot.empty) return res.status(400).send('Token invalid');
+
+    const user = snapshot.docs[0];
+    if (user.data().passwordResetExpires <= Date.now()) {
+        return res.status(400).send('Token expired');
+    }
+
+    const updates = {
+        password: req.body.newPassword, // Make sure to hash the password!
+        passwordResetToken: admin.firestore.FieldValue.delete(),
+        passwordResetExpires: admin.firestore.FieldValue.delete()
+    };
+
+    await updateUserByEmail(user.id, updates);
+
+    res.send('Password reset successful');
 }

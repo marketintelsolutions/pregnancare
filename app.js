@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { saveUser, verifyCode, resendCode, storePassword, login } = require('./controllers/userController');
+const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
+require("dotenv").config();
 
 const PORT = 8080;
 
@@ -24,8 +25,11 @@ app.post('/verifyCode', verifyCode);
 app.post('/resendCode', resendCode);
 app.post('/storePassword', storePassword);
 app.post('/login', login);
+app.post('/sendResetEmail', resetEmail);
+app.post('/reset/:token', resetPassword);
+
 
 
 app.listen(PORT, () => {
-    console.log(`Server started on http://localhost:${PORT}`);
+    console.log(`app is listening on port ${PORT}`);
 });
