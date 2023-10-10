@@ -13,6 +13,9 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import PregnantDashboard from "./pages/dashboard/pregnantWoman/PregnantDashboard";
 import DriverDashboard from "./pages/dashboard/driver/DriverDashboard";
 import HealthcareDashboard from "./pages/dashboard/healthCare/HealthcareDashboard";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ForgotPasswordSteptwo from "./pages/auth/ForgotPasswordSteptwo";
+import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
 
 const App = () => {
   return (
@@ -48,6 +51,17 @@ const App = () => {
         <Route path="/signup/step-three" element={<SignupStepthree />} />
         <Route path="/signup/step-four" element={<VerifyMail />} />
         <Route path="/signup/step-five" element={<ChoosePassword />} />
+
+        {/* FORGOT PASSWORD */}
+        <Route path="/signin/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/signin/forgot-password/step-two"
+          element={<ForgotPasswordSteptwo />}
+        />
+        <Route
+          path="/signin/forgot-password/step-three/:token"
+          element={<ForgotPasswordStepthree />}
+        />
 
         {/* DASHBOARD */}
         <Route
