@@ -22,6 +22,16 @@ exports.saveUser = async (req, res) => {
             return res.status(400).send('Email already in use');
         }
 
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // use your email service here
+            auth: {
+                user: `mail.pacholdings@gmail.com`,
+                pass: `zwveytcpxozeopyx`  // replace with your email password
+            }
+        });
+
+        console.log(process.env.EMAIL_APP_TOKEN);
+
         // Send code to user's email
         if (userData.email) {
             await transporter.sendMail({
@@ -167,7 +177,7 @@ exports.login = async (req, res) => {
         // Fetch user by email from Firebase Firestore
         const users = await admin.firestore().collection('users').where('email', '==', email).get();
         if (users.empty) {
-            return res.status(400).json({ message: 'Invalid email address' });
+            return res.status(400).json({ message: 'Email and/or Password is Invalid' });
         }
 
         const user = users.docs[0].data();
@@ -175,7 +185,7 @@ exports.login = async (req, res) => {
         // Check password using bcrypt
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Incorrect password.' });
+            return res.status(400).json({ message: 'Email and/or Password is Invalid' });
         }
 
         // If everything's okay, send a positive response
@@ -237,13 +247,20 @@ exports.resetPassword = async (req, res) => {
         return res.status(400).send('Token expired');
     }
 
+    // console.log('email', user.data().email);
+    const email = user.data().email
+
+    const password = req.body.newPassword
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const updates = {
-        password: req.body.newPassword, // Make sure to hash the password!
+        password: hashedPassword, // Make sure to hash the password!
         passwordResetToken: admin.firestore.FieldValue.delete(),
         passwordResetExpires: admin.firestore.FieldValue.delete()
     };
 
-    await updateUserByEmail(user.id, updates);
+    await updateUserByEmail(email, updates);
 
     res.send('Password reset successful');
 }

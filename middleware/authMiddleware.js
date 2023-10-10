@@ -21,13 +21,19 @@ exports.updateUserByEmail = async (email, data) => {
     // return db.collection('users').doc(email).update(data);
     const usersRef = db.collection('users');
     const userSnapshot = await usersRef.where('email', '==', email).get();
+    // console.log('email:', email);
+    // const users = await admin.firestore().collection('users').where('email', '==', email).get();
 
+    // console.log(users.empty);
     try {
         if (!userSnapshot.empty) {
+            console.log('user exists');
             // User already exists, update the password
             const userId = userSnapshot.docs[0].id;
             await usersRef.doc(userId).update(data);
+            return
         }
+        console.log('user doesnt exist');
     } catch (error) {
         console.log(error);
     }
@@ -38,12 +44,6 @@ exports.createUser = (email, data) => {
     return db.collection('users').doc(email).set(data);
 }
 
-exports.transporter = nodemailer.createTransport({
-    service: 'gmail', // use your email service here
-    auth: {
-        user: `${process.env.EMAIL}`,
-        pass: `${process.env.EMAIL_APP_TOKEN}`  // replace with your email password
-    }
-});
+
 
 
