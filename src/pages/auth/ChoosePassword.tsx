@@ -6,7 +6,8 @@ import arrowRight from "../../assets/logos/arrowRight.svg";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import arrowRightWhite from "../../assets/logos/arrowRightWhite.svg";
 import circle from "../../assets/logos/circle.svg";
-import loader from "../../assets/logos/loader.svg";
+import loader from "../../assets/images/loadwithbg.gif";
+// import loader from "../../assets/logos/loader.svg";
 import checkCircle from "../../assets/logos/checkCircle.svg";
 import axios from "axios";
 
@@ -25,7 +26,8 @@ const ChoosePassword = () => {
     hasSpecialChar: false,
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [errMessage, setErrMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -45,7 +47,24 @@ const ChoosePassword = () => {
   //   console.log(formData);
 
   const handleSavePassword = async () => {
+    let error = "";
+
     const allFlagsTrue = Object.values(passwordFlag).every((val) => val);
+
+    if (!termsAccepted) {
+      error = "Kindly Agree to the terms";
+    }
+
+    if (!allFlagsTrue) {
+      error = error
+        ? `${error} | Password inputed doesn't meet requirements`
+        : "Password inputed doesn't meet requirements";
+    }
+
+    if (error) {
+      setErrMessage(error);
+      return; // Exit early if there's an error.
+    }
 
     if (termsAccepted && allFlagsTrue) {
       try {
@@ -96,8 +115,8 @@ const ChoosePassword = () => {
       style={{ backgroundImage: `url(${background})` }}
     >
       {loading ? (
-        <div className="flex flex-col gap-5 bg-white items-center justify-center pt-[200px] pb-[140px] px-[98px] rounded-xl w-[600px] h-[600px]">
-          <img src={loader} alt="loader" className="h-[150px] w-[176px]" />
+        <div className="flex flex-col gap-5 bg-white items-center justify-center pt-[200px] pb-[140px] px-[98px] rounded-xl w-[500px] h-[500px]">
+          <img src={loader} alt="loader" className="h-[150px] w-[176px] " />
           <p className="text-2xl leading-8 font-medium text-center text-black">
             Hold on a minute, we are creating your account
           </p>
@@ -187,6 +206,9 @@ const ChoosePassword = () => {
                 <p>One unique character (e.g: !@#$%^&*?)</p>
               </aside>
             </div>
+            {errMessage && (
+              <span className="text-danger-red text-sm mt-4">{errMessage}</span>
+            )}
 
             <button
               onClick={handleSavePassword}

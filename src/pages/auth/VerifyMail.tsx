@@ -69,7 +69,9 @@ const VerifyMail = () => {
   };
 
   //   HANDLE SUBMIT
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!isCodeComplete) {
       // Exit early if the code is not complete
       return;
@@ -131,7 +133,10 @@ const VerifyMail = () => {
         <div className="py-7 px-14 bg-primary-red flex justify-center rounded-t-lg">
           <Logo aria-label="logo" />
         </div>
-        <div className="py-10 px-14 bg-white flex flex-col gap-5 rounded-b-lg">
+        <form
+          onSubmit={handleSubmit}
+          className="py-10 px-14 bg-white flex flex-col gap-5 rounded-b-lg"
+        >
           <article>
             <h2 className="text-black text-3xl leading-10 font-medium mb-2">
               Confirm your email
@@ -185,7 +190,7 @@ const VerifyMail = () => {
           </div>
 
           <button
-            onClick={handleSubmit}
+            type="submit"
             className={`rounded-md py-3 px-6 text-white text-sm font-medium leading-5 border-[1px] flex items-center justify-center gap-2
             ${
               isCodeComplete
@@ -197,7 +202,7 @@ const VerifyMail = () => {
           >
             Proceed <img src={arrowRightWhite} alt="arrowwhite" />
           </button>
-        </div>
+        </form>
       </aside>
     </section>
   );

@@ -6,7 +6,7 @@ import arrowRight from "../../assets/logos/arrowRight.svg";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import arrowRightWhite from "../../assets/logos/arrowRightWhite.svg";
 import circle from "../../assets/logos/circle.svg";
-import loader from "../../assets/logos/loader.svg";
+import loader from "../../assets/images/loadwithbg.gif";
 import checkCircle from "../../assets/logos/checkCircle.svg";
 import axios from "axios";
 
@@ -53,6 +53,9 @@ const ForgotPasswordStepthree = () => {
         newPassword: password,
       });
       setMessage("Password reset successful!");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 3000);
     } catch (error) {
       setMessage("Failed to reset password. Try again.");
     }
