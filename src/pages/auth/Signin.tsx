@@ -42,6 +42,8 @@ const Signin = () => {
         const { userType } = response.data.user;
 
         // Handle successful login. Store user data, tokens, navigate or whatever you need
+        localStorage.setItem("isAuth", "true");
+
         if (userType === "pregnant woman") {
           navigate("/dashboard/pregnant-woman");
         } else if (userType === "driver") {

@@ -28,7 +28,7 @@ const ForgotPasswordStepthree = () => {
   const [message, setMessage] = useState("");
   const { token } = useParams(); // Getting token from the URL
 
-  console.log(token);
+  //   console.log(token);
 
   const navigate = useNavigate();
 
@@ -53,6 +53,7 @@ const ForgotPasswordStepthree = () => {
         newPassword: password,
       });
       setMessage("Password reset successful!");
+      localStorage.setItem("isAuth", "true");
       setTimeout(() => {
         navigate("/signin");
       }, 3000);

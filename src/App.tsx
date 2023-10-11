@@ -8,8 +8,8 @@ import SignupSteptwo from "./pages/auth/SignupSteptwo";
 import SignupStepthree from "./pages/auth/SignupStepthree";
 import VerifyMail from "./pages/auth/VerifyMail";
 import ChoosePassword from "./pages/auth/ChoosePassword";
-import { SignupProgressProvider } from "./context/SignupProgress";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+// import { SignupProgressProvider } from "./context/SignupProgress";
+import ProtectedRoute from "./components/ProtectedRoute";
 import PregnantDashboard from "./pages/dashboard/pregnantWoman/PregnantDashboard";
 import DriverDashboard from "./pages/dashboard/driver/DriverDashboard";
 import HealthcareDashboard from "./pages/dashboard/healthCare/HealthcareDashboard";
@@ -19,62 +19,38 @@ import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
 
 const App = () => {
   return (
-    <SignupProgressProvider>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/signin" element={<Signin />} />
-        {/* <ProtectedRoute path="/signup-step-1" step={1} element={<Signup />} />
-        <ProtectedRoute
-          path="/signup-step-2"
-          step={2}
-          element={<SignupSteptwo />}
-        />
-        <ProtectedRoute
-          path="/signup-step-3"
-          step={3}
-          element={<SignupStepthree />}
-        />
-        <ProtectedRoute
-          path="/verify-email"
-          step={4}
-          element={<VerifyMail />}
-        />
-        <ProtectedRoute
-          path="/choose-password"
-          step={5}
-          element={<ChoosePassword />}
-        /> */}
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/signin" element={<Signin />} />
+      <Route path="/signup/step-one" element={<Signup />} />
+      <Route path="/signup/step-two" element={<SignupSteptwo />} />
+      <Route path="/signup/step-three" element={<SignupStepthree />} />
+      <Route path="/signup/step-four" element={<VerifyMail />} />
+      <Route path="/signup/step-five" element={<ChoosePassword />} />
 
-        <Route path="/signup/step-one" element={<Signup />} />
-        <Route path="/signup/step-two" element={<SignupSteptwo />} />
-        <Route path="/signup/step-three" element={<SignupStepthree />} />
-        <Route path="/signup/step-four" element={<VerifyMail />} />
-        <Route path="/signup/step-five" element={<ChoosePassword />} />
+      {/* FORGOT PASSWORD */}
+      <Route path="/signin/forgot-password" element={<ForgotPassword />} />
+      <Route
+        path="/signin/forgot-password/step-two"
+        element={<ForgotPasswordSteptwo />}
+      />
+      <Route
+        path="/signin/forgot-password/step-three/:token"
+        element={<ForgotPasswordStepthree />}
+      />
 
-        {/* FORGOT PASSWORD */}
-        <Route path="/signin/forgot-password" element={<ForgotPassword />} />
-        <Route
-          path="/signin/forgot-password/step-two"
-          element={<ForgotPasswordSteptwo />}
-        />
-        <Route
-          path="/signin/forgot-password/step-three/:token"
-          element={<ForgotPasswordStepthree />}
-        />
+      {/* DASHBOARD */}
+      <Route path="/dashboard/pregnant-woman" element={<PregnantDashboard />} />
 
-        {/* DASHBOARD */}
-        <Route
-          path="dashboard/pregnant-woman"
-          element={<PregnantDashboard />}
-        />
-        <Route path="dashboard/driver" element={<DriverDashboard />} />
-        <Route
-          path="dashboard/healthcare-provider"
-          element={<HealthcareDashboard />}
-        />
-      </Routes>
-    </SignupProgressProvider>
+      <Route path="/dashboard/driver" element={<DriverDashboard />} />
+      <Route
+        path="/dashboard/healthcare-provider"
+        element={<HealthcareDashboard />}
+      />
+
+      {/* DASHBOARD */}
+    </Routes>
   );
 };
 

@@ -7,7 +7,6 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import arrowRightWhite from "../../assets/logos/arrowRightWhite.svg";
 import circle from "../../assets/logos/circle.svg";
 import loader from "../../assets/images/loadwithbg.gif";
-// import loader from "../../assets/logos/loader.svg";
 import checkCircle from "../../assets/logos/checkCircle.svg";
 import axios from "axios";
 
@@ -26,7 +25,7 @@ const ChoosePassword = () => {
     hasSpecialChar: false,
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errMessage, setErrMessage] = useState("");
 
   const navigate = useNavigate();

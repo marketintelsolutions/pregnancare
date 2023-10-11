@@ -16,6 +16,16 @@ const useFormSubmit = (initialData: any, postURL: string) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "image") {
+      console.log("image is coming");
+      console.log(e.target.files[0]);
+
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: e.target.files[0],
+      }));
+      return;
+    }
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -40,6 +50,7 @@ const useFormSubmit = (initialData: any, postURL: string) => {
     if (!hasErrors) {
       try {
         const response = await axios.post(postURL, formData);
+
         if (response.status === 200) {
           // Handle success logic here...
           console.log("User saved successfully");

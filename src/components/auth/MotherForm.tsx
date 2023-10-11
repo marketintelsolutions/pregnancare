@@ -12,6 +12,7 @@ const MotherForm = () => {
     csection: "",
     bloodGroup: "",
     genotype: "",
+    image: { name: "" },
     userType: "pregnant woman",
   };
 
@@ -179,6 +180,24 @@ const MotherForm = () => {
           onChange={handleChange}
         />
         <FieldError error={errors.genotype} text="genotype is required" />
+      </div>
+      {/* IMAGE */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor="image"
+          className="text-[#12141D] text-sm font-medium leading-5"
+        >
+          Profile Picture
+        </label>
+        <input
+          type="file"
+          name="image"
+          id="image"
+          placeholder="AA"
+          className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
+          onChange={handleChange}
+        />
+        <FieldError error={errors.genotype} text="image is required" />
       </div>
 
       {isGeneralError && (
