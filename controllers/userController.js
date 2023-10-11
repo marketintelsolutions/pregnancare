@@ -4,11 +4,15 @@ const db = require("../auth/firebase");
 const bcrypt = require('bcrypt');
 const crypto = require('crypto')
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 
 // const getAuth = () => admin.auth();
 
+const bucket = admin.storage().bucket('images');
+
 exports.saveUser = async (req, res) => {
     console.log('request made');
+    console.log(req.file);
     try {
         const userData = req.body;
         const code = generateCode();
@@ -22,46 +26,90 @@ exports.saveUser = async (req, res) => {
             return res.status(400).send('Email already in use');
         }
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail', // use your email service here
-            auth: {
-                user: `mail.pacholdings@gmail.com`,
-                pass: `zwveytcpxozeopyx`  // replace with your email password
-            }
-        });
+        // console.log(req.body.image.path);
 
-        console.log(process.env.EMAIL_APP_TOKEN);
+        if (req.file) {
+            const filePath = req.file.path;
+            const fileName = req.file.filename;
+            const fileUpload = bucket.file(fileName);
 
-        // Send code to user's email
-        if (userData.email) {
-            await transporter.sendMail({
-                from: 'your-email@gmail.com',
-                to: userData.email,
-                subject: 'Your 5-digit code',
-                text: `Your code is: ${code}`
+            const fileReadStream = fs.createReadStream(filePath);
+
+            const writeStream = fileUpload.createWriteStream({
+                metadata: {
+                    contentType: req.file.mimetype
+                }
             });
+
+            fileReadStream.pipe(writeStream)
+                .on('error', (err) => {
+                    console.error('File upload failed:', err);
+                    throw new Error('Failed to upload to Firebase Storage.');
+                })
+                .on('finish', async () => {
+                    // Delete the local file as it's not needed anymore
+                    fs.unlinkSync(filePath);
+
+                    // Get the URL of the uploaded file
+                    const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURI(fileUpload.name)}?alt=media`;
+
+                    console.log(publicUrl);
+
+                    userData.imageURL = publicUrl; // Store this URL in your database against the user record
+
+                    //... the rest of your existing code to handle user data and send email etc.
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail', // use your email service here
+                        auth: {
+                            user: `mail.pacholdings@gmail.com`,
+                            pass: `zwveytcpxozeopyx`  // replace with your email password
+                        }
+                    });
+
+                    console.log(process.env.EMAIL_APP_TOKEN);
+
+                    // Send code to user's email
+                    if (userData.email) {
+                        await transporter.sendMail({
+                            from: 'your-email@gmail.com',
+                            to: userData.email,
+                            subject: 'Your 5-digit code',
+                            text: `Your code is: ${code}`
+                        });
+                    }
+
+                    // Delete any existing code for the user
+                    const codesRef = db.collection('codes');
+                    const snapshot = await codesRef.where('email', '==', userData.email).get();
+
+                    snapshot.forEach(doc => {
+                        doc.ref.delete();
+                    });
+
+                    // Store code in the database with a timestamp and user email
+                    const codeData = {
+                        email: userData.email,  // Storing user email with code
+                        code,
+                        timestamp: admin.firestore.FieldValue.serverTimestamp()
+                    };
+
+
+
+                    await codesRef.add(codeData);
+
+                    await saveUserDetails(userData);
+                    console.log('user saved, image saved to Firebase, and code sent');
+                    res.status(200).send('User and image saved successfully and code sent');
+                });
+        } else {
+            res.status(404).send('no image uploaded')
         }
 
-        // Delete any existing code for the user
-        const codesRef = db.collection('codes');
-        const snapshot = await codesRef.where('email', '==', userData.email).get();
 
-        snapshot.forEach(doc => {
-            doc.ref.delete();
-        });
 
-        // Store code in the database with a timestamp and user email
-        const codeData = {
-            email: userData.email,  // Storing user email with code
-            code,
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
-        };
-
-        await codesRef.add(codeData);
-
-        await saveUserDetails(userData);
-        console.log('user saved and code sent');
-        res.status(200).send('User saved successfully and code sent');
+        // await saveUserDetails(userData);
+        // console.log('user saved and code sent');
+        // res.status(200).send('User saved successfully and code sent');
     } catch (error) {
         console.log(error);
         res.status(500).send('Error saving user');
