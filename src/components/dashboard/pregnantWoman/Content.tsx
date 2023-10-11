@@ -2,12 +2,12 @@ import React from "react";
 import sos from "../../../assets/images/sos.png";
 import map from "../../../assets/images/map.png";
 
-const Content = () => {
+const Content = ({ user }) => {
   return (
     <section className="px-14 py-12">
       <div className="text-primarytext">
         <h1 className="text-4xl font-bold">
-          Hello. <span className="font-normal"> Dayo!</span>
+          Hello. <span className="font-normal"> {user.firstname}</span>
         </h1>
         <p className="text-xl mt-2 opacity-80">Good Morning</p>
       </div>

@@ -16,6 +16,7 @@ import HealthcareDashboard from "./pages/dashboard/healthCare/HealthcareDashboar
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ForgotPasswordSteptwo from "./pages/auth/ForgotPasswordSteptwo";
 import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
+import Dashboard from "./pages/dashboard/pregnantWoman/Dashboard";
 
 const App = () => {
   return (
@@ -41,7 +42,7 @@ const App = () => {
       />
 
       {/* DASHBOARD */}
-      <Route path="/dashboard/pregnant-woman" element={<PregnantDashboard />} />
+      <Route path="/dashboard/pregnant-woman" element={<Dashboard />} />
 
       <Route path="/dashboard/driver" element={<DriverDashboard />} />
       <Route

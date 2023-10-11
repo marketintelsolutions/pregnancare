@@ -6,6 +6,7 @@ import Sidebar from "../../../components/dashboard/Sidebar";
 
 const PregnantDashboard = () => {
   const isAuth = localStorage.getItem("isAuth");
+  const user = JSON.parse(localStorage.getItem("user"));
 
   if (isAuth !== "true") {
     return <Navigate to="/signin" replace />;
@@ -15,7 +16,7 @@ const PregnantDashboard = () => {
       <Header />
       <div className="flex">
         <Sidebar />
-        <Content />
+        <Content user={user} />
       </div>
     </>
   );

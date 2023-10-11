@@ -39,10 +39,12 @@ const Signin = () => {
         console.log("login success");
         console.log(response.data);
 
-        const { userType } = response.data.user;
+        const { user } = response.data;
+        const { userType } = user;
 
         // Handle successful login. Store user data, tokens, navigate or whatever you need
         localStorage.setItem("isAuth", "true");
+        localStorage.setItem("user", JSON.stringify(user));
 
         if (userType === "pregnant woman") {
           navigate("/dashboard/pregnant-woman");
