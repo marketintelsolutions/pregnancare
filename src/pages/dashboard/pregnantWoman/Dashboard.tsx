@@ -58,8 +58,8 @@ const mapContainerStyle = {
 
 const center = {
   lat: 40.73061,
-  lng: -73.935242,
-}; // Default to New York for example purposes
+  lng: -73.935242, // Default to New York for example purposes
+};
 
 function App() {
   const [location, setLocation] = useState(null);
@@ -69,10 +69,25 @@ function App() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
           setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
+            lat: lat,
+            lng: lng,
           });
+
+          // Use Geocoding API to get address
+          fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDwmXwwjgVeR05p7CfvN9aCcdgbhC21Z9s`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.results && data.results[0]) {
+                console.log(data.results[0].formatted_address); // log the full address
+              }
+            })
+            .catch((err) => console.error("Error fetching address:", err));
         },
         (err) => {
           setError(err.message);
