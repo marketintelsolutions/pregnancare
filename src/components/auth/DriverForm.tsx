@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import useFormSubmit from "../../utils/helpers/useFormSubmit";
+import FieldError from "../FieldError";
 
 const DriverForm = () => {
   const initialData = {
@@ -11,6 +12,7 @@ const DriverForm = () => {
     sex: "",
     expdate: "",
     genotype: "",
+    image: { name: null },
     userType: "driver",
   };
 
@@ -196,6 +198,25 @@ const DriverForm = () => {
           <span className="text-danger-red text-sm">Genotype is required.</span>
         )}
       </div>
+      {/* IMAGE */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor="image"
+          className="text-[#12141D] text-sm font-medium leading-5"
+        >
+          Profile Picture
+        </label>
+        <input
+          type="file"
+          name="image"
+          id="image"
+          placeholder="AA"
+          className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
+          onChange={handleChange}
+        />
+        <FieldError error={errors.genotype} text="image is required" />
+      </div>
+
       {isGeneralError && (
         <span className="text-red-500 text-sm mt-4">
           {generalError || "Complete all required fields."}

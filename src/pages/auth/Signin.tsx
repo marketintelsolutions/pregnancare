@@ -47,10 +47,13 @@ const Signin = () => {
         localStorage.setItem("user", JSON.stringify(user));
 
         if (userType === "pregnant woman") {
+          localStorage.setItem("user", JSON.stringify(user));
           navigate("/dashboard/pregnant-woman");
         } else if (userType === "driver") {
+          localStorage.setItem("driver", JSON.stringify(user));
           navigate("/dashboard/driver");
         } else if (userType === "healthcare provider") {
+          localStorage.setItem("healthcareProvider", JSON.stringify(user));
           navigate("/dashboard/healthcare-provider");
         }
       } else {

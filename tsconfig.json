@@ -6,6 +6,8 @@
     "include": [
         "src/**/*.ts",
         "src/**/*.tsx",
-        "types/typings.d.ts"
+        "types/typings.d.ts",
+        "src/app/store.js",
+        "src/features/counterSlice.js"
     ]
 }

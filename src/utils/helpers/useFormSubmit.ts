@@ -1,6 +1,9 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { addDoc, collection } from "firebase/firestore";
+import { db, storage } from "../../firebase/firebaseConfig";
+import { Link, useNavigate } from "react-router-dom";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 interface IFormErrors {
   [key: string]: boolean;
@@ -11,8 +14,52 @@ const useFormSubmit = (initialData: any, postURL: string) => {
   const [errors, setErrors] = useState<IFormErrors>({});
   const [isGeneralError, setIsGeneralError] = useState(false);
   const [generalError, setGeneralError] = useState("");
+  const [progress, setProgress] = useState(0);
 
   const navigate = useNavigate();
+  // console.log(formData);
+
+  const image = formData.image;
+
+  useEffect(() => {
+    const uploadFile = () => {
+      const storageRef = ref(storage, `${image?.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, image);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(progress);
+
+          switch (snapshot.state) {
+            case "paused":
+              console.log("upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+            default:
+              break;
+          }
+        },
+        (error) => {
+          console.log(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+            setFormData((prev) => ({ ...prev, imgUrl: downloadUrl }));
+            console.log("upload completed");
+          });
+        }
+      );
+    };
+
+    // console.log(formData);
+
+    formData && uploadFile();
+  }, [image]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

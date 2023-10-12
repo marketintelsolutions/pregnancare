@@ -16,19 +16,6 @@ const DriverDashboard = () => {
       <div className="flex">
         <Sidebar />
         <DashboardDriver />
-        {/* <Routes>
-          <Route path="/" element={<DashboardDriver />} />
-          <Route path="/alert" element={<DashboardDriverTwo />} />
-          <Route
-            path="/take-ride"
-            element={
-              <DriverThree
-                showPassenger={showPassenger}
-                showPassengerDetails={showPassengerDetails}
-              />
-            }
-          />
-        </Routes> */}
       </div>
     </>
   );

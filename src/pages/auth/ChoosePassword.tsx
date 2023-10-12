@@ -76,18 +76,24 @@ const ChoosePassword = () => {
         );
 
         if (response.data.success) {
-          console.log(response);
+          console.log(response.data);
+          const { user } = response.data;
           const userType = localStorage.getItem("userType");
           setLoading(true);
+
+          // add user to local storage
 
           setTimeout(() => {
             if (userType === "pregnant woman") {
               setLoading(false);
+              localStorage.setItem("user", JSON.stringify(user));
               navigate("/dashboard/pregnant-woman");
             } else if (userType === "driver") {
               setLoading(false);
+              localStorage.setItem("driver", JSON.stringify(user));
               navigate("/dashboard/driver");
             } else if (userType === "healthcare provider") {
+              localStorage.setItem("healthcareProvider", JSON.stringify(user));
               navigate("/dashboard/healthcare-provider");
             }
           }, 6000);

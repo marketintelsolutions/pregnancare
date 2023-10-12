@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useFormSubmit from "../../utils/helpers/useFormSubmit";
 import FieldError from "../FieldError";
 
@@ -12,7 +12,7 @@ const MotherForm = () => {
     csection: "",
     bloodGroup: "",
     genotype: "",
-    image: { name: "" },
+    image: { name: null },
     userType: "pregnant woman",
   };
 

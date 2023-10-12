@@ -1,13 +1,16 @@
 import React from "react";
 import sos from "../../../assets/images/sos.png";
 import map from "../../../assets/images/map.png";
+import Map from "../Map";
 
 const DashboardDriver = () => {
+  const user = JSON.parse(localStorage.getItem("driver"));
+
   return (
     <section className="px-14 py-12">
       <div className="text-primarytext">
         <h1 className="text-4xl font-bold">
-          Hello. <span className="font-normal"> Dayo!</span>
+          Hello. <span className="font-normal"> {user.name}</span>
         </h1>
         <p className="text-xl mt-2 opacity-80">Good Morning</p>
       </div>
@@ -21,7 +24,8 @@ const DashboardDriver = () => {
           </div>
         </div>
 
-        <img src={map} alt="map" className="-ml-6 z-10" />
+        {/* <img src={map} alt="map" className="-ml-6 z-10" /> */}
+        <Map user={user} />
       </div>
     </section>
   );
