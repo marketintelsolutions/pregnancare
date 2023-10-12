@@ -5,6 +5,8 @@ import firebase from "firebase/app";
 import { getStorage } from "firebase/storage";
 import "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+// import { getMessaging } from "firebase/messaging";
+import { getMessaging, onMessage } from "firebase/messaging";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -27,5 +29,12 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const storage = getStorage(app);
 export const db = getFirestore(app);
+export const messaging = getMessaging(app);
 // export const auth = initializeApp.auth();
 // export const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+// Handle incoming foreground messages
+onMessage(messaging, (payload) => {
+  console.log("Message received. ", payload);
+  // Add any additional message handling logic here
+});
