@@ -12,6 +12,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/rootReducer";
+import { setUser } from "../../features/userSlice";
 
 interface IPasswordFlag {
   isMinLength: boolean;
@@ -88,7 +89,8 @@ const ChoosePassword = () => {
           const userType = localStorage.getItem("userType");
           setLoading(true);
 
-          // add user to local storage
+          // add user to store
+          dispatch(setUser(user));
 
           setTimeout(() => {
             if (userType === "pregnant woman") {

@@ -20,11 +20,11 @@ const center = {
   lng: -73.935242, // Default to New York for example purposes
 };
 
-// const driverCoord = {
+// const motherCoord = {
 //   lat: 7.45078,
 //   lng: 3.89971,
 // };
-const motherCoord = {
+const driverCoord = {
   lat: 7.41809,
   lng: 3.90521,
 };
@@ -37,7 +37,7 @@ function Map({ user }) {
   const [response, setResponse] = useState(null);
   const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
 
-  const driverCoord = { ...location } || { lat: 0, lng: 0 };
+  const motherCoord = { ...location } || { lat: 0, lng: 0 };
   // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
   // console.log("motherCoord", motherCoord);
   // console.log("driverCoord", driverCoord);
@@ -135,7 +135,7 @@ function Map({ user }) {
           zoom={13}
           center={location}
         >
-          {isPlotted
+          {user.sos
             ? response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}
         </GoogleMap>

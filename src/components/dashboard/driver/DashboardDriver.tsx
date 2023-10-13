@@ -14,6 +14,7 @@ import { setIsPlotted } from "../../../features/mapSlice";
 const DashboardDriver = () => {
   const user = JSON.parse(localStorage.getItem("driver"));
   const [driverDetails, setDriverDetails] = useState(null);
+  const [ride, setRide] = useState(null);
 
   const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
   // console.log(isPlotted);
@@ -25,6 +26,7 @@ const DashboardDriver = () => {
       .post(`${process.env.REACT_APP_BASE_URL}/getDriverDetails`, user)
       .then((response) => {
         setDriverDetails(response.data.driver);
+        setRide(response.data.ride);
         console.log("driver details:", response.data);
       })
       .catch((err) => {
@@ -32,16 +34,33 @@ const DashboardDriver = () => {
       });
   }, []);
 
-  // USEEFFECT TO REQUEST AND STORE FCM TOKEN
+  // USE EFFECT TO REQUEST AND STORE FCM TOKEN
   useEffect(() => {
     requestPermission(user.email);
   }, []);
 
-  const acceptRide = () => {
+  // console.log(driverDetails?.ride);
+  const acceptRide = async () => {
     if (driverDetails.sos) {
       console.log("accept clicked");
-      // console.log("dense");
-      dispatch(setIsPlotted(true));
+
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/acceptRide`,
+          {
+            rideId: ride.rideId,
+            driverDetails,
+          }
+        );
+
+        console.log(response);
+        dispatch(setIsPlotted(true));
+
+        // setMessage(response.data.message);
+      } catch (error) {
+        // setMessage('Error accepting ride.');
+        console.log(error);
+      }
     }
   };
 

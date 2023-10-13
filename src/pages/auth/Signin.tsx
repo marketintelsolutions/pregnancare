@@ -5,6 +5,8 @@ import eyeSlash from "../../assets/logos/eyeSlash.svg";
 import arrowRight from "../../assets/logos/arrowRight.svg";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../features/userSlice";
 
 const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +16,7 @@ const Signin = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -45,6 +48,8 @@ const Signin = () => {
         // Handle successful login. Store user data, tokens, navigate or whatever you need
         localStorage.setItem("isAuth", "true");
         localStorage.setItem("user", JSON.stringify(user));
+
+        dispatch(setUser(user));
 
         if (userType === "pregnant woman") {
           localStorage.setItem("user", JSON.stringify(user));
