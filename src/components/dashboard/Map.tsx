@@ -21,10 +21,10 @@ const center = {
   lng: -73.935242, // Default to New York for example purposes
 };
 
-const driverCoord = {
-  lat: 7.45078,
-  lng: 3.89971,
-};
+// const driverCoord = {
+//   lat: 7.45078,
+//   lng: 3.89971,
+// };
 const motherCoord = {
   lat: 7.41809,
   lng: 3.90521,
@@ -33,11 +33,12 @@ const motherCoord = {
 function Map({ user }) {
   const dispatch = useDispatch();
   const location = useSelector((state: RootState) => state.map.location);
-  console.log("location", location);
+  // console.log("location", location);
   const error = useSelector((state: RootState) => state.map.error);
   const [response, setResponse] = useState(null);
 
-  // const driverCoord = { ...location };
+  const driverCoord = { ...location };
+  console.log(driverCoord);
 
   // Define your backend endpoint URL
   const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
@@ -120,7 +121,7 @@ function Map({ user }) {
       console.log(error);
       console.log("there was error");
     }
-  }, []);
+  }, [location]);
 
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
