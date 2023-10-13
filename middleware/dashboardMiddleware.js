@@ -16,3 +16,10 @@ exports.haversineDistance = (coords1, coords2) => {
 
     return distance;
 }
+
+
+exports.generateId = () => {
+    const currentDate = new Date().toISOString();
+    const randomNum = Math.random().toString(36).substr(2, 9);
+    return `${currentDate}-${randomNum}`;
+}

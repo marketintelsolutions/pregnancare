@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
-const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken } = require('./controllers/dashboardController');
+const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails } = require('./controllers/dashboardController');
 require("dotenv").config();
 
 const PORT = 8080;
@@ -34,7 +34,8 @@ app.post('/saveLocation', saveLocation);
 app.post('/getNearbyDrivers', getNearbyDrivers);
 app.post('/getDriverDetails', getDriverDetails);
 app.post('/save-token', saveToken);
-
+app.post('/acceptRide', acceptRide);
+app.post('/getUserDetails', getUserDetails);
 
 
 

@@ -1,11 +1,13 @@
 const db = require("../auth/firebase");
 const admin = require('firebase-admin');
-const { haversineDistance } = require("../middleware/dashboardMiddleware");
+const { haversineDistance, generateId } = require("../middleware/dashboardMiddleware");
 
 exports.saveLocation = async (req, res) => {
     console.log('request made');
 
     const { user, coordinates, address } = req.body;
+
+    console.log(req.body);
 
     try {
         const usersRef = db.collection('users');
@@ -40,7 +42,8 @@ exports.saveLocation = async (req, res) => {
 }
 
 exports.getNearbyDrivers = async (req, res) => {
-    const { userType, coordinates } = req.body;
+    const { user, coordinates } = req.body;
+    const { userType, email } = user
 
     if (userType !== 'pregnant woman') {
         return res.status(400).json({ success: false, message: 'Invalid user type.' });
@@ -49,6 +52,16 @@ exports.getNearbyDrivers = async (req, res) => {
     try {
         const usersRef = db.collection('users');
         const driverSnapshot = await usersRef.where('userType', '==', 'driver').get();
+
+        const motherSnapshot = await usersRef.where('email', '==', email).get();
+
+        if (motherSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'Mother not found.' });
+        }
+
+        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true })
+
+
 
         let nearbyDrivers = [];
         let updatePromises = [];  // Store promises for updating the Firestore
@@ -62,10 +75,10 @@ exports.getNearbyDrivers = async (req, res) => {
 
             if (distance <= 15) {
                 // Add sos: true to the driver's data
-                driverData.sos = true;
+                // driverData.sos = true;
 
                 // Save updated data back to Firestore and add the promise to our array
-                const updatePromise = usersRef.doc(doc.id).update({ sos: true, patientCoordinates: coordinates });
+                const updatePromise = usersRef.doc(doc.id).update({ patientCoordinates: coordinates });
                 updatePromises.push(updatePromise);
 
                 nearbyDrivers.push(driverData);
@@ -92,6 +105,21 @@ exports.getNearbyDrivers = async (req, res) => {
             await admin.messaging().sendMulticast(message);
         }
 
+        // Create a new ride document with the patient's details, drivers and status
+        const ridesRef = db.collection('rides');
+
+        const rideDetails = {
+            rideId: generateId(),
+            patient: {
+                // email: req.user.email,  // Adjust as necessary if this isn't where the email is located
+                ...user,
+                coordinates
+            },
+            drivers: nearbyDrivers,
+            status: 'new'
+        };
+        const newRide = await ridesRef.add(rideDetails);
+
         console.log('Nearby Drivers:', nearbyDrivers);
         res.status(200).json({ success: true, drivers: nearbyDrivers });
 
@@ -116,8 +144,37 @@ exports.getDriverDetails = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Driver not found.' });
         }
 
+        // Reference to the rides collection
+        const ridesRef = db.collection('rides');
+
+        // Fetch all the rides
+        const ridesSnapshot = await ridesRef.get();
+
+        let isDriverInRide = false;
+        let matchedRide = null;
+
+        // Iterate over each ride to check if the driver's email is present in the drivers array
+        ridesSnapshot.forEach(rideDoc => {
+            const rideData = rideDoc.data();
+            const driversArray = rideData.drivers || [];
+
+            driversArray.forEach(driver => {
+                if (driver.email === email && !isDriverInRide) { // Ensure to check the matched ride only once
+                    isDriverInRide = true;
+                    matchedRide = rideData;
+                }
+            });
+        });
+
+        // If the driver is found in any ride's drivers array, update sos to true
+        if (isDriverInRide) {
+            await usersRef.doc(driverSnapshot.docs[0].id).update({ sos: true });
+        }
+
         const driverData = driverSnapshot.docs[0].data();
-        return res.status(200).json({ success: true, driver: driverData });
+
+        // Return both the driver details and the matched ride
+        return res.status(200).json({ success: true, driver: driverData, ride: matchedRide });
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error fetching driver details.' });
@@ -152,5 +209,70 @@ exports.saveToken = async (req, res) => {
     } catch (error) {
         console.error("Error storing token:", error);
         res.status(500).send({ success: false, message: 'Error storing token.' });
+    }
+}
+
+exports.acceptRide = async (req, res) => {
+    const { rideId, driverDetails } = req.body;
+
+    if (!rideId || !driverDetails) {
+        return res.status(400).json({ success: false, message: 'Ride ID and driver details are required.' });
+    }
+
+    // console.log(rideId);
+    try {
+        const ridesRef = db.collection('rides');
+        // const rideDoc = ridesRef.doc(rideId);
+
+        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+        const id = rideSnapshot.docs[0].id;
+        const rideDoc = ridesRef.doc(id);
+
+        // const rideSnapshot = await rideDoc.get();
+
+        if (rideSnapshot.empty) {
+            console.log('ride not found');
+            return res.status(404).json({ success: false, message: 'Ride not found.' });
+        }
+
+        // Make the necessary updates to the ride
+        await rideDoc.update({
+            drivers: [],
+            assignedDriver: driverDetails,
+            status: 'accepted'
+        });
+
+        console.log('ride updated');
+
+        res.status(200).json({ success: true, message: 'Ride accepted successfully!' });
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Error updating ride details.' });
+    }
+}
+
+exports.getUserDetails = async (req, res) => {
+    const email = req.body.email;
+
+    if (!email) {
+        return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    try {
+        const usersRef = db.collection('users');
+        const userSnapshot = await usersRef.where('email', '==', email).get();
+
+        if (userSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        const userData = userSnapshot.docs[0].data();
+
+        // Return user details
+        return res.status(200).json({ success: true, user: userData });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Error fetching driver details.' });
     }
 }
