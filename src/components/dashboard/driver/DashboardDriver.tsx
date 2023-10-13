@@ -39,6 +39,7 @@ const DashboardDriver = () => {
 
   const acceptRide = () => {
     if (driverDetails.sos) {
+      console.log("accept clicked");
       // console.log("dense");
       dispatch(setIsPlotted(true));
     }
