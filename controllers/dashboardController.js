@@ -65,7 +65,7 @@ exports.getNearbyDrivers = async (req, res) => {
                 driverData.sos = true;
 
                 // Save updated data back to Firestore and add the promise to our array
-                const updatePromise = usersRef.doc(doc.id).update({ sos: true });
+                const updatePromise = usersRef.doc(doc.id).update({ sos: true, patientCoordinates: coordinates });
                 updatePromises.push(updatePromise);
 
                 nearbyDrivers.push(driverData);
