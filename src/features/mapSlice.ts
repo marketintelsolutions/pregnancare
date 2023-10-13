@@ -7,11 +7,13 @@ interface MapState {
     lng: number;
   } | null;
   error: string | null;
+  isPlotted: boolean;
 }
 
 const initialState: MapState = {
   location: null,
   error: null,
+  isPlotted: false,
 };
 
 const mapSlice = createSlice({
@@ -24,8 +26,11 @@ const mapSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    setIsPlotted: (state, action) => {
+      state.isPlotted = action.payload;
+    },
   },
 });
 
-export const { setLocation, setError } = mapSlice.actions;
+export const { setLocation, setError, setIsPlotted } = mapSlice.actions;
 export default mapSlice.reducer;

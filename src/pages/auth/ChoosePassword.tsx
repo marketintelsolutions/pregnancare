@@ -9,6 +9,9 @@ import circle from "../../assets/logos/circle.svg";
 import loader from "../../assets/images/loadwithbg.gif";
 import checkCircle from "../../assets/logos/checkCircle.svg";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/rootReducer";
 
 interface IPasswordFlag {
   isMinLength: boolean;
@@ -29,6 +32,10 @@ const ChoosePassword = () => {
   const [errMessage, setErrMessage] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
+
+  console.log(user);
 
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
@@ -86,6 +93,7 @@ const ChoosePassword = () => {
           setTimeout(() => {
             if (userType === "pregnant woman") {
               setLoading(false);
+
               localStorage.setItem("user", JSON.stringify(user));
               navigate("/dashboard/pregnant-woman");
             } else if (userType === "driver") {

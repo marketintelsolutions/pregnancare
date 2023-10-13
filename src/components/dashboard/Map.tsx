@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import {
+  DirectionsRenderer,
+  GoogleMap,
+  LoadScript,
+  Marker,
+  Polyline,
+} from "@react-google-maps/api";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocation, setError } from "../../features/mapSlice";
@@ -15,28 +21,25 @@ const center = {
   lng: -73.935242, // Default to New York for example purposes
 };
 
+const driverCoord = {
+  lat: 7.45078,
+  lng: 3.89971,
+};
+const motherCoord = {
+  lat: 7.41809,
+  lng: 3.90521,
+};
+
 function Map({ user }) {
   const dispatch = useDispatch();
   const location = useSelector((state: RootState) => state.map.location);
+  // console.log("location", location);
   const error = useSelector((state: RootState) => state.map.error);
+  const [response, setResponse] = useState(null);
 
   // Define your backend endpoint URL
   const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
-
-  const sendCoordinatesToBackend = (coordinates, address) => {
-    axios
-      .post(BACKEND_URL, {
-        user,
-        coordinates,
-        address,
-      })
-      .then((response) => {
-        console.log("Data sent and response received:", response.data);
-      })
-      .catch((err) => {
-        console.error("Error sending data:", err);
-      });
-  };
+  const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -45,6 +48,7 @@ function Map({ user }) {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
 
+          // save location to state
           dispatch(
             setLocation({
               lat: lat,
@@ -77,6 +81,45 @@ function Map({ user }) {
     }
   }, []);
 
+  const sendCoordinatesToBackend = (coordinates, address) => {
+    axios
+      .post(BACKEND_URL, {
+        user,
+        coordinates,
+        address,
+      })
+      .then((response) => {
+        console.log("Data sent and response received:", response.data);
+      })
+      .catch((err) => {
+        console.error("Error sending data:", err);
+      });
+  };
+
+  // USE EFFECT FOR DIRECTIONS SERVICE
+  useEffect(() => {
+    try {
+      const directionsService = new google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: driverCoord,
+          destination: motherCoord,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            setResponse(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      console.log("there was error");
+    }
+  }, []);
+
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
       {error && <p>{error}</p>}
@@ -84,10 +127,34 @@ function Map({ user }) {
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={13}
+          center={location}
+        >
+          {isPlotted
+            ? response && <DirectionsRenderer directions={response} />
+            : location && <Marker position={location} />}
+        </GoogleMap>
+        {/* <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          zoom={13}
           center={location || center}
         >
           {location && <Marker position={location} />}
-        </GoogleMap>
+          <Polyline
+            path={[driverCoord, motherCoord]}
+            options={{
+              strokeColor: "#FF0000",
+              strokeOpacity: 1,
+              strokeWeight: 2,
+              icons: [
+                {
+                  icon: "SHORT",
+                  offset: "0",
+                  repeat: "10px",
+                },
+              ],
+            }}
+          />
+        </GoogleMap> */}
       </LoadScript>
     </div>
   );

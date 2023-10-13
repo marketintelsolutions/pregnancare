@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import sos from "../../../assets/images/sos.png";
 import map from "../../../assets/images/map.png";
-import Map from "../Map";
+// import Map from "../Map";
+import Map from "../MapPlot";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/rootReducer";
 import axios from "axios";

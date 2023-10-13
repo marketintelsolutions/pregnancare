@@ -2,12 +2,22 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import sos from "../../../assets/images/sos.png";
 import Map from "../Map";
+import MapPlot from "../MapPlot";
 import { messaging } from "../../../firebase/firebaseConfig";
 import { requestPermission } from "../../../utils/dashboardHelpers/firebaseToken";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/rootReducer";
+import { is } from "immer/dist/internal";
+import { useDispatch } from "react-redux";
+import { setIsPlotted } from "../../../features/mapSlice";
 
 const DashboardDriver = () => {
   const user = JSON.parse(localStorage.getItem("driver"));
   const [driverDetails, setDriverDetails] = useState(null);
+
+  const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
+  // console.log(isPlotted);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // Fetch the driver details from the backend by sending the entire user object
@@ -27,6 +37,12 @@ const DashboardDriver = () => {
     requestPermission(user.email);
   }, []);
 
+  const acceptRide = () => {
+    if (driverDetails.sos) {
+      dispatch(setIsPlotted(true));
+    }
+  };
+
   // Determine the SOS box's background color and message based on the `sos` status
 
   return (
@@ -39,10 +55,12 @@ const DashboardDriver = () => {
       </div>
 
       <div className="flex mt-10 items-center">
+        {/* SOS */}
         <div
           className={`${
             driverDetails && driverDetails.sos ? "bg-green-500" : "bg-blue-800"
           } text-center z-20 w-[413px] h-[413px] rounded-[42px] flex items-center justify-center cursor-pointer`}
+          onClick={acceptRide}
         >
           <div className="text-white mx-auto max-w-[193px]">
             <img src={sos} alt="sos" className="mx-auto mb-2" />
@@ -54,7 +72,7 @@ const DashboardDriver = () => {
             </p>
           </div>
         </div>
-
+        {/* {isPlotted ? <MapPlot user={user} /> : <Map user={user} />} */}
         <Map user={user} />
       </div>
     </section>
