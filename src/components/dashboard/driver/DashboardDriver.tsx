@@ -1,43 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import sos from "../../../assets/images/sos.png";
 import Map from "../Map";
-import { requestPermission } from "../../../utils/dashboardHelpers/firebaseToken";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/rootReducer";
 import { useDispatch } from "react-redux";
 import { setIsPlotted } from "../../../features/mapSlice";
+import { fetchDriverDetails } from "../../../utils/helpers/fetchDriver";
 
 const DashboardDriver = () => {
   const user = JSON.parse(localStorage.getItem("driver"));
-  // const [driverDetails, setDriverDetails] = useState(null);
-  const [ride, setRide] = useState(null);
+
+  const dispatch = useDispatch();
 
   const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
-  // console.log(isPlotted);
-  const dispatch = useDispatch();
+  const ride = useSelector((state: RootState) => state.driver.ride);
 
-  // useEffect(() => {
-  //   // Fetch the driver details from the backend by sending the entire user object
-  //   axios
-  //     .post(`${process.env.REACT_APP_BASE_URL}/getDriverDetails`, user)
-  //     .then((response) => {
-  //       setDriverDetails(response.data.driver);
-  //       setRide(response.data.ride);
-  //       // console.log("driver details:", response.data);
-  //     })
-  //     .catch((err) => {
-  //       console.error("Error fetching driver details:", err);
-  //     });
-  // }, []);
+  useEffect(() => {
+    // get updated driver details
+    fetchDriverDetails(dispatch);
+
+    // console.log();
+  }, [driverDetails]);
+
+  // console.log(ride);
 
   // USE EFFECT TO REQUEST AND STORE FCM TOKEN
   // useEffect(() => {
   //   requestPermission(user.email);
   // }, []);
 
-  // console.log(driverDetails?.ride);
   const acceptRide = async () => {
     if (driverDetails.sos) {
       console.log("accept clicked");
@@ -77,7 +70,9 @@ const DashboardDriver = () => {
         {/* SOS */}
         <div
           className={`${
-            driverDetails && driverDetails.sos ? "bg-green-500" : "bg-blue-800"
+            (driverDetails && driverDetails.sos) || ride
+              ? "bg-green-500"
+              : "bg-blue-800"
           } text-center z-20 w-[413px] h-[413px] rounded-[42px] flex items-center justify-center cursor-pointer`}
           onClick={acceptRide}
         >
@@ -85,10 +80,13 @@ const DashboardDriver = () => {
             <img src={sos} alt="sos" className="mx-auto mb-2" />
             <p className="italic uppercase text-4xl mb-2"> sos</p>
             <p className="font-normal text-lg">
-              {driverDetails && driverDetails.sos
+              {(driverDetails && driverDetails.sos) || ride
                 ? "Accept pick up request"
                 : "No pick up request"}
             </p>
+            {/* <p className="font-normal text-lg">
+              {ride ? "Accept pick up request" : "No pick up request"}
+            </p> */}
           </div>
         </div>
         {/* {isPlotted ? <MapPlot user={user} /> : <Map user={user} />} */}

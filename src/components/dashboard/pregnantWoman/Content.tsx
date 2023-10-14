@@ -16,9 +16,6 @@ const Content = ({ user }) => {
   const [rideDetails, setRideDetails] = useState({ status: "" });
 
   const location = useSelector((state: RootState) => state.map.location);
-  // console.log("location:", location);
-
-  // console.log(user);
 
   useEffect(() => {
     axios
@@ -27,10 +24,17 @@ const Content = ({ user }) => {
       })
       .then((response) => {
         if (response.data.success) {
-          setUserDetails(response.data.user);
-          localStorage.setItem("user", JSON.stringify(response.data.user));
+          const { user } = response.data;
+          setUserDetails(user);
+          localStorage.setItem("user", JSON.stringify(user));
 
-          console.log(response.data.user);
+          const message = user.sos
+            ? rideDetails.status === "accepted"
+              ? "Ride accepted"
+              : "SOS Sent"
+            : "Click here to request pickup";
+
+          setMessage(message);
         } else {
           setError(response.data.message);
         }
@@ -63,7 +67,7 @@ const Content = ({ user }) => {
   }, [userDetails]);
 
   const fetchNearbyDrivers = () => {
-    if (user.sos === true) return;
+    // if (user.sos === true) return;
     console.log("fetching drivers");
 
     const userType = "pregnant woman";
@@ -111,13 +115,7 @@ const Content = ({ user }) => {
           <div className="text-white mx-auto max-w-[193px] ">
             <img src={sos} alt="sos" className="mx-auto mb-2" />
             <p className="italic uppercase text-4xl mb-2"> sos</p>
-            <p className="font-normal text-lg">
-              {userDetails.sos
-                ? rideDetails.status === "accepted"
-                  ? "Ride accepted"
-                  : "SOS Sent"
-                : "Click here to request pickup"}
-            </p>
+            <p className="font-normal text-lg">{message}</p>
           </div>
         </div>
 
