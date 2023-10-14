@@ -1,5 +1,5 @@
 // features/mapSlice.ts
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: {},

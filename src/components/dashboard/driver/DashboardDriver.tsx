@@ -2,42 +2,40 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import sos from "../../../assets/images/sos.png";
 import Map from "../Map";
-import MapPlot from "../MapPlot";
-import { messaging } from "../../../firebase/firebaseConfig";
 import { requestPermission } from "../../../utils/dashboardHelpers/firebaseToken";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../app/rootReducer";
-import { is } from "immer/dist/internal";
+import { RootState } from "../../../store/rootReducer";
 import { useDispatch } from "react-redux";
 import { setIsPlotted } from "../../../features/mapSlice";
 
 const DashboardDriver = () => {
   const user = JSON.parse(localStorage.getItem("driver"));
-  const [driverDetails, setDriverDetails] = useState(null);
+  // const [driverDetails, setDriverDetails] = useState(null);
   const [ride, setRide] = useState(null);
 
   const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
+  const driverDetails = useSelector((state: RootState) => state.driver.driver);
   // console.log(isPlotted);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    // Fetch the driver details from the backend by sending the entire user object
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/getDriverDetails`, user)
-      .then((response) => {
-        setDriverDetails(response.data.driver);
-        setRide(response.data.ride);
-        console.log("driver details:", response.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching driver details:", err);
-      });
-  }, []);
+  // useEffect(() => {
+  //   // Fetch the driver details from the backend by sending the entire user object
+  //   axios
+  //     .post(`${process.env.REACT_APP_BASE_URL}/getDriverDetails`, user)
+  //     .then((response) => {
+  //       setDriverDetails(response.data.driver);
+  //       setRide(response.data.ride);
+  //       // console.log("driver details:", response.data);
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error fetching driver details:", err);
+  //     });
+  // }, []);
 
   // USE EFFECT TO REQUEST AND STORE FCM TOKEN
-  useEffect(() => {
-    requestPermission(user.email);
-  }, []);
+  // useEffect(() => {
+  //   requestPermission(user.email);
+  // }, []);
 
   // console.log(driverDetails?.ride);
   const acceptRide = async () => {

@@ -8,7 +8,7 @@ import {
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocation, setError } from "../../features/mapSlice";
-import { RootState } from "../../app/rootReducer";
+import { RootState } from "../../store/rootReducer";
 
 const mapContainerStyle = {
   width: "559px",
@@ -29,18 +29,20 @@ const driverCoord = {
   lng: 3.90521,
 };
 
-function Map({ user }) {
+function Map({ user, userDetails }) {
   const dispatch = useDispatch();
   const location = useSelector((state: RootState) => state.map.location);
   // console.log("location", location);
   const error = useSelector((state: RootState) => state.map.error);
   const [response, setResponse] = useState(null);
-  const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
+  // const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
 
   const motherCoord = { ...location } || { lat: 0, lng: 0 };
   // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
   // console.log("motherCoord", motherCoord);
   // console.log("driverCoord", driverCoord);
+
+  //   console.log(user);
 
   // Define your backend endpoint URL
   const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
@@ -84,9 +86,10 @@ function Map({ user }) {
     } else {
       dispatch(setError("Geolocation is not supported by this browser."));
     }
-  }, []);
+  }, [userDetails]);
 
   const sendCoordinatesToBackend = (coordinates, address) => {
+    if (!user.email) return;
     axios
       .post(BACKEND_URL, {
         user,
@@ -95,7 +98,7 @@ function Map({ user }) {
       })
       .then((response) => {
         // console.log("Data sent and response received:", response.data);
-        setUserDetails(response.data.user);
+        // setUserDetails(response.data.user);
       })
       .catch((err) => {
         console.error("Error sending data:", err);
@@ -124,7 +127,7 @@ function Map({ user }) {
       console.log(error);
       console.log("there was error");
     }
-  }, [location, userDetails]);
+  }, [userDetails]);
 
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">

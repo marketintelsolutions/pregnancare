@@ -4,10 +4,10 @@ import axios from "axios";
 // const getToken = getToken(messaging, { vapidKey: "YOUR_PUBLIC_VAPID_KEY_HERE" });
 
 export const requestPermission = (email) => {
-  console.log("Requesting permission...");
+  // console.log("Requesting permission...");
   Notification.requestPermission().then((permission) => {
     if (permission === "granted") {
-      console.log("Notification permission granted.");
+      // console.log("Notification permission granted.");
 
       // Get registration token
       getToken(messaging, {
@@ -17,7 +17,7 @@ export const requestPermission = (email) => {
           if (currentToken) {
             // Here you would send this token to your backend
             // Or save it in your user's profile in Firestore, for example
-            console.log("currentToken:", currentToken);
+            // console.log("currentToken:", currentToken);
 
             // saveTokenToFirestore(currentToken);
             // const email = localStorage.getItem('userEmail');
@@ -29,7 +29,7 @@ export const requestPermission = (email) => {
                 email,
               })
               .then((response) => {
-                console.log(response.data.message);
+                // console.log(response.data.message);
               })
               .catch((error) => {
                 console.error("Error:", error);

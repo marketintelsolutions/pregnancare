@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import About from "./pages/About";
 import Landing from "./pages/Landing";
@@ -17,8 +17,21 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ForgotPasswordSteptwo from "./pages/auth/ForgotPasswordSteptwo";
 import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
 import Dashboard from "./components/dashboard/Map";
+import io from "socket.io-client";
+import initializeSocketListeners from "./socket/socketListeners";
+import { useDispatch } from "react-redux";
 
 const App = () => {
+  const dispatch = useDispatch();
+  // SOCKET.IO LISTENERS
+  useEffect(() => {
+    const cleanupSocketListeners = initializeSocketListeners(dispatch);
+
+    return () => {
+      cleanupSocketListeners();
+    };
+  }, [dispatch]);
+
   return (
     <Routes>
       <Route path="/" element={<Landing />} />

@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { RootState } from "../../../app/rootReducer";
+import { RootState } from "../../../store/rootReducer";
 import Header from "../../../components/dashboard/Header";
 import Content from "../../../components/dashboard/pregnantWoman/Content";
 import Sidebar from "../../../components/dashboard/Sidebar";

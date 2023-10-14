@@ -11,7 +11,7 @@ import checkCircle from "../../assets/logos/checkCircle.svg";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/rootReducer";
+import { RootState } from "../../store/rootReducer";
 import { setUser } from "../../features/userSlice";
 
 interface IPasswordFlag {

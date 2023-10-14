@@ -1,11 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
+import driverSlice from "../features/driverSlice";
 import mapReducer from "../features/mapSlice";
 import userSlice from "../features/userSlice";
 
 const rootReducer = combineReducers({
   map: mapReducer,
   user: userSlice,
-  // ... other reducers
+  driver: driverSlice,
 });
 
 export default rootReducer;

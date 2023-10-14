@@ -7,7 +7,7 @@ import {
 } from "@react-google-maps/api";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocation, setError } from "../../features/mapSlice";
-import { RootState } from "../../app/rootReducer";
+import { RootState } from "../../store/rootReducer";
 
 const mapContainerStyle = {
   width: "559px",

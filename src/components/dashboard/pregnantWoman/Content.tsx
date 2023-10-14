@@ -4,7 +4,7 @@ import map from "../../../assets/images/map.png";
 import Map from "../MapMother";
 // import Map from "../MapPlot";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../app/rootReducer";
+import { RootState } from "../../../store/rootReducer";
 import axios from "axios";
 
 const Content = ({ user }) => {
@@ -12,7 +12,8 @@ const Content = ({ user }) => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("Click here to request pickup");
 
-  const [userDetails, setUserDetails] = useState({ sos: false });
+  const [userDetails, setUserDetails] = useState({ sos: false, sosRideId: "" });
+  const [rideDetails, setRideDetails] = useState({ status: "" });
 
   const location = useSelector((state: RootState) => state.map.location);
   // console.log("location:", location);
@@ -27,6 +28,7 @@ const Content = ({ user }) => {
       .then((response) => {
         if (response.data.success) {
           setUserDetails(response.data.user);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
 
           console.log(response.data.user);
         } else {
@@ -39,8 +41,31 @@ const Content = ({ user }) => {
       });
   }, [user]);
 
+  // USE EFFECT TO FETCH RIDE
+  useEffect(() => {
+    if (!userDetails.sosRideId) return;
+    axios
+      .post(`${process.env.REACT_APP_BASE_URL}/getUserRideDetails`, {
+        rideId: userDetails.sosRideId,
+      })
+      .then((response) => {
+        if (response.data.success) {
+          setRideDetails(response.data.ride);
+          console.log(response.data.ride);
+        } else {
+          setError(response.data.message);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching ride details:", err);
+        setError("Error fetching ride details. Please try again.");
+      });
+  }, [userDetails]);
+
   const fetchNearbyDrivers = () => {
-    if (user.sos) return;
+    if (user.sos === true) return;
+    console.log("fetching drivers");
+
     const userType = "pregnant woman";
     const coordinates = {
       ...location,
@@ -87,13 +112,17 @@ const Content = ({ user }) => {
             <img src={sos} alt="sos" className="mx-auto mb-2" />
             <p className="italic uppercase text-4xl mb-2"> sos</p>
             <p className="font-normal text-lg">
-              {userDetails.sos ? "SOS Sent" : "Click here to request pickup"}
+              {userDetails.sos
+                ? rideDetails.status === "accepted"
+                  ? "Ride accepted"
+                  : "SOS Sent"
+                : "Click here to request pickup"}
             </p>
           </div>
         </div>
 
         {/* MAP */}
-        <Map user={user} />
+        <Map user={user} userDetails={userDetails} />
       </div>
     </section>
   );
