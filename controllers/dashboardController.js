@@ -1,6 +1,7 @@
 const db = require("../auth/firebase");
 const admin = require('firebase-admin');
 const { haversineDistance, generateId } = require("../middleware/dashboardMiddleware");
+const { io } = require("../app");
 
 exports.saveLocation = async (req, res) => {
     console.log('request made');
@@ -44,6 +45,7 @@ exports.saveLocation = async (req, res) => {
 exports.getNearbyDrivers = async (req, res) => {
     const { user, coordinates } = req.body;
     const { userType, email } = user
+    const io = req.io;
 
     if (userType !== 'pregnant woman') {
         return res.status(400).json({ success: false, message: 'Invalid user type.' });
@@ -59,7 +61,6 @@ exports.getNearbyDrivers = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Mother not found.' });
         }
 
-        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true })
 
 
 
@@ -88,22 +89,22 @@ exports.getNearbyDrivers = async (req, res) => {
         // Wait for all Firestore updates to complete
         await Promise.all(updatePromises);
 
-        const fcmTokens = nearbyDrivers.map(driver => driver.fcmToken).filter(Boolean); // Ensure there's no undefined tokens
-        console.log('fcmTokens', fcmTokens);
-        if (fcmTokens.length > 0) {
-            const message = {
-                notification: {
-                    title: 'Pick Up Request',
-                    body: 'A pregnant woman needs assistance. Check your app!',
-                },
-                tokens: fcmTokens,
-            };
+        // const fcmTokens = nearbyDrivers.map(driver => driver.fcmToken).filter(Boolean); // Ensure there's no undefined tokens
+        // console.log('fcmTokens', fcmTokens);
+        // if (fcmTokens.length > 0) {
+        //     const message = {
+        //         notification: {
+        //             title: 'Pick Up Request',
+        //             body: 'A pregnant woman needs assistance. Check your app!',
+        //         },
+        //         tokens: fcmTokens,
+        //     };
 
-            // Send a message to the device corresponding to the provided
-            // registration tokens.
-            console.log('sending message');
-            await admin.messaging().sendMulticast(message);
-        }
+        //     // Send a message to the device corresponding to the provided
+        //     // registration tokens.
+        //     console.log('sending message');
+        //     await admin.messaging().sendMulticast(message);
+        // }
 
         // Create a new ride document with the patient's details, drivers and status
         const ridesRef = db.collection('rides');
@@ -118,7 +119,14 @@ exports.getNearbyDrivers = async (req, res) => {
             drivers: nearbyDrivers,
             status: 'new'
         };
+        // EMIT TO SOCKET
+        io.emit('updateDrivers', nearbyDrivers);
+
+
         const newRide = await ridesRef.add(rideDetails);
+
+        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId })
+
 
         console.log('Nearby Drivers:', nearbyDrivers);
         res.status(200).json({ success: true, drivers: nearbyDrivers });
@@ -274,5 +282,31 @@ exports.getUserDetails = async (req, res) => {
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error fetching driver details.' });
+    }
+}
+
+exports.getUserRideDetails = async (req, res) => {
+    const { rideId } = req.body;
+    console.log(rideId);
+
+    // if (!email) {
+    //     return res.status(400).json({ success: false, message: 'Email is required.' });
+    // }
+
+    try {
+        const ridesRef = db.collection('rides');
+        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+
+        if (rideSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'Ride not found.' });
+        }
+
+        const rideData = rideSnapshot.docs[0].data();
+
+        // Return user details
+        return res.status(200).json({ success: true, ride: rideData });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Error fetching ride details.' });
     }
 }
