@@ -1,14 +1,13 @@
 const db = require("../auth/firebase");
 const admin = require('firebase-admin');
 const { haversineDistance, generateId } = require("../middleware/dashboardMiddleware");
-const { io } = require("../app");
 
 exports.saveLocation = async (req, res) => {
     console.log('request made');
 
     const { user, coordinates, address } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
         const usersRef = db.collection('users');

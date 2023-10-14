@@ -49,8 +49,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// console.log(io);
-
 
 // ROUTES
 app.post('/saveUser', saveUser);
