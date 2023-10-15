@@ -30,12 +30,13 @@ const driverCoord = {
 };
 
 function Map({ user, userDetails }) {
-  const dispatch = useDispatch();
-  const location = useSelector((state: RootState) => state.map.location);
-  // console.log("location", location);
-  const error = useSelector((state: RootState) => state.map.error);
   const [response, setResponse] = useState(null);
-  // const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
+
+  const location = useSelector((state: RootState) => state.map.location);
+  const error = useSelector((state: RootState) => state.map.error);
+  const rideDetails = useSelector((state: RootState) => state.user.ride);
+
+  const dispatch = useDispatch();
 
   const motherCoord = { ...location } || { lat: 0, lng: 0 };
   // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
@@ -86,7 +87,7 @@ function Map({ user, userDetails }) {
     } else {
       dispatch(setError("Geolocation is not supported by this browser."));
     }
-  }, [userDetails]);
+  }, [userDetails, rideDetails?.status]);
 
   const sendCoordinatesToBackend = (coordinates, address) => {
     if (!user.email) return;
@@ -127,7 +128,7 @@ function Map({ user, userDetails }) {
       console.log(error);
       console.log("there was error");
     }
-  }, [userDetails]);
+  }, [userDetails, rideDetails?.status]);
 
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
@@ -138,7 +139,10 @@ function Map({ user, userDetails }) {
           zoom={13}
           center={location}
         >
-          {user.sos
+          {/* {user.sos
+            ? response && <DirectionsRenderer directions={response} />
+            : location && <Marker position={location} />} */}
+          {rideDetails?.status === "accepted"
             ? response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}
         </GoogleMap>

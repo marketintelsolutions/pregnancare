@@ -8,12 +8,10 @@ export const fetchDriverDetails = (dispatch) => {
     axios
       .post(`${process.env.REACT_APP_BASE_URL}/getDriverDetails`, user)
       .then((response) => {
-        console.log("getting driver details");
-        // console.log(response.data.ride);
-        // localStorage.setItem("ride", JSON.stringify(response.data.ride));
-
-        // dispatch(setDriver(response.data.driver));
+        localStorage.setItem("driver", JSON.stringify(response.data.driver));
+        dispatch(setDriver(response.data.driver));
         dispatch(setRide(response.data.ride));
+        // console.log(response.data.ride);
       })
       .catch((err) => {
         console.error("Error fetching driver details:", err);

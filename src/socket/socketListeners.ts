@@ -1,6 +1,7 @@
 // socketListeners.js
 import io from "socket.io-client";
 import { setDriver } from "../features/driverSlice";
+import { setMessage, setRide } from "../features/userSlice";
 import { fetchDriverDetails } from "../utils/helpers/fetchDriver";
 
 const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
@@ -10,7 +11,7 @@ const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
 const initializeSocketListeners = (dispatch) => {
   //   console.log("initialised socket");
 
-  // Listen for driver updates
+  // LISTEN FOR RIDE ACCEPTED
   socket.on("updateDrivers", (updatedDrivers) => {
     const { email } = JSON.parse(localStorage.getItem("driver")) || {};
 
@@ -20,6 +21,13 @@ const initializeSocketListeners = (dispatch) => {
 
     // update redux store
     dispatch(setDriver(driver));
+  });
+
+  // LISTEN FOR RIDE ACCEPTED
+  socket.on("acceptRide", (data) => {
+    // console.log(message);
+    dispatch(setMessage(data.message));
+    dispatch(setRide(data.ride));
   });
 
   return () => {

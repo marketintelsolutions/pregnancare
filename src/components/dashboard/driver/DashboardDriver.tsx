@@ -17,8 +17,13 @@ const DashboardDriver = () => {
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
   const ride = useSelector((state: RootState) => state.driver.ride);
 
+  // console.log(ride);
+
   useEffect(() => {
+    if (driverDetails.sos && (ride?.rideId || ride === null)) return;
     // get updated driver details
+    // console.log("infinite loop");
+
     fetchDriverDetails(dispatch);
 
     // console.log();
@@ -32,6 +37,7 @@ const DashboardDriver = () => {
   // }, []);
 
   const acceptRide = async () => {
+    console.log(ride);
     if (driverDetails.sos) {
       console.log("accept clicked");
 

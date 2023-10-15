@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: {},
+  ride: { status: "" },
+  message: "Click here to request pickup",
 };
 
 const userSlice = createSlice({
@@ -12,8 +14,14 @@ const userSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
     },
+    setRide: (state, action) => {
+      state.ride = action.payload;
+    },
+    setMessage: (state, action) => {
+      state.message = action.payload;
+    },
   },
 });
 
-export const { setUser } = userSlice.actions;
+export const { setUser, setRide, setMessage } = userSlice.actions;
 export default userSlice.reducer;

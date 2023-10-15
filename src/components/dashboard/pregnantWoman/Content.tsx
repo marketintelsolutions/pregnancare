@@ -6,14 +6,21 @@ import Map from "../MapMother";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/rootReducer";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setMessage, setRide } from "../../../features/userSlice";
 
 const Content = ({ user }) => {
   const [drivers, setDrivers] = useState([]);
   const [error, setError] = useState(null);
-  const [message, setMessage] = useState("Click here to request pickup");
+  // const [message, setMessage] = useState("Click here to request pickup");
 
   const [userDetails, setUserDetails] = useState({ sos: false, sosRideId: "" });
-  const [rideDetails, setRideDetails] = useState({ status: "" });
+  // const [rideDetails, setRideDetails] = useState({ status: "" });
+
+  const rideDetails = useSelector((state: RootState) => state.user.ride);
+  const message = useSelector((state: RootState) => state.user.message);
+
+  const dispatch = useDispatch();
 
   const location = useSelector((state: RootState) => state.map.location);
 
@@ -25,8 +32,10 @@ const Content = ({ user }) => {
       .then((response) => {
         if (response.data.success) {
           const { user } = response.data;
+
           setUserDetails(user);
           localStorage.setItem("user", JSON.stringify(user));
+          dispatch(setRide(user.ride));
 
           const message = user.sos
             ? rideDetails.status === "accepted"
@@ -34,7 +43,9 @@ const Content = ({ user }) => {
               : "SOS Sent"
             : "Click here to request pickup";
 
-          setMessage(message);
+          console.log(message);
+
+          dispatch(setMessage(message));
         } else {
           setError(response.data.message);
         }
@@ -47,6 +58,8 @@ const Content = ({ user }) => {
 
   // USE EFFECT TO FETCH RIDE
   useEffect(() => {
+    console.log(userDetails);
+
     if (!userDetails.sosRideId) return;
     axios
       .post(`${process.env.REACT_APP_BASE_URL}/getUserRideDetails`, {
@@ -54,7 +67,7 @@ const Content = ({ user }) => {
       })
       .then((response) => {
         if (response.data.success) {
-          setRideDetails(response.data.ride);
+          dispatch(setRide(response.data.ride));
           console.log(response.data.ride);
         } else {
           setError(response.data.message);
@@ -64,7 +77,7 @@ const Content = ({ user }) => {
         console.error("Error fetching ride details:", err);
         setError("Error fetching ride details. Please try again.");
       });
-  }, [userDetails]);
+  }, [userDetails, message]);
 
   const fetchNearbyDrivers = () => {
     // if (user.sos === true) return;
@@ -82,10 +95,10 @@ const Content = ({ user }) => {
       })
       .then((response) => {
         if (response.data.success) {
-          setMessage("SOS Sent");
+          dispatch(setMessage("SOS Sent"));
           setDrivers(response.data.drivers);
-
-          console.log(response.data.drivers);
+          setUserDetails(response.data.user);
+          dispatch(setRide(response.data.ride));
         } else {
           setError(response.data.message);
         }

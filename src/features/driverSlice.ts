@@ -1,9 +1,11 @@
 // features/mapSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 
+const user = JSON.parse(localStorage.getItem("driver")) || { sos: false };
+
 const initialState = {
-  driver: null,
-  ride: null,
+  driver: user,
+  ride: { rideId: "" },
 };
 
 const driverSlice = createSlice({
