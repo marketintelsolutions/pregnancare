@@ -6,7 +6,7 @@ const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
-const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails } = require('./controllers/dashboardController');
+const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide } = require('./controllers/dashboardController');
 require("dotenv").config();
 
 //Setting up cors
@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
 });
 
 
-// ROUTES
+// AUTH ROUTES
 app.post('/saveUser', saveUser);
 app.post('/verifyCode', verifyCode);
 app.post('/resendCode', resendCode);
@@ -61,13 +61,13 @@ app.post('/reset/:token', resetPassword);
 
 // DASHBOARD ROUTES
 app.post('/saveLocation', saveLocation);
-// app.post('/getNearbyDrivers', getNearbyDrivers);
 app.post('/getNearbyDrivers', (req, res) => getNearbyDrivers(req, res, req.io)); // Pass io to the function
 app.post('/getDriverDetails', getDriverDetails);
 app.post('/save-token', saveToken);
-app.post('/acceptRide', acceptRide);
+app.post('/acceptRide', (req, res) => acceptRide(req, res, req.io));
 app.post('/getUserDetails', getUserDetails);
 app.post('/getUserRideDetails', getUserRideDetails);
+app.post('/rejectRide', rejectRide);
 
 
 

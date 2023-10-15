@@ -60,9 +60,6 @@ exports.getNearbyDrivers = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Mother not found.' });
         }
 
-
-
-
         let nearbyDrivers = [];
         let updatePromises = [];  // Store promises for updating the Firestore
 
@@ -74,9 +71,6 @@ exports.getNearbyDrivers = async (req, res) => {
             const distance = haversineDistance(coordinates, driverCoords);
 
             if (distance <= 15) {
-                // Add sos: true to the driver's data
-                // driverData.sos = true;
-
                 // Save updated data back to Firestore and add the promise to our array
                 const updatePromise = usersRef.doc(doc.id).update({ patientCoordinates: coordinates });
                 updatePromises.push(updatePromise);
@@ -87,23 +81,6 @@ exports.getNearbyDrivers = async (req, res) => {
 
         // Wait for all Firestore updates to complete
         await Promise.all(updatePromises);
-
-        // const fcmTokens = nearbyDrivers.map(driver => driver.fcmToken).filter(Boolean); // Ensure there's no undefined tokens
-        // console.log('fcmTokens', fcmTokens);
-        // if (fcmTokens.length > 0) {
-        //     const message = {
-        //         notification: {
-        //             title: 'Pick Up Request',
-        //             body: 'A pregnant woman needs assistance. Check your app!',
-        //         },
-        //         tokens: fcmTokens,
-        //     };
-
-        //     // Send a message to the device corresponding to the provided
-        //     // registration tokens.
-        //     console.log('sending message');
-        //     await admin.messaging().sendMulticast(message);
-        // }
 
         // Create a new ride document with the patient's details, drivers and status
         const ridesRef = db.collection('rides');
@@ -124,11 +101,16 @@ exports.getNearbyDrivers = async (req, res) => {
 
         const newRide = await ridesRef.add(rideDetails);
 
-        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId })
+        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId, ride: rideDetails })
 
+        // updated mother details
+        // const updatedMotherSnapshot = await usersRef.where('email', '==', email).get();
+        // const updatedMotherData = updatedMotherSnapshot.data();
+
+        const updatedMotherData = motherSnapshot.docs[0].data();
 
         console.log('Nearby Drivers:', nearbyDrivers);
-        res.status(200).json({ success: true, drivers: nearbyDrivers });
+        res.status(200).json({ success: true, drivers: nearbyDrivers, ride: rideDetails, user: updatedMotherData });
 
     } catch (error) {
         console.error("Error:", error);
@@ -221,6 +203,7 @@ exports.saveToken = async (req, res) => {
 
 exports.acceptRide = async (req, res) => {
     const { rideId, driverDetails } = req.body;
+    const io = req.io
 
     if (!rideId || !driverDetails) {
         return res.status(400).json({ success: false, message: 'Ride ID and driver details are required.' });
@@ -249,7 +232,12 @@ exports.acceptRide = async (req, res) => {
             status: 'accepted'
         });
 
+        const updatedRide = rideSnapshot.docs[0].data();
+
+
         console.log('ride updated');
+        io.emit('acceptRide', { message: 'ride accepted', ride: updatedRide });
+
 
         res.status(200).json({ success: true, message: 'Ride accepted successfully!' });
 
@@ -308,4 +296,23 @@ exports.getUserRideDetails = async (req, res) => {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error fetching ride details.' });
     }
+}
+
+exports.rejectRide = async (req, res) => {
+    const { email } = req.body
+
+    const usersRef = db.collection('users');
+    const driverSnapshot = await usersRef.where('email', '==', user.email).get();
+
+    if (driverSnapshot.empty) {
+        // User doesn't exist, return an error
+        return res.status(404).json({ success: false, message: 'Driver not found.' });
+    }
+
+    //  Driver exists, update the coordinates and address
+    const userId = userSnapshot.docs[0].id;
+    await usersRef.doc(userId).update({
+        sos: false,
+        patientCoordinates: {}
+    });
 }
