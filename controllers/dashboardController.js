@@ -232,7 +232,12 @@ exports.acceptRide = async (req, res) => {
             status: 'accepted'
         });
 
-        const updatedRide = rideSnapshot.docs[0].data();
+        // const updatedRide = rideSnapshot.docs[0].data();
+        // Get the updated data using get
+        const updatedRideSnapshot = await rideDoc.get();
+        const updatedRide = updatedRideSnapshot.data();
+
+        console.log(updatedRide);
 
 
         console.log('ride updated');
