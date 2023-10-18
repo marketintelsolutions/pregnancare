@@ -1,6 +1,7 @@
 const db = require("../auth/firebase");
 const admin = require('firebase-admin');
 const { haversineDistance, generateId } = require("../middleware/dashboardMiddleware");
+const calculateDistance = require('../middleware/calculateDistance')
 
 exports.saveLocation = async (req, res) => {
     console.log('request made');
@@ -209,16 +210,11 @@ exports.acceptRide = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Ride ID and driver details are required.' });
     }
 
-    // console.log(rideId);
     try {
         const ridesRef = db.collection('rides');
-        // const rideDoc = ridesRef.doc(rideId);
-
         const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
         const id = rideSnapshot.docs[0].id;
         const rideDoc = ridesRef.doc(id);
-
-        // const rideSnapshot = await rideDoc.get();
 
         if (rideSnapshot.empty) {
             console.log('ride not found');
@@ -232,15 +228,38 @@ exports.acceptRide = async (req, res) => {
             status: 'accepted'
         });
 
-        // const updatedRide = rideSnapshot.docs[0].data();
         // Get the updated data using get
-        const updatedRideSnapshot = await rideDoc.get();
-        const updatedRide = updatedRideSnapshot.data();
+        let updatedRideSnapshot = await rideDoc.get();
+        let updatedRide = updatedRideSnapshot.data();
 
         console.log(updatedRide);
 
+        const driverCoord = updatedRide.assignedDriver.coordinates
+        const patientCoord = updatedRide.patient.coordinates
 
-        console.log('ride updated');
+        console.log('Calculating distance and time...');
+
+        // Calculate distance and time using the calculateDistance function
+        const distanceAndTime = await calculateDistance({
+            lat: driverCoord.lat,
+            lon: driverCoord.lng,
+            dest_lat: patientCoord.lat,
+            dest_lon: patientCoord.lng
+        });
+
+        console.log('Distance and Time:', distanceAndTime);
+
+        // Update the ride with distance and time information
+        await rideDoc.update({
+            distance: distanceAndTime.distance.text,
+            duration: distanceAndTime.duration.text
+        });
+
+        // // get latest details
+        updatedRideSnapshot = await rideDoc.get();
+        updatedRide = updatedRideSnapshot.data();
+
+        console.log('Ride updated with distance and time');
         io.emit('acceptRide', { message: 'ride accepted', ride: updatedRide });
 
 
