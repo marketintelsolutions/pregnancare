@@ -108,6 +108,8 @@ function Map({ user, userDetails }) {
 
   // USE EFFECT FOR DIRECTIONS SERVICE
   useEffect(() => {
+    console.log("rerendering map");
+
     try {
       const directionsService = new google.maps.DirectionsService();
       directionsService.route(
@@ -128,7 +130,7 @@ function Map({ user, userDetails }) {
       console.log(error);
       console.log("there was error");
     }
-  }, [userDetails, rideDetails?.status]);
+  }, [user]);
 
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
@@ -139,9 +141,6 @@ function Map({ user, userDetails }) {
           zoom={13}
           center={location}
         >
-          {/* {user.sos
-            ? response && <DirectionsRenderer directions={response} />
-            : location && <Marker position={location} />} */}
           {rideDetails?.status === "accepted"
             ? response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}
