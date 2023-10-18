@@ -299,20 +299,49 @@ exports.getUserRideDetails = async (req, res) => {
 }
 
 exports.rejectRide = async (req, res) => {
-    const { email } = req.body
+    const { rideId, driverEmail } = req.body;
 
-    const usersRef = db.collection('users');
-    const driverSnapshot = await usersRef.where('email', '==', user.email).get();
-
-    if (driverSnapshot.empty) {
-        // User doesn't exist, return an error
-        return res.status(404).json({ success: false, message: 'Driver not found.' });
+    if (!rideId || !driverEmail) {
+        return res.status(400).json({ success: false, message: 'Ride ID and driver email are required.' });
     }
 
-    //  Driver exists, update the coordinates and address
-    const userId = userSnapshot.docs[0].id;
-    await usersRef.doc(userId).update({
-        sos: false,
-        patientCoordinates: {}
-    });
-}
+    try {
+        // Update the driver's SOS status
+        const driverRef = db.collection('users').where('email', '==', driverEmail);
+        const driverSnapshot = await driverRef.get();
+
+        if (driverSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'Driver not found.' });
+        }
+
+        const driverDoc = driverSnapshot.docs[0];
+        await driverDoc.ref.update({ sos: false });
+
+        const ridesRef = db.collection('rides');
+        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+        const id = rideSnapshot.docs[0].id;
+        const rideRef = ridesRef.doc(id);
+
+        if (rideSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'Ride not found.' });
+        }
+
+        const rideData = rideSnapshot.docs[0].data();
+
+        const drivers = rideData.drivers;
+
+        // Find the driver in the drivers array using email
+        const updatedDriversArray = drivers.filter(driver => driver.email !== driverEmail);
+
+        // Update the ride's status to 'declined' and drivers array
+        await rideRef.update({
+            status: 'declined',
+            drivers: updatedDriversArray,
+        });
+
+        return res.status(200).json({ success: true, message: 'Ride rejected successfully.' });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+    }
+};
