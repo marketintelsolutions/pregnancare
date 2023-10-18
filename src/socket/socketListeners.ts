@@ -25,9 +25,10 @@ const initializeSocketListeners = (dispatch) => {
 
   // LISTEN FOR RIDE ACCEPTED
   socket.on("acceptRide", (data) => {
-    // console.log(message);
+    console.log("accepted ride", data.ride);
     dispatch(setMessage(data.message));
     dispatch(setRide(data.ride));
+    localStorage.setItem("ride", JSON.stringify(data.ride));
   });
 
   return () => {

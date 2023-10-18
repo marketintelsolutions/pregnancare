@@ -16,7 +16,11 @@ const Content = ({ user }) => {
 
   const rideDetails = useSelector((state: RootState) => state.user.ride);
   const message = useSelector((state: RootState) => state.user.message);
-  const driver = useSelector((state: RootState) => state.driver.driver);
+  // const driver = useSelector((state: RootState) => state.driver.driver);
+
+  const ride = JSON.parse(localStorage.getItem("ride")) || {};
+
+  const driver = ride.assignedDriver || {};
 
   const dispatch = useDispatch();
 
@@ -132,10 +136,10 @@ const Content = ({ user }) => {
           </div>
 
           {/* MAP */}
-          <Map user={user} userDetails={userDetails} />
+          <Map user={user} userDetails={userDetails} ride={ride} />
         </div>
       </section>
-      {rideDetails?.status === "accepted" && (
+      {ride.status === "accepted" && (
         <div>
           <p className="flex gap-2 items-center">
             <img src={dangerCircle} alt="dangerCircle" /> The driver is 15 mins

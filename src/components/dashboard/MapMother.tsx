@@ -29,7 +29,7 @@ const driverCoord = {
   lng: 3.90521,
 };
 
-function Map({ user, userDetails }) {
+function Map({ user, userDetails, ride }) {
   const [response, setResponse] = useState(null);
 
   const location = useSelector((state: RootState) => state.map.location);
@@ -130,7 +130,7 @@ function Map({ user, userDetails }) {
       console.log(error);
       console.log("there was error");
     }
-  }, [user]);
+  }, [ride]);
 
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
