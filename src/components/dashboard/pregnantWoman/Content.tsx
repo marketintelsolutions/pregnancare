@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
-import sos from "../../../assets/images/sos.png";
-import dangerCircle from "../../../assets/logos/dangerCircle.svg";
-import Map from "../MapMother";
-// import Map from "../MapPlot";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import Map from "../MapMother";
 import { RootState } from "../../../store/rootReducer";
 import axios from "axios";
-import { useDispatch } from "react-redux";
 import { setMessage, setRide } from "../../../features/userSlice";
+import sos from "../../../assets/images/sos.png";
+import dangerCircle from "../../../assets/logos/dangerCircle.svg";
+import car from "../../../assets/logos/car.svg";
+import star from "../../../assets/logos/star.svg";
+import trip from "../../../assets/logos/trip.svg";
+import driverImg from "../../../assets/logos/driver.svg";
 
 const Content = ({ user }) => {
   const [drivers, setDrivers] = useState([]);
   const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState({ sos: false, sosRideId: "" });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const rideDetails = useSelector((state: RootState) => state.user.ride);
   const message = useSelector((state: RootState) => state.user.message);
@@ -40,7 +44,7 @@ const Content = ({ user }) => {
           dispatch(setRide(user.ride));
 
           const message = user.sos
-            ? rideDetails.status === "accepted"
+            ? rideDetails.status === "accepted" || ride.status === "accepted"
               ? "Ride accepted"
               : "SOS Sent"
             : "Click here to request pickup";
@@ -140,16 +144,44 @@ const Content = ({ user }) => {
         </div>
       </section>
       {ride.status === "accepted" && (
-        <div>
-          <p className="flex gap-2 items-center">
-            <img src={dangerCircle} alt="dangerCircle" /> The driver is 15 mins
-            away to you
+        <div className="relative flex flex-col gap-5">
+          {/* RIDER MODAL */}
+          {isModalOpen && (
+            <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow absolute bottom-[140%] z-20">
+              <div className="flex items-end">
+                <span>{driver.name}</span>
+                <img src={driver.imgUrl} alt="car" />
+              </div>
+              <div className="flex items-center">
+                <img src={car} alt="car" />
+                <span>Toyota Fj Crusier - 5FJXK1</span>
+              </div>
+              <div className="flex items-center">
+                <img src={star} alt="star" />
+                <span>Rating - 4.2</span>
+              </div>
+              <div className="flex items-center">
+                <img src={trip} alt="trip" />
+                <span>Trips - 2,239</span>
+              </div>
+              <div className="flex items-center">
+                <img src={driverImg} alt="driver" />
+                <span>Years - 2</span>
+              </div>
+            </div>
+          )}
+
+          <p className="flex gap-2 items-center mx-auto">
+            <img src={dangerCircle} alt="dangerCircle" /> The driver is{" "}
+            {ride.duration} away from you
           </p>
           <button
             className="w-fit border border-[#3058A6] py-4 px-7 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear"
-            // onClick={handleRejectRide}
+            onClick={() => setIsModalOpen(!isModalOpen)}
           >
-            Click to see drivers details {driver.email}
+            {isModalOpen
+              ? `Hide Driver Details`
+              : `Click to see driver details ${driver.email}`}
           </button>
         </div>
       )}
