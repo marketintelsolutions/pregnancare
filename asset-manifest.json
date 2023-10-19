@@ -1,0 +1,32 @@
+{
+  "files": {
+    "main.css": "/pregnancare/static/css/main.89675c54.css",
+    "main.js": "/pregnancare/static/js/main.75ab1214.js",
+    "static/media/woman.png": "/pregnancare/static/media/woman.24fe03410d12f30d4336.png",
+    "static/media/loadwithbg.gif": "/pregnancare/static/media/loadwithbg.33bc8dfe6aa2cef165ee.gif",
+    "static/media/logo.svg": "/pregnancare/static/media/logo.4577ad0ee74c7eb83ebe00c625e43926.svg",
+    "static/media/avatar.png": "/pregnancare/static/media/avatar.6ee937ea3be9d55a6884.png",
+    "static/media/whiteLogo.svg": "/pregnancare/static/media/whiteLogo.fce4ee0752d311bb347eaaae0a1f8606.svg",
+    "static/media/health.png": "/pregnancare/static/media/health.09dce34073da30bcbd97.png",
+    "static/media/background.svg": "/pregnancare/static/media/background.99323a72e00b143551550d75fdbbc22f.svg",
+    "static/media/driver.svg": "/pregnancare/static/media/driver.f02c24244b80c57aa1de4c1a391bab37.svg",
+    "static/media/car.svg": "/pregnancare/static/media/car.2d2ab85940c3196a8c2ad342c6fcfc1f.svg",
+    "static/media/trip.svg": "/pregnancare/static/media/trip.5e9c0db8e9fd5433516c6fc298399b6b.svg",
+    "static/media/googleG.svg": "/pregnancare/static/media/googleG.f694f66c12203a0b2819b824d45487ab.svg",
+    "static/media/dangerCircle.svg": "/pregnancare/static/media/dangerCircle.f9c1744b552b7bf89971c38f03fec8bb.svg",
+    "static/media/eyeSlash.svg": "/pregnancare/static/media/eyeSlash.1f75e28404cc94e00c71572e941e549f.svg",
+    "index.html": "/pregnancare/index.html",
+    "static/media/arrowRight.svg": "/pregnancare/static/media/arrowRight.6303c7ec4981f6c90e2a98bc04644f97.svg",
+    "static/media/arrowRightWhite.svg": "/pregnancare/static/media/arrowRightWhite.983882d291fd88e6983fd68ab3f01249.svg",
+    "static/media/exclaimationRed.svg": "/pregnancare/static/media/exclaimationRed.f5d9ae79882d90b795881f18b4ee8a1d.svg",
+    "static/media/checkCircle.svg": "/pregnancare/static/media/checkCircle.903c0f688cb006210ae04021cf76bf0f.svg",
+    "static/media/star.svg": "/pregnancare/static/media/star.bf4163f8d1371a8db438ccf86600e21e.svg",
+    "static/media/circle.svg": "/pregnancare/static/media/circle.0c18b892c320ee0e683c4b95dc7850e7.svg",
+    "main.89675c54.css.map": "/pregnancare/static/css/main.89675c54.css.map",
+    "main.75ab1214.js.map": "/pregnancare/static/js/main.75ab1214.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.89675c54.css",
+    "static/js/main.75ab1214.js"
+  ]
+}
