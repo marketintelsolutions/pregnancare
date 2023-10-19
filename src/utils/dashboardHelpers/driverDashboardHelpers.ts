@@ -17,7 +17,7 @@ export const acceptRide = async (driverDetails, dispatch, ride) => {
 
       console.log(response);
       //   dispatch(setIsPlotted(true));
-      dispatch(setButtonMode("startTrip"));
+      dispatch(setButtonMode("arrivePickup"));
 
       // setMessage(response.data.message);
     } catch (error) {
@@ -65,9 +65,9 @@ export const driverButtons = {
     text: "Decline Request",
   },
   arrivePickup: {
-    color: "#0B9339",
+    color: "#3058A6",
     handler: arrivePickup,
-    text: "Click to arrive ickup",
+    text: "Click to arrive pickup",
   },
   startTrip: {
     color: "#0B9339",
