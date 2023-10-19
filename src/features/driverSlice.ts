@@ -5,7 +5,8 @@ const user = JSON.parse(localStorage.getItem("driver")) || { sos: false };
 
 const initialState = {
   driver: user,
-  ride: { rideId: "" },
+  ride: { rideId: "", duration: "" },
+  buttonMode: "decline",
 };
 
 const driverSlice = createSlice({
@@ -18,8 +19,11 @@ const driverSlice = createSlice({
     setRide: (state, action) => {
       state.ride = action.payload;
     },
+    setButtonMode: (state, action) => {
+      state.buttonMode = action.payload;
+    },
   },
 });
 
-export const { setDriver, setRide } = driverSlice.actions;
+export const { setDriver, setRide, setButtonMode } = driverSlice.actions;
 export default driverSlice.reducer;

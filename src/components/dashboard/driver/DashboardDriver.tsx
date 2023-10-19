@@ -7,6 +7,13 @@ import { RootState } from "../../../store/rootReducer";
 import { useDispatch } from "react-redux";
 import { setIsPlotted } from "../../../features/mapSlice";
 import { fetchDriverDetails } from "../../../utils/helpers/fetchDriver";
+import dangerCircle from "../../../assets/logos/dangerCircle.svg";
+import {
+  acceptRide,
+  driverButtons,
+  handleRejectRide,
+} from "../../../utils/dashboardHelpers/driverDashboardHelpers";
+import ActionButton from "./ActionButton";
 
 const DashboardDriver = () => {
   const user = JSON.parse(localStorage.getItem("driver"));
@@ -15,60 +22,16 @@ const DashboardDriver = () => {
 
   const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
-  const ride = useSelector((state: RootState) => state.driver.ride);
+  const buttonMode = useSelector((state: RootState) => state.driver.buttonMode);
+
+  const ride =
+    useSelector((state: RootState) => state.driver.ride) ||
+    JSON.parse(localStorage.getItem("ride"));
 
   useEffect(() => {
     if (driverDetails.sos && (ride?.rideId || ride === null)) return;
     fetchDriverDetails(dispatch);
   }, [driverDetails]);
-
-  const acceptRide = async () => {
-    console.log(ride);
-    if (driverDetails.sos) {
-      console.log("accept clicked");
-
-      try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/acceptRide`,
-          {
-            rideId: ride.rideId,
-            driverDetails,
-          }
-        );
-
-        console.log(response);
-        dispatch(setIsPlotted(true));
-
-        // setMessage(response.data.message);
-      } catch (error) {
-        // setMessage('Error accepting ride.');
-        console.log(error);
-      }
-    }
-  };
-
-  const handleRejectRide = async () => {
-    console.log(ride.rideId);
-
-    try {
-      // Make a request to the backend route to reject the ride
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/rejectRide`,
-        {
-          rideId: ride.rideId,
-          driverEmail: driverDetails.email,
-        }
-      );
-
-      if (response.data.success) {
-        console.log("Ride rejected successfully");
-      } else {
-        console.error("Failed to reject ride:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error rejecting ride:", error);
-    }
-  };
 
   return (
     <div className="flex items-center flex-col">
@@ -88,7 +51,7 @@ const DashboardDriver = () => {
                 ? "bg-green-500"
                 : "bg-blue-800"
             } text-center z-20 w-[413px] h-[413px] rounded-[42px] flex items-center justify-center cursor-pointer`}
-            onClick={acceptRide}
+            onClick={() => acceptRide(driverDetails, dispatch, ride)}
           >
             <div className="text-white mx-auto max-w-[193px]">
               <img src={sos} alt="sos" className="mx-auto mb-2" />
@@ -104,12 +67,16 @@ const DashboardDriver = () => {
         </div>
       </section>
 
-      <button
-        className="w-fit border border-red py-4 px-7 bg-[#DB3E4D] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#DB3E4D] transition linear"
-        onClick={handleRejectRide}
-      >
-        Decline request
-      </button>
+      <p className="flex gap-2 items-center mx-auto mb-5">
+        <img src={dangerCircle} alt="dangerCircle" />
+        {ride.duration} away from pickup point
+      </p>
+
+      <ActionButton
+        ride={ride}
+        driverDetails={driverDetails}
+        {...driverButtons[buttonMode]}
+      />
     </div>
   );
 };

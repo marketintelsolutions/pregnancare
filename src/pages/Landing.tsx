@@ -50,8 +50,9 @@ const Landing = () => {
           <span className="text-[#DB3E4D]">BEGIN</span>
         </h1>
         <p className="text-white text-xl leading-7 font-medium mb-12 max-w-[614px] text-center">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus quam
-          sed sed proin. Imperdiet velit, tempor, venen
+          Welcome to our Pregnancy Care site, your go-to resource especially
+          during an emergency in transporting a pregnant woman to a health care
+          facility by a transporter
         </p>
         <div className="flex gap-5">
           <button>

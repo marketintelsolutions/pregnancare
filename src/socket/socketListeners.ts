@@ -1,6 +1,6 @@
 // socketListeners.js
 import io from "socket.io-client";
-import { setDriver } from "../features/driverSlice";
+import { setButtonMode, setDriver } from "../features/driverSlice";
 import { setMessage, setRide } from "../features/userSlice";
 
 const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
