@@ -8,16 +8,12 @@ import SignupSteptwo from "./pages/auth/SignupSteptwo";
 import SignupStepthree from "./pages/auth/SignupStepthree";
 import VerifyMail from "./pages/auth/VerifyMail";
 import ChoosePassword from "./pages/auth/ChoosePassword";
-// import { SignupProgressProvider } from "./context/SignupProgress";
-import ProtectedRoute from "./components/ProtectedRoute";
 import PregnantDashboard from "./pages/dashboard/pregnantWoman/PregnantDashboard";
 import DriverDashboard from "./pages/dashboard/driver/DriverDashboard";
 import HealthcareDashboard from "./pages/dashboard/healthCare/HealthcareDashboard";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ForgotPasswordSteptwo from "./pages/auth/ForgotPasswordSteptwo";
 import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
-import Dashboard from "./components/dashboard/Map";
-import io from "socket.io-client";
 import initializeSocketListeners from "./socket/socketListeners";
 import { useDispatch } from "react-redux";
 

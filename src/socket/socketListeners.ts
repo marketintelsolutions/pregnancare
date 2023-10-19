@@ -2,7 +2,6 @@
 import io from "socket.io-client";
 import { setDriver } from "../features/driverSlice";
 import { setMessage, setRide } from "../features/userSlice";
-import { fetchDriverDetails } from "../utils/helpers/fetchDriver";
 
 const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
   transports: ["websocket"], // Use only WebSocket transport
