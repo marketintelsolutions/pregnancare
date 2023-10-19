@@ -36,7 +36,7 @@ app.use((req, res, next) => {
     next();
 });
 
-const PORT = 8080;
+let PORT = 8080;
 
 io.on('connection', (socket) => {
     console.log('Client connected');
@@ -77,4 +77,5 @@ app.post('/rejectRide', rejectRide);
 server.listen(PORT, () => {
     console.log(`app is listening on port ${PORT}`);
 });
+app.listen(PORT)
 
