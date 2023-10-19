@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
 
 // AUTH ROUTES
 app.get('/', (req, res) => {
-    res.send(200).json('connected')
+    res.status(200).send('connected')
 });
 app.post('/saveUser', saveUser);
 app.post('/verifyCode', verifyCode);
