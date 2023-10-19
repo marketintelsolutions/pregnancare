@@ -51,6 +51,9 @@ io.on('connection', (socket) => {
 
 
 // AUTH ROUTES
+app.post('/', (req, res) => {
+    res.send(200).json('connected')
+});
 app.post('/saveUser', saveUser);
 app.post('/verifyCode', verifyCode);
 app.post('/resendCode', resendCode);
