@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 
 
 // AUTH ROUTES
-app.post('/', (req, res) => {
+app.get('/', (req, res) => {
     res.send(200).json('connected')
 });
 app.post('/saveUser', saveUser);
