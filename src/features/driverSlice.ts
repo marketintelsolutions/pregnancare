@@ -10,6 +10,8 @@ const initialState = {
   buttonMode: "decline",
   sos: "default",
   isPlotted: false,
+  message: "",
+  closestHospital: "",
 };
 
 const driverSlice = createSlice({
@@ -31,6 +33,12 @@ const driverSlice = createSlice({
     setIsPlotted: (state, action) => {
       state.isPlotted = action.payload;
     },
+    setMessage: (state, action) => {
+      state.message = action.payload;
+    },
+    setClosestHospital: (state, action) => {
+      state.closestHospital = action.payload;
+    },
   },
 });
 
@@ -40,5 +48,7 @@ export const {
   setButtonMode,
   setSos,
   setIsPlotted,
+  setMessage,
+  setClosestHospital,
 } = driverSlice.actions;
 export default driverSlice.reducer;

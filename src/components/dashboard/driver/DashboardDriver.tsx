@@ -14,12 +14,14 @@ import {
   handleRejectRide,
 } from "../../../utils/dashboardHelpers/driverDashboardHelpers";
 import ActionButton from "./ActionButton";
+import { setMessage } from "../../../features/driverSlice";
 
 const DashboardDriver = () => {
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
   const ride = useSelector((state: RootState) => state.driver.ride);
   const sos = useSelector((state: RootState) => state.driver.sos);
-  const [message, setMessage] = useState("");
+  const message = useSelector((state: RootState) => state.driver.message);
+  // const [message, setMessage] = useState("");
 
   const dispatch = useDispatch();
 
@@ -30,7 +32,7 @@ const DashboardDriver = () => {
   useEffect(() => {
     let message =
       ride?.status === "new" ? "Accept pick up request" : "No pick up request";
-    setMessage(message);
+    dispatch(setMessage(message));
   }, [ride]);
 
   useEffect(() => {
@@ -61,7 +63,7 @@ const DashboardDriver = () => {
             onClick={async () => {
               // if (message === "ride accepted") return;
               await acceptRide(driverDetails, dispatch, ride);
-              setMessage("ride accepted");
+              dispatch(setMessage("ride accepted"));
             }}
           >
             <div className="text-white mx-auto max-w-[193px]">
@@ -85,6 +87,7 @@ const DashboardDriver = () => {
         ride={ride}
         driverDetails={driverDetails}
         {...driverButtons[buttonMode]}
+        dispatch={dispatch}
       />
     </div>
   );

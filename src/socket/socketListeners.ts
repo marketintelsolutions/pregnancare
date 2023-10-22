@@ -13,9 +13,7 @@ const initializeSocketListeners = (dispatch) => {
   // LISTEN FOR RIDE FROM PATIENT
   socket.on("updateDrivers", (updatedDrivers) => {
     // const { email } = JSON.parse(localStorage.getItem("driver")) || {};
-
     // const driver = updatedDrivers.find((item) => item.email === email);
-
     // const time = new Date().getMilliseconds();
 
     const driver = updatedDrivers[0];
