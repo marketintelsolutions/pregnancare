@@ -1,7 +1,8 @@
 const db = require("../auth/firebase");
 const admin = require('firebase-admin');
-const { haversineDistance, generateId } = require("../middleware/dashboardMiddleware");
+const { haversineDistance, generateId, getClosestHospital, } = require("../middleware/dashboardMiddleware");
 const calculateDistance = require('../middleware/calculateDistance')
+const axios = require('axios');
 
 exports.saveLocation = async (req, res) => {
     console.log('request made');
@@ -92,7 +93,7 @@ exports.getNearbyDrivers = async (req, res) => {
             rideId: generateId(),
             patient: {
                 // email: req.user.email,  // Adjust as necessary if this isn't where the email is located
-                ...user,
+                // ...user,
                 coordinates
             },
             drivers: nearbyDrivers,
@@ -104,16 +105,13 @@ exports.getNearbyDrivers = async (req, res) => {
         // console.log('emmitted to socket');
 
         // console.log(rideDetails.rideId);
-        // console.log(rideDetails);
 
         // const newRide = await ridesRef.add(rideDetails);
         await ridesRef.add(rideDetails);
 
         // await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId })
 
-        await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, ride: rideDetails })
-
-
+        await motherRef.update({ sos: true, sosRideId: rideDetails.rideId })
 
         const updatedMotherData = motherSnapshot.docs[0].data();
 
@@ -193,8 +191,6 @@ exports.saveToken = async (req, res) => {
             // User doesn't exist, return an error
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
-
-
 
         // Update the driver's data with the new FCM token
         // await userRef.update({ fcmToken: token });
@@ -423,5 +419,72 @@ exports.updateRide = async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+    }
+}
+
+exports.findClosestHospital = async (req, res) => {
+    try {
+        // Extract driver coordinates from the request body
+        const { lat, lon } = req.body;
+
+        if (!lat || !lon) {
+            return res.status(400).json({ success: false, message: 'Latitude and longitude are required.' });
+        }
+
+        // Build the Google Places API URL with driver coordinates
+        const apiKey = 'AIzaSyDwmXwwjgVeR05p7CfvN9aCcdgbhC21Z9s';
+        const radius = 1500; // Search radius in meters
+        const type = 'hospital';
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&type=${type}&key=${apiKey}`;
+
+        // Send a GET request to the Google Places API
+        const response = await axios.get(apiUrl);
+
+        console.log(response.data);
+
+        if (response.data.status === 'OK') {
+            // If results are returned, find the closest hospital
+            const results = response.data.results;
+            let closestHospital = null;
+            let closestDistance = Number.MAX_VALUE;
+
+            for (const hospital of results) {
+                const hospitalLat = hospital.geometry.location.lat;
+                const hospitalLon = hospital.geometry.location.lng;
+
+                // Calculate the distance using Haversine formula or the provided calculateDistance function
+                const distance = getClosestHospital({ lat, lon, dest_lat: hospitalLat, dest_lon: hospitalLon });
+
+                if (distance < closestDistance) {
+                    closestHospital = hospital;
+                    closestDistance = distance;
+                }
+            }
+
+            const ridesRef = db.collection('rides');
+            const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+            const id = rideSnapshot.docs[0].id;
+            const rideRef = ridesRef.doc(id);
+
+            if (rideSnapshot.empty) {
+                return res.status(404).json({ success: false, message: 'Ride not found.' });
+            }
+
+            const rideData = rideSnapshot.docs[0].data();
+
+            // Update the ride to add the closest hospital
+            await rideRef.update({
+                closestHospital
+            });
+
+
+            return res.status(200).json({ success: true, closestHospital });
+        } else {
+            console.log(response.data);
+            return res.status(500).json({ success: false, message: 'Error fetching hospital data from Google Places API' });
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 }

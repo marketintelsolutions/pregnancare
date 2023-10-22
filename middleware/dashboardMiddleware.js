@@ -17,6 +17,28 @@ exports.haversineDistance = (coords1, coords2) => {
     return distance;
 }
 
+exports.getClosestHospital = ({ lat, lon, dest_lat, dest_lon }) => {
+    const earthRadius = 6371000; // Earth's radius in meters
+
+    // Convert latitude and longitude from degrees to radians
+    const lat1 = lat * (Math.PI / 180);
+    const lon1 = lon * (Math.PI / 180);
+    const lat2 = dest_lat * (Math.PI / 180);
+    const lon2 = dest_lon * (Math.PI / 180);
+
+    // Haversine formula
+    const dLat = lat2 - lat1;
+    const dLon = lon2 - lon1;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1) * Math.cos(lat2) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    // Calculate the distance
+    const distance = earthRadius * c;
+
+    return distance;
+}
 
 exports.generateId = () => {
     const currentDate = new Date().toISOString();
