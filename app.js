@@ -6,7 +6,7 @@ const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
-const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide } = require('./controllers/dashboardController');
+const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide } = require('./controllers/dashboardController');
 require("dotenv").config();
 
 //Setting up cors
@@ -71,6 +71,7 @@ app.post('/acceptRide', (req, res) => acceptRide(req, res, req.io));
 app.post('/getUserDetails', getUserDetails);
 app.post('/getUserRideDetails', getUserRideDetails);
 app.post('/rejectRide', rejectRide);
+app.post('/updateRide', (req, res) => updateRide(req, res, req.io));
 
 
 

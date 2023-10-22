@@ -56,6 +56,8 @@ exports.getNearbyDrivers = async (req, res) => {
         const driverSnapshot = await usersRef.where('userType', '==', 'driver').get();
 
         const motherSnapshot = await usersRef.where('email', '==', email).get();
+        const motherId = motherSnapshot.docs[0].id
+        const motherRef = usersRef.doc(motherId)
 
         if (motherSnapshot.empty) {
             return res.status(404).json({ success: false, message: 'Mother not found.' });
@@ -99,18 +101,24 @@ exports.getNearbyDrivers = async (req, res) => {
         // EMIT TO SOCKET
         io.emit('updateDrivers', nearbyDrivers);
 
+        // console.log('emmitted to socket');
 
-        const newRide = await ridesRef.add(rideDetails);
+        // console.log(rideDetails.rideId);
+        // console.log(rideDetails);
 
-        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId, ride: rideDetails })
+        // const newRide = await ridesRef.add(rideDetails);
+        await ridesRef.add(rideDetails);
 
-        // updated mother details
-        // const updatedMotherSnapshot = await usersRef.where('email', '==', email).get();
-        // const updatedMotherData = updatedMotherSnapshot.data();
+        // await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId })
+
+        await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, ride: rideDetails })
+
+
 
         const updatedMotherData = motherSnapshot.docs[0].data();
 
-        console.log('Nearby Drivers:', nearbyDrivers);
+        // console.log('Nearby Drivers:', nearbyDrivers);
+        console.log('nearby drivers sent');
         res.status(200).json({ success: true, drivers: nearbyDrivers, ride: rideDetails, user: updatedMotherData });
 
     } catch (error) {
@@ -263,7 +271,7 @@ exports.acceptRide = async (req, res) => {
         io.emit('acceptRide', { message: 'ride accepted', ride: updatedRide });
 
 
-        res.status(200).json({ success: true, message: 'Ride accepted successfully!' });
+        res.status(200).json({ success: true, message: 'Ride accepted successfully!', ride: updatedRide });
 
     } catch (error) {
         console.error("Error:", error);
@@ -325,21 +333,26 @@ exports.getUserRideDetails = async (req, res) => {
 exports.rejectRide = async (req, res) => {
     const { rideId, driverEmail } = req.body;
 
+    console.log(driverEmail);
+
     if (!rideId || !driverEmail) {
         return res.status(400).json({ success: false, message: 'Ride ID and driver email are required.' });
     }
 
     try {
         // Update the driver's SOS status
-        const driverRef = db.collection('users').where('email', '==', driverEmail);
-        const driverSnapshot = await driverRef.get();
+        const driversRef = db.collection('users');
+        const driverSnapshot = await driversRef.where('email', '==', driverEmail).get()
+        const driverId = driverSnapshot.docs[0].id
+        const driverRef = driversRef.doc(driverId)
 
         if (driverSnapshot.empty) {
             return res.status(404).json({ success: false, message: 'Driver not found.' });
         }
 
-        const driverDoc = driverSnapshot.docs[0];
-        await driverDoc.ref.update({ sos: false });
+        // const driverDoc = driverSnapshot.docs[0].data();
+        await driverRef.update({ sos: false })
+        console.log('driver set to false');
 
         const ridesRef = db.collection('rides');
         const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
@@ -363,9 +376,52 @@ exports.rejectRide = async (req, res) => {
             drivers: updatedDriversArray,
         });
 
+        console.log('ride declined');
+
         return res.status(200).json({ success: true, message: 'Ride rejected successfully.' });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
     }
 };
+
+exports.updateRide = async (req, res) => {
+    const { rideId, message } = req.body;
+    const io = req.io
+
+
+    if (!rideId) {
+        return res.status(400).json({ success: false, message: 'Ride is required' });
+    }
+
+    try {
+        const ridesRef = db.collection('rides');
+        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+        const id = rideSnapshot.docs[0].id;
+        const rideRef = ridesRef.doc(id);
+
+        if (rideSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'Ride not found.' });
+        }
+
+        const rideData = rideSnapshot.docs[0].data();
+
+        // Update the ride's status to 'declined' and drivers array
+        await rideRef.update({
+            status: message,
+        });
+
+        // // get latest details
+        updatedRideSnapshot = await rideRef.get();
+        updatedRide = updatedRideSnapshot.data();
+
+        console.log('message', message);
+
+        io.emit(`${message}`, { message, ride: updatedRide });
+
+        return res.status(200).json({ success: true, message: `ride status updated to: ${message}` });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+    }
+}
