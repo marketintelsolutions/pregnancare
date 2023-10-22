@@ -6,12 +6,12 @@ const driver = JSON.parse(localStorage.getItem("driver")) || { sos: false };
 
 const initialState = {
   driver,
-  ride: { rideId: "", duration: "", status: "" },
+  ride: { rideId: "", duration: "", status: "", closestHospital: {} },
   buttonMode: "decline",
   sos: "default",
   isPlotted: false,
   message: "",
-  closestHospital: "",
+  closestHospital: null,
 };
 
 const driverSlice = createSlice({
@@ -37,7 +37,9 @@ const driverSlice = createSlice({
       state.message = action.payload;
     },
     setClosestHospital: (state, action) => {
+      // update the closest hospital and add the closest hospital to the ride
       state.closestHospital = action.payload;
+      state.ride = { ...state.ride, closestHospital: action.payload };
     },
   },
 });

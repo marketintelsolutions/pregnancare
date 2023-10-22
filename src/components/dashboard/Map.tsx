@@ -35,8 +35,12 @@ function Map({ user }) {
   const location = useSelector((state: RootState) => state.map.location);
   const error = useSelector((state: RootState) => state.map.error);
   const ride = useSelector((state: RootState) => state.driver.ride);
+  const closestHospital = useSelector(
+    (state: RootState) => state.driver.closestHospital
+  );
 
   const [response, setResponse] = useState(null);
+  const [hospitalResponse, setHospitalResponse] = useState(null);
   const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
 
   const driverCoord = { ...location } || { lat: 0, lng: 0 };
@@ -111,6 +115,7 @@ function Map({ user }) {
       directionsService.route(
         {
           origin: driverCoord,
+          // origin,
           destination: motherCoord,
           travelMode: google.maps.TravelMode.DRIVING,
         },
@@ -128,6 +133,39 @@ function Map({ user }) {
     }
   }, [location, userDetails, ride]);
 
+  // useEffect for directions to hospital
+  useEffect(() => {
+    if (!closestHospital) return;
+    console.log("there is a close hospital");
+
+    let origin = closestHospital;
+    console.log("origin", origin);
+    console.log("driver coord", driverCoord);
+
+    try {
+      const directionsService = new google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin,
+          destination: motherCoord,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            // Clear old directions before setting the new one
+            setResponse(null);
+            setHospitalResponse(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      console.log("there was error");
+    }
+  }, [closestHospital]);
+
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
       {error && <p>{error}</p>}
@@ -138,7 +176,9 @@ function Map({ user }) {
           center={location}
         >
           {isPlotted
-            ? response && <DirectionsRenderer directions={response} />
+            ? hospitalResponse
+              ? response && <DirectionsRenderer directions={hospitalResponse} />
+              : response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}
         </GoogleMap>
       </LoadScript>

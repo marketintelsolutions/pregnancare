@@ -102,12 +102,16 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
       .post(`${baseUrl}/findClosestHospital`, {
         lat: lat,
         lon: lng,
+        rideId: ride.rideId,
       })
       .then((response) => {
         const data = response.data;
         if (data.success) {
           console.log(data.closestHospital);
-          // dispatch(setClosestHospital(data.closestHospital));
+          const coordinates = data.closestHospital.geometry.location;
+          console.log("hospital coordinates:", coordinates);
+
+          dispatch(setClosestHospital(coordinates));
         } else {
           alert("Error finding the closest hospital. Please try again.");
         }
@@ -133,7 +137,7 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
       dispatch(setMessage("arrived at pickup"));
 
       // move to next button
-      dispatch(setButtonMode("endTrip"));
+      // dispatch(setButtonMode("endTrip"));
     } else {
       console.error("Failed to arrive ride:", response.data.message);
     }
