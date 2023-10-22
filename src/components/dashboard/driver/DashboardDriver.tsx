@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import sos from "../../../assets/images/sos.png";
+import sosImage from "../../../assets/images/sos.png";
 import Map from "../Map";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/rootReducer";
@@ -18,24 +18,29 @@ import ActionButton from "./ActionButton";
 const DashboardDriver = () => {
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
   const ride = useSelector((state: RootState) => state.driver.ride);
-
-  const [message, setMessage] = useState(
-    (driverDetails && driverDetails.sos) || ride
-      ? "Accept pick up request"
-      : "No pick up request"
-  );
+  const sos = useSelector((state: RootState) => state.driver.sos);
+  const [message, setMessage] = useState("");
 
   const dispatch = useDispatch();
 
-  const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
   const buttonMode = useSelector((state: RootState) => state.driver.buttonMode);
 
   const user = JSON.parse(localStorage.getItem("driver"));
 
   useEffect(() => {
-    if (driverDetails.sos && (ride === null || ride?.rideId)) return;
+    let message =
+      ride?.status === "new" ? "Accept pick up request" : "No pick up request";
+    setMessage(message);
+  }, [ride]);
+
+  useEffect(() => {
+    // if (driverDetails.sos && (ride === null || ride?.rideId)) return;
+    console.log("new ride gotten");
+
+    console.log(sos);
+
     fetchDriverDetails(dispatch);
-  }, [driverDetails]);
+  }, [sos]);
 
   return (
     <div className="flex items-center flex-col">
@@ -51,18 +56,16 @@ const DashboardDriver = () => {
           {/* SOS */}
           <div
             className={`${
-              (driverDetails && driverDetails.sos) || ride
-                ? "bg-green-500"
-                : "bg-blue-800"
+              ride?.status === "new" ? "bg-green-500" : "bg-blue-800"
             } text-center z-20 w-[413px] h-[413px] rounded-[42px] flex items-center justify-center cursor-pointer`}
-            onClick={() => {
-              if (message === "ride accepted") return;
-              acceptRide(driverDetails, dispatch, ride);
+            onClick={async () => {
+              // if (message === "ride accepted") return;
+              await acceptRide(driverDetails, dispatch, ride);
               setMessage("ride accepted");
             }}
           >
             <div className="text-white mx-auto max-w-[193px]">
-              <img src={sos} alt="sos" className="mx-auto mb-2" />
+              <img src={sosImage} alt="sos" className="mx-auto mb-2" />
               <p className="italic uppercase text-4xl mb-2"> sos</p>
               <p className="font-normal text-lg">{message}</p>
             </div>
@@ -71,10 +74,12 @@ const DashboardDriver = () => {
         </div>
       </section>
 
-      <p className="flex gap-2 items-center mx-auto mb-5">
-        <img src={dangerCircle} alt="dangerCircle" />
-        {ride?.duration} away from pickup point
-      </p>
+      {message === "ride accepted" && (
+        <p className="flex gap-2 items-center mx-auto mb-5">
+          <img src={dangerCircle} alt="dangerCircle" />
+          {ride?.duration} away from pickup point
+        </p>
+      )}
 
       <ActionButton
         ride={ride}

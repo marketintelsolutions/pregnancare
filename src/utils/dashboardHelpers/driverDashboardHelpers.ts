@@ -1,34 +1,37 @@
 import axios from "axios";
-import { setButtonMode } from "../../features/driverSlice";
+import { setButtonMode, setRide } from "../../features/driverSlice";
 import { setIsPlotted } from "../../features/mapSlice";
 
 export const acceptRide = async (driverDetails, dispatch, ride) => {
-  if (driverDetails.sos) {
-    console.log("accept clicked");
+  // if (driverDetails.sos) {
+  console.log("accept clicked");
 
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/acceptRide`,
-        {
-          rideId: ride.rideId,
-          driverDetails,
-        }
-      );
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_BASE_URL}/acceptRide`,
+      {
+        rideId: ride.rideId,
+        driverDetails,
+      }
+    );
 
-      console.log(response);
-      //   dispatch(setIsPlotted(true));
-      dispatch(setButtonMode("arrivePickup"));
+    console.log(response);
+    //   dispatch(setIsPlotted(true));
+    dispatch(setButtonMode("arrivePickup"));
+    dispatch(setRide(response.data.ride));
+    dispatch(setIsPlotted(true));
+    // console.log(response.data.ride);
 
-      // setMessage(response.data.message);
-    } catch (error) {
-      // setMessage('Error accepting ride.');
-      console.log(error);
-    }
+    // setMessage(response.data.message);
+  } catch (error) {
+    // setMessage('Error accepting ride.');
+    console.log(error);
   }
+  // }
 };
 
 export const handleRejectRide = async (ride, driverDetails) => {
-  console.log(ride.rideId);
+  console.log(ride?.rideId);
 
   try {
     // Make a request to the backend route to reject the ride
@@ -50,8 +53,26 @@ export const handleRejectRide = async (ride, driverDetails) => {
   }
 };
 
-export const arrivePickup = () => {
+export const arrivePickup = async (ride) => {
   console.log("arrived at pickup");
+  try {
+    // Make a request to the backend route to reject the ride
+    const response = await axios.post(
+      `${process.env.REACT_APP_BASE_URL}/updateRide`,
+      {
+        rideId: ride.rideId,
+        message: "arrivePickup",
+      }
+    );
+
+    if (response.data.success) {
+      console.log("Ride status changed to arrived");
+    } else {
+      console.error("Failed to arrive ride:", response.data.message);
+    }
+  } catch (error) {
+    console.error("Error arriving ride:", error);
+  }
 };
 
 export const startTrip = () => {

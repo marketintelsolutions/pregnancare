@@ -31,9 +31,11 @@ const motherCoord = {
 
 function Map({ user }) {
   const dispatch = useDispatch();
+
   const location = useSelector((state: RootState) => state.map.location);
-  // console.log("location", location);
   const error = useSelector((state: RootState) => state.map.error);
+  const ride = useSelector((state: RootState) => state.driver.ride);
+
   const [response, setResponse] = useState(null);
   const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
 
@@ -124,7 +126,7 @@ function Map({ user }) {
       console.log(error);
       console.log("there was error");
     }
-  }, [location, userDetails]);
+  }, [location, userDetails, ride]);
 
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">

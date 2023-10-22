@@ -24,6 +24,8 @@ const Content = ({ user }) => {
 
   const ride = JSON.parse(localStorage.getItem("ride")) || {};
 
+  // console.log("ride", ride);
+
   const driver = ride.assignedDriver || {};
 
   const dispatch = useDispatch();
@@ -74,7 +76,7 @@ const Content = ({ user }) => {
       .then((response) => {
         if (response.data.success) {
           dispatch(setRide(response.data.ride));
-          console.log(response.data.ride);
+          // console.log(response.data.ride);
         } else {
           setError(response.data.message);
         }
@@ -171,18 +173,22 @@ const Content = ({ user }) => {
             </div>
           )}
 
-          <p className="flex gap-2 items-center mx-auto">
-            <img src={dangerCircle} alt="dangerCircle" /> The driver is{" "}
-            {ride.duration} away from you
-          </p>
-          <button
-            className="w-fit border border-[#3058A6] py-4 px-7 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear"
-            onClick={() => setIsModalOpen(!isModalOpen)}
-          >
-            {isModalOpen
-              ? `Hide Driver Details`
-              : `Click to see driver details ${driver.email}`}
-          </button>
+          {ride.status === "accepted" && (
+            <>
+              <p className="flex gap-2 items-center mx-auto">
+                <img src={dangerCircle} alt="dangerCircle" /> The driver is{" "}
+                {ride.duration} away from you
+              </p>
+              <button
+                className="w-fit border border-[#3058A6] py-4 px-7 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear"
+                onClick={() => setIsModalOpen(!isModalOpen)}
+              >
+                {isModalOpen
+                  ? `Hide Driver Details`
+                  : `Click to see driver details ${driver.email}`}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

@@ -1,12 +1,15 @@
 // features/mapSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 
-const user = JSON.parse(localStorage.getItem("driver")) || { sos: false };
+const driver = JSON.parse(localStorage.getItem("driver")) || { sos: false };
+// const ride = JSON.parse(localStorage.getItem("ride"));
 
 const initialState = {
-  driver: user,
-  ride: { rideId: "", duration: "" },
+  driver,
+  ride: { rideId: "", duration: "", status: "" },
   buttonMode: "decline",
+  sos: "default",
+  isPlotted: false,
 };
 
 const driverSlice = createSlice({
@@ -22,8 +25,20 @@ const driverSlice = createSlice({
     setButtonMode: (state, action) => {
       state.buttonMode = action.payload;
     },
+    setSos: (state, action) => {
+      state.sos = action.payload;
+    },
+    setIsPlotted: (state, action) => {
+      state.isPlotted = action.payload;
+    },
   },
 });
 
-export const { setDriver, setRide, setButtonMode } = driverSlice.actions;
+export const {
+  setDriver,
+  setRide,
+  setButtonMode,
+  setSos,
+  setIsPlotted,
+} = driverSlice.actions;
 export default driverSlice.reducer;
