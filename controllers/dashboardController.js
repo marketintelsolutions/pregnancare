@@ -423,6 +423,8 @@ exports.updateRide = async (req, res) => {
 }
 
 exports.findClosestHospital = async (req, res) => {
+    const { rideId } = req.body;
+
     try {
         // Extract driver coordinates from the request body
         const { lat, lon } = req.body;
