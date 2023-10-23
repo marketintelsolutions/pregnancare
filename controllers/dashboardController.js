@@ -92,7 +92,7 @@ exports.getNearbyDrivers = async (req, res) => {
         const rideDetails = {
             rideId: generateId(),
             patient: {
-                // email: req.user.email,  // Adjust as necessary if this isn't where the email is located
+                email,
                 // ...user,
                 coordinates
             },
@@ -488,5 +488,78 @@ exports.findClosestHospital = async (req, res) => {
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+}
+
+exports.endTrip = async (req, res) => {
+    const { ride } = req.body;
+    const { rideId } = ride
+
+    const patientEmail = ride.patient.email
+    const driverEmail = ride.assignedDriver.email
+
+    console.log(patientEmail, driverEmail);
+
+    try {
+        // FOR RIDE
+        const ridesRef = db.collection('rides');
+        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+        const id = rideSnapshot.docs[0].id;
+        const rideRef = ridesRef.doc(id);
+
+        const usersRef = db.collection('users');
+
+        // FOR PATIENT
+        const patientSnapshot = await usersRef.where('email', '==', patientEmail).get();
+        const patientId = patientSnapshot.docs[0].id;
+        const patientRef = usersRef.doc(patientId);
+
+        // FOR DRIVER
+        const driverSnapshot = await usersRef.where('email', '==', driverEmail).get();
+        const driverId = driverSnapshot.docs[0].id;
+        const driverRef = usersRef.doc(driverId);
+
+
+        if (rideSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'Ride not found.' });
+        } else if (patientSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'patient not found.' });
+        } else if (driverSnapshot.empty) {
+            return res.status(404).json({ success: false, message: 'driver not found.' });
+        }
+        console.log('everyone found');
+        // Reference to the ride document
+        // const rideRef = db.collection('rides').doc(ride.rideId);
+
+        // Reference to the assigned driver document
+        // const driverRef = db.collection('users').doc(ride.assignedDriver.email);
+
+        // Reference to the patient document
+        // const patientRef = db.collection('users').doc(ride.patient.email);
+
+        // Perform multiple Firestore operations in a batch
+        const batch = db.batch();
+
+        // Update assignedDriver's SOS to false
+        batch.update(driverRef, { sos: false });
+
+        // Update patient's SOS to false
+        batch.update(patientRef, { sos: false });
+
+        // Delete patient's SOSRideId
+        batch.update(patientRef, { sosRideId: null });
+
+        // Update ride status to 'completed'
+        batch.update(rideRef, { status: 'completed' });
+
+        // Commit the batch
+        await batch.commit();
+
+        console.log('everyon updated');
+
+        res.status(200).json({ message: 'Ride completed successfully.' });
+    } catch (error) {
+        console.error('Error completing ride:', error);
+        res.status(500).json({ error: 'An error occurred while completing the ride.' });
     }
 }
