@@ -137,7 +137,7 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
       dispatch(setMessage("arrived at pickup"));
 
       // move to next button
-      // dispatch(setButtonMode("endTrip"));
+      dispatch(setButtonMode("endTrip"));
     } else {
       console.error("Failed to arrive ride:", response.data.message);
     }
@@ -146,8 +146,18 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
   }
 };
 
-export const endTrip = () => {
+export const endTrip = async (ride) => {
   console.log("ending trip");
+
+  try {
+    console.log(ride);
+
+    const response = await axios.post(`${baseUrl}/endTrip`, { ride });
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error completing ride:", error);
+    // Handle error
+  }
 };
 
 export const driverButtons = {

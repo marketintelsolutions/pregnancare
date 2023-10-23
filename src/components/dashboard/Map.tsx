@@ -44,9 +44,6 @@ function Map({ user }) {
   const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
 
   const driverCoord = { ...location } || { lat: 0, lng: 0 };
-  // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
-  // console.log("motherCoord", motherCoord);
-  // console.log("driverCoord", driverCoord);
 
   // Define your backend endpoint URL
   const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
