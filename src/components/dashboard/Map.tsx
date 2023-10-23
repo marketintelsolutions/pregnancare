@@ -173,7 +173,7 @@ function Map({ user }) {
           center={location}
         >
           {isPlotted
-            ? hospitalResponse
+            ? closestHospital
               ? response && <DirectionsRenderer directions={hospitalResponse} />
               : response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}

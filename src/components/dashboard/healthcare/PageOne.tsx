@@ -31,16 +31,16 @@ const PageOne = () => {
         <p className="text-xl mt-2 opacity-80">Good Morning</p>
       </div>
       <div>
-        <table className="flex flex-col gap-2 my-8 text-center text-base">
+        <table className="flex flex-col my-8 text-center text-base">
           <thead>
-            <tr className="grid gap-2 grid-cols-7">
-              <th>S/N</th>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Genotype</th>
-              <th>Number of CS</th>
-              <th>Number of Children</th>
-              <th>Alert Status</th>
+            <tr className="grid grid-cols-7 ">
+              <th className="border p-4">S/N</th>
+              <th className="border p-4">Name</th>
+              <th className="border p-4">Age</th>
+              <th className="border p-4">Genotype</th>
+              <th className="border p-4">Number of CS</th>
+              <th className="border p-4">Number of Children</th>
+              <th className="border p-4">Alert Status</th>
             </tr>
           </thead>
           <tbody>
@@ -55,14 +55,16 @@ const PageOne = () => {
                 status,
               } = data;
               return (
-                <tr key={id} className="grid gap-2 grid-cols-7">
-                  <td>{id}</td>
-                  <td>{name}</td>
-                  <td>{age}</td>
-                  <td>{genotype}</td>
-                  <td>{numberOfCs}</td>
-                  <td>{numberOfChildren}</td>
-                  <td>{status}</td>
+                <tr key={id} className="grid grid-cols-7">
+                  <td className="border p-4">{id}</td>
+                  <td className="border p-4">{name}</td>
+                  <td className="border p-4">{age}</td>
+                  <td className="border p-4">{genotype}</td>
+                  <td className="border p-4">{numberOfCs}</td>
+                  <td className="border p-4">{numberOfChildren}</td>
+                  <td className="border p-4">
+                    <input type="radio" checked={status} />
+                  </td>
                 </tr>
               );
             })}
