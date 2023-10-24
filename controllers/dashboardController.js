@@ -97,8 +97,13 @@ exports.getNearbyDrivers = async (req, res) => {
             drivers: nearbyDrivers,
             status: 'new'
         };
-        // EMIT TO SOCKET
+
+        // EMIT TO SOCKET (ALERT NEARBY DRIVERS)
         io.emit('updateDrivers', nearbyDrivers);
+
+
+
+
 
         await ridesRef.add(rideDetails);
 
@@ -110,6 +115,30 @@ exports.getNearbyDrivers = async (req, res) => {
 
         // console.log('Nearby Drivers:', nearbyDrivers);
         console.log('nearby drivers sent');
+
+        // GET ALL USERS AND ALERT HOSPITALS
+
+        try {
+            const snapshot = await usersRef.where('userType', '==', 'pregnant woman').get();
+            const pregnantWomanUsers = [];
+
+            snapshot.forEach(doc => {
+                // Include the document ID in the data
+                pregnantWomanUsers.push({
+                    id: doc.id,
+                    ...doc.data(),
+                });
+            });
+
+            console.log(pregnantWomanUsers);
+
+            // EMIT TO SOCKET (ALERT HOSPITALS)
+            io.emit('newSos', { rideDetails, pregnantWomanUsers })
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+
         res.status(200).json({ success: true, drivers: nearbyDrivers, ride: rideDetails, user: updatedMotherData });
 
     } catch (error) {
@@ -551,7 +580,11 @@ exports.getAllUsers = async (req, res) => {
         const pregnantWomanUsers = [];
 
         snapshot.forEach(doc => {
-            pregnantWomanUsers.push(doc.data());
+            // Include the document ID in the data
+            pregnantWomanUsers.push({
+                id: doc.id,
+                ...doc.data(),
+            });
         });
 
         console.log(pregnantWomanUsers);
