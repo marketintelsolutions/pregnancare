@@ -6,7 +6,7 @@ const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
-const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip } = require('./controllers/dashboardController');
+const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers } = require('./controllers/dashboardController');
 require("dotenv").config();
 
 //Setting up cors
@@ -62,7 +62,7 @@ app.post('/login', login);
 app.post('/sendResetEmail', resetEmail);
 app.post('/reset/:token', resetPassword);
 
-// DASHBOARD ROUTES
+// DASHBOARD ROUTES (PATIENT AND DRIVER)
 app.post('/saveLocation', saveLocation);
 app.post('/getNearbyDrivers', (req, res) => getNearbyDrivers(req, res, req.io)); // Pass io to the function
 app.post('/getDriverDetails', getDriverDetails);
@@ -75,7 +75,8 @@ app.post('/updateRide', (req, res) => updateRide(req, res, req.io));
 app.post('/findClosestHospital', findClosestHospital);
 app.post('/endTrip', endTrip);
 
-
+// HEALTHCARE ROUTES
+app.get('/getAllUsers', getAllUsers);
 
 server.listen(PORT, () => {
     console.log(`app is listening on port ${PORT}`);

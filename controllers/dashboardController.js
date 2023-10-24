@@ -9,8 +9,6 @@ exports.saveLocation = async (req, res) => {
 
     const { user, coordinates, address } = req.body;
 
-    // console.log(req.body);
-
     try {
         const usersRef = db.collection('users');
         const userSnapshot = await usersRef.where('email', '==', user.email).get();
@@ -102,11 +100,6 @@ exports.getNearbyDrivers = async (req, res) => {
         // EMIT TO SOCKET
         io.emit('updateDrivers', nearbyDrivers);
 
-        // console.log('emmitted to socket');
-
-        // console.log(rideDetails.rideId);
-
-        // const newRide = await ridesRef.add(rideDetails);
         await ridesRef.add(rideDetails);
 
         // await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId })
@@ -182,8 +175,6 @@ exports.saveToken = async (req, res) => {
     const { token, email } = req.body;
 
     try {
-        // const userRef = db.collection('users').doc(email);
-        // await userRef.set({ fcmToken: token }, { merge: true });
         const usersRef = db.collection('users');
         const userSnapshot = await usersRef.where('email', '==', email).get();
 
@@ -303,10 +294,6 @@ exports.getUserDetails = async (req, res) => {
 exports.getUserRideDetails = async (req, res) => {
     const { rideId } = req.body;
     console.log(rideId);
-
-    // if (!email) {
-    //     return res.status(400).json({ success: false, message: 'Email is required.' });
-    // }
 
     try {
         const ridesRef = db.collection('rides');
@@ -528,14 +515,6 @@ exports.endTrip = async (req, res) => {
             return res.status(404).json({ success: false, message: 'driver not found.' });
         }
         console.log('everyone found');
-        // Reference to the ride document
-        // const rideRef = db.collection('rides').doc(ride.rideId);
-
-        // Reference to the assigned driver document
-        // const driverRef = db.collection('users').doc(ride.assignedDriver.email);
-
-        // Reference to the patient document
-        // const patientRef = db.collection('users').doc(ride.patient.email);
 
         // Perform multiple Firestore operations in a batch
         const batch = db.batch();
@@ -561,5 +540,24 @@ exports.endTrip = async (req, res) => {
     } catch (error) {
         console.error('Error completing ride:', error);
         res.status(500).json({ error: 'An error occurred while completing the ride.' });
+    }
+}
+
+exports.getAllUsers = async (req, res) => {
+    const usersCollection = db.collection('users'); // Adjust the collection name to match your Firebase setup
+
+    try {
+        const snapshot = await usersCollection.where('userType', '==', 'pregnant woman').get();
+        const pregnantWomanUsers = [];
+
+        snapshot.forEach(doc => {
+            pregnantWomanUsers.push(doc.data());
+        });
+
+        console.log(pregnantWomanUsers);
+        res.json(pregnantWomanUsers);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 }
