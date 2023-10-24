@@ -30,6 +30,7 @@ const App = () => {
 
   return (
     <Routes>
+      {/* SIGIN IN / SIGN UP */}
       <Route path="/" element={<Landing />} />
       <Route path="/about" element={<About />} />
       <Route path="/signin" element={<Signin />} />
@@ -52,14 +53,11 @@ const App = () => {
 
       {/* DASHBOARD */}
       <Route path="/dashboard/pregnant-woman" element={<PregnantDashboard />} />
-
       <Route path="/dashboard/driver" element={<DriverDashboard />} />
       <Route
         path="/dashboard/healthcare-provider"
         element={<HealthcareDashboard />}
       />
-
-      {/* DASHBOARD */}
     </Routes>
   );
 };

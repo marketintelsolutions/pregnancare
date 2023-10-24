@@ -1,23 +1,64 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { setUsers } from "../../../features/healthcareSlice";
+import { RootState } from "../../../store/rootReducer";
 
 const PageOne = () => {
-  const [users, setUsers] = useState([]);
+  const users = useSelector((store: RootState) => store.healthcare.users);
+  const latestRide = useSelector(
+    (store: RootState) => store.healthcare.latestRide
+  );
+
+  const dispatch = useDispatch();
+
+  // Use state to manage the checked status of radio inputs
+  const [radioStatus, setRadioStatus] = useState({});
 
   useEffect(() => {
+    console.log("there is a new sos");
+
     // Define the API endpoint to fetch 'pregnant woman' users
     const API_URL = `${process.env.REACT_APP_BASE_URL}/getAllUsers`;
 
     axios
       .get(API_URL)
       .then((response) => {
-        setUsers(response.data);
+        dispatch(setUsers(response.data));
         console.log(response.data);
+        // After setting users data, update the radioStatus
+        // const updatedRadioStatus = {};
+        // response.data.forEach((user) => {
+        //   updatedRadioStatus[user.id] = user.sos;
+        // });
+        // setRadioStatus(updatedRadioStatus);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
   }, []);
+
+  useEffect(() => {
+    // Initialize radioStatus with SOS values from the fetched users
+    const initialRadioStatus = {};
+    users.forEach((user) => {
+      initialRadioStatus[user.id] = user.sos;
+      // handleRadioChange(user.id);
+    });
+    setRadioStatus(initialRadioStatus);
+  }, [users]);
+
+  const handleRadioChange = (userId) => {
+    setRadioStatus((prevState) => ({
+      ...prevState,
+      [userId]: !prevState[userId], // Toggle the status
+    }));
+  };
+
+  useEffect(() => {
+    console.log(radioStatus); // Log the updated radioStatus when it changes
+  }, [radioStatus]);
 
   return (
     <section className="px-14 py-12">
@@ -60,7 +101,11 @@ const PageOne = () => {
                   <td className="border p-4">{csection}</td>
                   <td className="border p-4">{children}</td>
                   <td className="border p-4">
-                    <input type="radio" checked={sos} />
+                    <input
+                      type="radio"
+                      checked={radioStatus[id]}
+                      onChange={() => handleRadioChange(id)} // Update the status
+                    />
                   </td>
                 </tr>
               );
