@@ -1,27 +1,24 @@
-import React from "react";
-
-const tableData = [
-  {
-    id: 1,
-    name: "Aishat Mudi",
-    age: 28,
-    genotype: "AB",
-    numberOfCs: 2,
-    numberOfChildren: 3,
-    status: true,
-  },
-  {
-    id: 2,
-    name: "Olupitan Dami",
-    age: 26,
-    genotype: "AA",
-    numberOfCs: 0,
-    numberOfChildren: 1,
-    status: false,
-  },
-];
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 const PageOne = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    // Define the API endpoint to fetch 'pregnant woman' users
+    const API_URL = `${process.env.REACT_APP_BASE_URL}/getAllUsers`;
+
+    axios
+      .get(API_URL)
+      .then((response) => {
+        setUsers(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
   return (
     <section className="px-14 py-12">
       <div className="text-primarytext">
@@ -44,26 +41,26 @@ const PageOne = () => {
             </tr>
           </thead>
           <tbody>
-            {tableData.map((data) => {
+            {users.map((data, index) => {
               const {
                 id,
-                name,
+                firstname,
                 age,
                 genotype,
-                numberOfCs,
-                numberOfChildren,
-                status,
+                csection,
+                children,
+                sos,
               } = data;
               return (
-                <tr key={id} className="grid grid-cols-7">
-                  <td className="border p-4">{id}</td>
-                  <td className="border p-4">{name}</td>
+                <tr key={index} className="grid grid-cols-7">
+                  <td className="border p-4">{index + 1}</td>
+                  <td className="border p-4">{firstname}</td>
                   <td className="border p-4">{age}</td>
                   <td className="border p-4">{genotype}</td>
-                  <td className="border p-4">{numberOfCs}</td>
-                  <td className="border p-4">{numberOfChildren}</td>
+                  <td className="border p-4">{csection}</td>
+                  <td className="border p-4">{children}</td>
                   <td className="border p-4">
-                    <input type="radio" checked={status} />
+                    <input type="radio" checked={sos} />
                   </td>
                 </tr>
               );
