@@ -16,6 +16,7 @@ import ForgotPasswordSteptwo from "./pages/auth/ForgotPasswordSteptwo";
 import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
 import initializeSocketListeners from "./socket/socketListeners";
 import { useDispatch } from "react-redux";
+import UserItem from "./pages/dashboard/healthCare/UserItem";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -58,6 +59,7 @@ const App = () => {
         path="/dashboard/healthcare-provider"
         element={<HealthcareDashboard />}
       />
+      <Route path="/dashboard/healthcare-provider/:id" element={<UserItem />} />
     </Routes>
   );
 };
