@@ -73,7 +73,7 @@ app.post('/getUserRideDetails', getUserRideDetails);
 app.post('/rejectRide', rejectRide);
 app.post('/updateRide', (req, res) => updateRide(req, res, req.io));
 app.post('/findClosestHospital', findClosestHospital);
-app.post('/endTrip', endTrip);
+app.post('/endTrip', (req, res) => endTrip(req, res, req.io));
 
 // HEALTHCARE ROUTES
 app.get('/getAllUsers', getAllUsers);

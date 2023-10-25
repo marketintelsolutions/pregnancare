@@ -101,13 +101,7 @@ exports.getNearbyDrivers = async (req, res) => {
         // EMIT TO SOCKET (ALERT NEARBY DRIVERS)
         io.emit('updateDrivers', nearbyDrivers);
 
-
-
-
-
         await ridesRef.add(rideDetails);
-
-        // await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: true, sosRideId: rideDetails.rideId })
 
         await motherRef.update({ sos: true, sosRideId: rideDetails.rideId })
 
@@ -329,7 +323,7 @@ exports.getUserRideDetails = async (req, res) => {
         const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
 
         if (rideSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'Ride not found.' });
+            return res.status(403).json({ success: false, message: 'Ride not found.' });
         }
 
         const rideData = rideSnapshot.docs[0].data();
@@ -510,6 +504,8 @@ exports.findClosestHospital = async (req, res) => {
 exports.endTrip = async (req, res) => {
     const { ride } = req.body;
     const { rideId } = ride
+    const io = req.io;
+
 
     const patientEmail = ride.patient.email
     const driverEmail = ride.assignedDriver.email
@@ -563,7 +559,31 @@ exports.endTrip = async (req, res) => {
         // Commit the batch
         await batch.commit();
 
-        console.log('everyon updated');
+        console.log('everyone updated');
+
+        // GET ALL USERS AND ALERT HOSPITALS
+
+        try {
+            const snapshot = await usersRef.where('userType', '==', 'pregnant woman').get();
+            const pregnantWomanUsers = [];
+
+            snapshot.forEach(doc => {
+                // Include the document ID in the data
+                pregnantWomanUsers.push({
+                    id: doc.id,
+                    ...doc.data(),
+                });
+            });
+
+            console.log(pregnantWomanUsers);
+
+            // EMIT TO SOCKET (ALERT HOSPITALS)
+            io.emit('newSos', { pregnantWomanUsers })
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            res.status(500).json({ error: 'Internal server error' });
+            return
+        }
 
         res.status(200).json({ message: 'Ride completed successfully.' });
     } catch (error) {
