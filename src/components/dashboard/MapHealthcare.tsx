@@ -121,30 +121,38 @@ function MapHealthcare({ ride }) {
   };
 
   // USE EFFECT FOR DIRECTIONS SERVICE
-  //   useEffect(() => {
-  //     console.log("rerendering map");
+  useEffect(() => {
+    console.log("rerendering map");
 
-  //     try {
-  //       const directionsService = new google.maps.DirectionsService();
-  //       directionsService.route(
-  //         {
-  //           origin: driverCoord,
-  //           destination: motherCoord,
-  //           travelMode: google.maps.TravelMode.DRIVING,
-  //         },
-  //         (result, status) => {
-  //           if (status === google.maps.DirectionsStatus.OK) {
-  //             setResponse(result);
-  //           } else {
-  //             console.error(`error fetching directions ${result}`);
-  //           }
-  //         }
-  //       );
-  //     } catch (error) {
-  //       console.log(error);
-  //       console.log("there was error");
-  //     }
-  //   }, [ride]);
+    // let driverCoord;
+
+    // if (ride?.assignedDriver) {
+    //   driverCoord = ride.assignedDriver.coordinates;
+    // } else {
+    //   driverCoord = "";
+    // }
+
+    try {
+      const directionsService = new google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: driverCoord,
+          destination: motherCoord,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            setResponse(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      console.log("there was error");
+    }
+  }, [ride]);
 
   return (
     <div className="-ml-6 z-10 w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
@@ -155,10 +163,10 @@ function MapHealthcare({ ride }) {
           zoom={13}
           center={location}
         >
-          {/* {rideDetails?.status === "accepted"
+          {ride?.assignedDriver
             ? response && <DirectionsRenderer directions={response} />
-            : location && <Marker position={location} />} */}
-          <Marker position={location} />
+            : location && <Marker position={location} />}
+          {/* <Marker position={location} /> */}
         </GoogleMap>
       </LoadScript>
     </div>

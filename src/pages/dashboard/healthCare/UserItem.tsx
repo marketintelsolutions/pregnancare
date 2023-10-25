@@ -21,15 +21,14 @@ import {
 const UserItem = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [driver, setDriver] = useState({});
-  //   const [ride, setRide] = useState({ assignedDriver: {} });
 
   const users = useSelector((store: RootState) => store.healthcare.users);
   const user = useSelector((store: RootState) => store.healthcare.user);
+  const message = useSelector((store: RootState) => store.healthcare.message);
+  const ride = useSelector((store: RootState) => store.healthcare.ride);
   const latestRide = useSelector(
     (store: RootState) => store.healthcare.latestRide
   );
-  const message = useSelector((store: RootState) => store.healthcare.message);
-  const ride = useSelector((store: RootState) => store.healthcare.ride);
 
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -37,7 +36,7 @@ const UserItem = () => {
   useEffect(() => {
     const user = users.find((item) => item.id === id);
 
-    console.log(latestRide);
+    // console.log(latestRide);
 
     dispatch(setUser(user));
 
@@ -50,9 +49,11 @@ const UserItem = () => {
     axios
       .post(API_URL, { rideId: sosRideId })
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
 
         const ride = response.data.ride;
+        console.log(ride);
+
         // dispatch(setUsers(response.data));
         dispatch(setRide(ride));
 
@@ -78,7 +79,7 @@ const UserItem = () => {
         {isModalOpen && (
           <div className="flex flex-row gap-11 bg-none rounded-lg px-12 py-6 absolute bottom-[140%] z-20 mx-auto w-full items-center justify-center">
             {/* DRIVER */}
-            {ride.assignedDriver && (
+            {ride?.assignedDriver && (
               <div className="flex flex-col gap-3 rounded-lg px-12 py-6 shadow bottom-[140%] z-20 bg-white">
                 <div className="flex items-end">
                   {/* <span>{driver.name}</span> */}
@@ -130,7 +131,7 @@ const UserItem = () => {
         <>
           <p className="flex gap-2 items-center mx-auto">
             <img src={dangerCircle} alt="dangerCircle" />{" "}
-            {ride.assignedDriver
+            {ride?.assignedDriver
               ? "15 mins away from pick up point"
               : "no driver assigned"}
           </p>

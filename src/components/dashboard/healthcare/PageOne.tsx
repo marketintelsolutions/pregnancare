@@ -27,7 +27,7 @@ const PageOne = () => {
       .get(API_URL)
       .then((response) => {
         dispatch(setUsers(response.data));
-        console.log(response.data);
+        // console.log(response.data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -50,10 +50,6 @@ const PageOne = () => {
       [userId]: !prevState[userId], // Toggle the status
     }));
   };
-
-  useEffect(() => {
-    console.log(radioStatus); // Log the updated radioStatus when it changes
-  }, [radioStatus]);
 
   return (
     <div>
