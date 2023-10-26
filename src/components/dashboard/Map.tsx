@@ -29,6 +29,8 @@ const motherCoord = {
   lng: 3.90521,
 };
 
+const API_KEY = process.env.REACT_APP_GOOGLE_MAP_API_KEY;
+
 function Map({ user }) {
   const dispatch = useDispatch();
 
@@ -66,7 +68,7 @@ function Map({ user }) {
 
           // Use Geocoding API to get address
           fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${API_KEY}`
           )
             .then((response) => response.json())
             .then((data) => {
@@ -166,7 +168,7 @@ function Map({ user }) {
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
       {error && <p>{error}</p>}
-      <LoadScript googleMapsApiKey="AIzaSyDwmXwwjgVeR05p7CfvN9aCcdgbhC21Z9s">
+      <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={13}

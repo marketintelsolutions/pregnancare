@@ -27,7 +27,7 @@ const PageOne = () => {
       .get(API_URL)
       .then((response) => {
         dispatch(setUsers(response.data));
-        // console.log(response.data);
+        console.log(response.data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);

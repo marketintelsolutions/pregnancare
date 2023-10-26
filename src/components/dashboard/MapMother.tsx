@@ -29,6 +29,8 @@ const driverCoord = {
   lng: 3.90521,
 };
 
+const API_KEY = process.env.REACT_APP_GOOGLE_MAP_API_KEY;
+
 function Map({ user, userDetails, ride }) {
   const [response, setResponse] = useState(null);
 
@@ -135,7 +137,7 @@ function Map({ user, userDetails, ride }) {
   return (
     <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
       {error && <p>{error}</p>}
-      <LoadScript googleMapsApiKey="AIzaSyDwmXwwjgVeR05p7CfvN9aCcdgbhC21Z9s">
+      <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={13}

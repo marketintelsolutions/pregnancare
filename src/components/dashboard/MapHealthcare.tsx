@@ -9,6 +9,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/rootReducer";
 import { setError, setLocation } from "../../features/healthcareSlice";
+import { updateLanguageServiceSourceFile } from "typescript";
 
 const mapContainerStyle = {
   width: "866px",
@@ -28,15 +29,14 @@ const driverCoord = {
   lat: 7.41809,
   lng: 3.90521,
 };
+const API_KEY = process.env.REACT_APP_GOOGLE_MAP_API_KEY;
 
-function MapHealthcare({ ride }) {
+function MapHealthcare({ user, ride }) {
   const [response, setResponse] = useState(null);
 
   const location = useSelector((state: RootState) => state.healthcare.location);
   const error = useSelector((state: RootState) => state.healthcare.error);
-  const rideDetails = useSelector((state: RootState) => state.user.ride);
-
-  const user = useSelector((state: RootState) => state.healthcare.user);
+  // const user = useSelector((state: RootState) => state.healthcare.user);
   const coordinates = useSelector(
     (state: RootState) => state.healthcare.coordinates
   );
@@ -44,28 +44,19 @@ function MapHealthcare({ ride }) {
   const dispatch = useDispatch();
 
   const motherCoord = { ...location } || { lat: 0, lng: 0 };
-  // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
-  // console.log("motherCoord", motherCoord);
-  // console.log("driverCoord", driverCoord);
-
-  //   console.log(user);
-
-  // Define your backend endpoint URL
-  const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
-  const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log(user);
+          // console.log(user);
 
           //   const { lat, lng } =
           //     (ride?.patient && ride?.patient.coordinates) || {};
-          //   const lat = user.coordinates.lat;
-          //   const lng = user.coordinates.lng;
+          const lat = user.coordinates && user.coordinates.lat;
+          const lng = user.coordinates && user.coordinates.lng;
 
-          const { lat, lng } = coordinates;
+          // const { lat, lng } = coordinates || {};
 
           console.log(lat, lng);
 
@@ -76,23 +67,6 @@ function MapHealthcare({ ride }) {
               lng,
             })
           );
-
-          //   if (!lat || !lng) return;
-          //   // Use Geocoding API to get address
-          //   fetch(
-          //     `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`
-          //   )
-          //     .then((response) => response.json())
-          //     .then((data) => {
-          //       if (data.results && data.results[0]) {
-          //         const address = data.results[0].formatted_address;
-          //         // console.log(address); // log the full address
-
-          //         // Send coordinates and user details to backend
-          //         sendCoordinatesToBackend({ lat, lng }, address);
-          //       }
-          //     })
-          //     .catch((err) => console.error("Error fetching address:", err));
         },
         (err) => {
           dispatch(setError(err.message));
@@ -102,23 +76,6 @@ function MapHealthcare({ ride }) {
       dispatch(setError("Geolocation is not supported by this browser."));
     }
   }, [coordinates, user]);
-
-  const sendCoordinatesToBackend = (coordinates, address) => {
-    if (!user.email) return;
-    axios
-      .post(BACKEND_URL, {
-        user,
-        coordinates,
-        address,
-      })
-      .then((response) => {
-        // console.log("Data sent and response received:", response.data);
-        // setUserDetails(response.data.user);
-      })
-      .catch((err) => {
-        console.error("Error sending data:", err);
-      });
-  };
 
   // USE EFFECT FOR DIRECTIONS SERVICE
   useEffect(() => {
@@ -155,9 +112,9 @@ function MapHealthcare({ ride }) {
   }, [ride]);
 
   return (
-    <div className="-ml-6 z-10 w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
+    <div className="-ml-6 z-10 w-[100%] max-w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
       {error && <p>{error}</p>}
-      <LoadScript googleMapsApiKey="AIzaSyDwmXwwjgVeR05p7CfvN9aCcdgbhC21Z9s">
+      <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={13}

@@ -20,7 +20,8 @@ import {
 
 const UserItem = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [driver, setDriver] = useState({});
+  const [driver, setDriver] = useState(null);
+  const [patient, setPatient] = useState(null);
 
   const users = useSelector((store: RootState) => store.healthcare.users);
   const user = useSelector((store: RootState) => store.healthcare.user);
@@ -38,14 +39,48 @@ const UserItem = () => {
 
     // console.log(latestRide);
 
+    // if there is no user in state, fetch from database
+    if (!user) {
+      const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserDetails`;
+
+      axios
+        .post(API_URL, { id })
+        .then((response) => {
+          const user = response.data.user;
+
+          dispatch(setUser(user));
+          dispatch(setCoordinates(user.coordinates));
+
+          const sosRideId = user.sosRideId;
+
+          const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserRideDetails`;
+
+          console.log("sosRideId", sosRideId);
+
+          getRideDetails(API_URL, sosRideId);
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+      return;
+    }
+    console.log("else functionality");
+
     dispatch(setUser(user));
 
     dispatch(setCoordinates(user.coordinates));
 
-    const sosRideId = user && user.sosRideId;
+    const sosRideId = user.sosRideId;
 
     const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserRideDetails`;
 
+    console.log("sosRideId", sosRideId);
+
+    getRideDetails(API_URL, sosRideId);
+  }, [users]);
+
+  const getRideDetails = (API_URL, sosRideId) => {
+    //   GET RIDE DETAILS
     axios
       .post(API_URL, { rideId: sosRideId })
       .then((response) => {
@@ -67,12 +102,12 @@ const UserItem = () => {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [users]);
+  };
 
   return (
     <SharedLayout>
       <div className="flex mt-10 items-center mx-auto w-fit">
-        <MapHealthcare ride={ride} />
+        <MapHealthcare user={user} ride={ride} />
       </div>
 
       <div className="relative flex flex-col my-8">
@@ -82,8 +117,8 @@ const UserItem = () => {
             {ride?.assignedDriver && (
               <div className="flex flex-col gap-3 rounded-lg px-12 py-6 shadow bottom-[140%] z-20 bg-white">
                 <div className="flex items-end">
-                  {/* <span>{driver.name}</span> */}
-                  {/* <img src={driver.imgUrl} alt="car" /> */}
+                  <span>{driver?.name}</span>
+                  <img src={driver?.imgUrl} alt="car" />
                 </div>
                 <div className="flex items-center">
                   <img src={car} alt="car" />
@@ -106,8 +141,8 @@ const UserItem = () => {
             {/* USER */}
             <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow  z-20">
               <div className="flex items-end">
-                {/* <span>{driver.name}</span> */}
-                {/* <img src={driver.imgUrl} alt="car" /> */}
+                {/* <span>{driver?.name}</span>
+                <img src={driver?.imgUrl} alt="car" /> */}
               </div>
               <div className="flex items-center">
                 <img src={car} alt="car" />
