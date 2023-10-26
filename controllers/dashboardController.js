@@ -291,13 +291,44 @@ exports.acceptRide = async (req, res) => {
 
 exports.getUserDetails = async (req, res) => {
     const email = req.body.email;
+    const id = req.body.id
 
+    console.log('id', id);
+
+    const usersRef = db.collection('users');
     if (!email) {
-        return res.status(400).json({ success: false, message: 'Email is required.' });
+        // return res.status(400).json({ success: false, message: 'Email is required.' });
+
+        // search using id if there is no email
+        if (!id) {
+            console.log('there is no id');
+            return res.status(400).json({ success: false, message: 'Email or id is required.' });
+        }
+        try {
+            console.log('there is an id', id);
+            const userSnapshot = await usersRef.doc(id).get();
+
+            console.log('user snapshot', userSnapshot.exists);
+
+            if (userSnapshot.exits) {
+                return res.status(404).json({ success: false, message: 'User not found.' });
+            }
+
+            const userData = userSnapshot.data();
+
+
+            // Return user details
+            return res.status(200).json({ success: true, user: userData });
+        } catch (error) {
+            console.error("Error:", error);
+            res.status(500).json({ success: false, message: 'Error fetching user details.' });
+        }
+        return
     }
 
+
+    // search using email
     try {
-        const usersRef = db.collection('users');
         const userSnapshot = await usersRef.where('email', '==', email).get();
 
         if (userSnapshot.empty) {
