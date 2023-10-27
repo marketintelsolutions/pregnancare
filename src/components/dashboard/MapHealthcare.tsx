@@ -51,8 +51,8 @@ function MapHealthcare({ user, ride }) {
 
           //   const { lat, lng } =
           //     (ride?.patient && ride?.patient.coordinates) || {};
-          const lat = user.coordinates && user.coordinates.lat;
-          const lng = user.coordinates && user.coordinates.lng;
+          const lat = user?.coordinates && user.coordinates.lat;
+          const lng = user?.coordinates && user.coordinates.lng;
 
           // const { lat, lng } = coordinates || {};
 
