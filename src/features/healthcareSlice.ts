@@ -5,7 +5,7 @@ const initialState = {
   users: [],
   latestRide: {},
   coordinates: { lat: "", lng: "" },
-  user: { email: "" },
+  user: null,
   location: null,
   error: "",
   message: "",

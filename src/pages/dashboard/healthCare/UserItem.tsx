@@ -35,52 +35,30 @@ const UserItem = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const user = users.find((item) => item.id === id);
+    const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserDetails`;
 
-    // console.log(latestRide);
+    axios
+      .post(API_URL, { id })
+      .then((response) => {
+        const user = response.data.user;
 
-    // if there is no user in state, fetch from database
-    if (!user) {
-      const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserDetails`;
+        dispatch(setUser(user));
+        dispatch(setCoordinates(user.coordinates));
 
-      axios
-        .post(API_URL, { id })
-        .then((response) => {
-          const user = response.data.user;
+        const sosRideId = user.sosRideId;
 
-          dispatch(setUser(user));
-          dispatch(setCoordinates(user.coordinates));
+        const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserRideDetails`;
 
-          const sosRideId = user.sosRideId;
+        console.log("sosRideId", sosRideId);
 
-          const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserRideDetails`;
-
-          console.log("sosRideId", sosRideId);
-
-          getRideDetails(API_URL, sosRideId);
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-        });
-      return;
-    }
-    console.log("else functionality");
-
-    dispatch(setUser(user));
-
-    dispatch(setCoordinates(user.coordinates));
-
-    const sosRideId = user.sosRideId;
-
-    const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserRideDetails`;
-
-    console.log("sosRideId", sosRideId);
-
-    getRideDetails(API_URL, sosRideId);
-  }, [users]);
+        getRideDetails(API_URL, sosRideId);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, [users, id]);
 
   const getRideDetails = (API_URL, sosRideId) => {
-    //   GET RIDE DETAILS
     axios
       .post(API_URL, { rideId: sosRideId })
       .then((response) => {
@@ -94,6 +72,7 @@ const UserItem = () => {
 
         if (ride.assignedDriver) {
           console.log("driver assigned");
+          setDriver(ride.assignedDriver);
         } else {
           console.log("no driver assigned");
           setMessage("No driver assigned yet");
@@ -112,7 +91,7 @@ const UserItem = () => {
 
       <div className="relative flex flex-col my-8">
         {isModalOpen && (
-          <div className="flex flex-row gap-11 bg-none rounded-lg px-12 py-6 absolute bottom-[140%] z-20 mx-auto w-full items-center justify-center">
+          <div className="flex flex-row gap-11 bg-none rounded-lg px-12 py-6 absolute bottom-[140%] z-20 mx-auto w-full items-end justify-center">
             {/* DRIVER */}
             {ride?.assignedDriver && (
               <div className="flex flex-col gap-3 rounded-lg px-12 py-6 shadow bottom-[140%] z-20 bg-white">
@@ -141,24 +120,8 @@ const UserItem = () => {
             {/* USER */}
             <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow  z-20">
               <div className="flex items-end">
-                {/* <span>{driver?.name}</span>
-                <img src={driver?.imgUrl} alt="car" /> */}
-              </div>
-              <div className="flex items-center">
-                <img src={car} alt="car" />
-                <span>Toyota Fj Crusier - 5FJXK1</span>
-              </div>
-              <div className="flex items-center">
-                <img src={star} alt="star" />
-                <span>Rating - 4.2</span>
-              </div>
-              <div className="flex items-center">
-                <img src={trip} alt="trip" />
-                <span>Trips - 2,239</span>
-              </div>
-              <div className="flex items-center">
-                <img src={driverImg} alt="driver" />
-                <span>Years - 2</span>
+                <span>{user?.firstname}</span>
+                <img src={user?.imgUrl} alt="car" />
               </div>
             </div>
           </div>
@@ -174,7 +137,7 @@ const UserItem = () => {
             className="w-fit border border-[#3058A6] py-4 px-7 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear mx-auto"
             onClick={() => setIsModalOpen(!isModalOpen)}
           >
-            {`Show details`}
+            {isModalOpen ? `Hide Details` : `Show details`}
           </button>
         </>
       </div>

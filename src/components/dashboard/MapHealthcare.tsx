@@ -5,11 +5,9 @@ import {
   LoadScript,
   Marker,
 } from "@react-google-maps/api";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/rootReducer";
 import { setError, setLocation } from "../../features/healthcareSlice";
-import { updateLanguageServiceSourceFile } from "typescript";
 
 const mapContainerStyle = {
   width: "866px",
@@ -109,10 +107,10 @@ function MapHealthcare({ user, ride }) {
       console.log(error);
       console.log("there was error");
     }
-  }, [ride]);
+  }, [ride, user]);
 
   return (
-    <div className="-ml-6 z-10 w-[100%] max-w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
+    <div className="-ml-6 z-10 min-w-[100%] max-w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
       {error && <p>{error}</p>}
       <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
