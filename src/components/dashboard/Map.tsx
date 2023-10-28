@@ -174,7 +174,7 @@ function Map({ user }) {
           zoom={13}
           center={location}
         >
-          {ride?.status === "accepted"
+          {ride !== null && ride?.status !== "new"
             ? closestHospital
               ? response && <DirectionsRenderer directions={hospitalResponse} />
               : response && <DirectionsRenderer directions={response} />

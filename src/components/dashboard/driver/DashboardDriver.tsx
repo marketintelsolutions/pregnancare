@@ -35,6 +35,7 @@ const DashboardDriver = () => {
         ? "ride accepted"
         : "No pick up request";
     dispatch(setMessage(message));
+    console.log(ride);
   }, [ride]);
 
   useEffect(() => {
@@ -77,20 +78,20 @@ const DashboardDriver = () => {
           <Map user={user} />
         </div>
       </section>
-
       {message === "ride accepted" && (
         <p className="flex gap-2 items-center mx-auto mb-5">
           <img src={dangerCircle} alt="dangerCircle" />
           {ride?.duration} away from pickup point
         </p>
       )}
-
-      <ActionButton
-        ride={ride}
-        driverDetails={driverDetails}
-        {...driverButtons[buttonMode]}
-        dispatch={dispatch}
-      />
+      {ride !== null && (
+        <ActionButton
+          ride={ride}
+          driverDetails={driverDetails}
+          {...driverButtons[buttonMode]}
+          dispatch={dispatch}
+        />
+      )}
     </div>
   );
 };

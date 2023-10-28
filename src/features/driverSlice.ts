@@ -1,4 +1,3 @@
-// features/mapSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 
 const driver = JSON.parse(localStorage.getItem("driver")) || { sos: false };
@@ -6,7 +5,7 @@ const driver = JSON.parse(localStorage.getItem("driver")) || { sos: false };
 
 const initialState = {
   driver,
-  ride: { rideId: "", duration: "", status: "", closestHospital: {} },
+  ride: null,
   buttonMode: "decline",
   sos: "default",
   isPlotted: false,
@@ -22,7 +21,19 @@ const driverSlice = createSlice({
       state.driver = action.payload;
     },
     setRide: (state, action) => {
-      state.ride = action.payload;
+      const ride = action.payload;
+      state.ride = ride;
+
+      if (ride !== null) {
+        // update the button status based on the ride
+        if (ride.status === "accepted") {
+          state.buttonMode = "arrivePickup";
+        } else if (ride.status === "arrivePickup") {
+          state.buttonMode = "startTrip";
+        } else if (ride.status === "startTrip") {
+          state.buttonMode = "endTrip";
+        }
+      }
     },
     setButtonMode: (state, action) => {
       state.buttonMode = action.payload;

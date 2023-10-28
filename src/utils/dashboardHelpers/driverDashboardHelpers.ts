@@ -146,13 +146,14 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
   }
 };
 
-export const endTrip = async (ride) => {
+export const endTrip = async (ride, _, dispatch) => {
   console.log("ending trip");
 
   try {
     console.log(ride);
 
     const response = await axios.post(`${baseUrl}/endTrip`, { ride });
+    dispatch(setButtonMode("decline"));
     console.log(response.data);
   } catch (error) {
     console.error("Error completing ride:", error);
