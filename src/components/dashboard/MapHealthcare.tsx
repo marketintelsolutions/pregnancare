@@ -73,7 +73,7 @@ function MapHealthcare({ user, ride }) {
     } else {
       dispatch(setError("Geolocation is not supported by this browser."));
     }
-  }, [coordinates, user]);
+  }, [coordinates, user, user?.coordinates]);
 
   // USE EFFECT FOR DIRECTIONS SERVICE
   useEffect(() => {

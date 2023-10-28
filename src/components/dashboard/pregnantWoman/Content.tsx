@@ -40,20 +40,41 @@ const Content = ({ user }) => {
       .then((response) => {
         if (response.data.success) {
           const { user } = response.data;
+          // console.log(user.sosRideId);
+
+          let message = user.sos ? "SOS Sent" : "Click here to request pickup";
+          dispatch(setMessage(message));
+
+          if (user.sosRideId) {
+            // Move the second axios call here, inside the .then block
+            console.log("there is a ride");
+
+            axios
+              .post(`${process.env.REACT_APP_BASE_URL}/getUserRideDetails`, {
+                rideId: user.sosRideId,
+              })
+              .then((rideResponse) => {
+                if (rideResponse.data.success) {
+                  const ride = rideResponse.data;
+                  // console.log("ride", rideResponse.data);
+                  localStorage.setItem("ride", JSON.stringify(ride));
+                  message = "ride accepted";
+
+                  dispatch(setRide(user.ride));
+                  dispatch(setMessage(message));
+                } else {
+                  setError(rideResponse.data.message);
+                }
+              })
+              .catch((rideErr) => {
+                console.error("Error fetching ride details:", rideErr);
+                setError("Error fetching ride details. Please try again.");
+              });
+          }
 
           setUserDetails(user);
+
           localStorage.setItem("user", JSON.stringify(user));
-          dispatch(setRide(user.ride));
-
-          const message = user.sos
-            ? rideDetails.status === "accepted" || ride.status === "accepted"
-              ? "Ride accepted"
-              : "SOS Sent"
-            : "Click here to request pickup";
-
-          console.log(message);
-
-          dispatch(setMessage(message));
         } else {
           setError(response.data.message);
         }
@@ -66,7 +87,7 @@ const Content = ({ user }) => {
 
   // USE EFFECT TO FETCH RIDE
   useEffect(() => {
-    console.log(userDetails);
+    // console.log(userDetails);
 
     if (!userDetails.sosRideId) return;
     axios
@@ -173,7 +194,8 @@ const Content = ({ user }) => {
             </div>
           )}
 
-          {ride.status === "accepted" && (
+          {(rideDetails.status === "accepted" ||
+            ride.status === "accepted") && (
             <>
               <p className="flex gap-2 items-center mx-auto">
                 <img src={dangerCircle} alt="dangerCircle" /> The driver is{" "}

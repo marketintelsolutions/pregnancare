@@ -43,7 +43,7 @@ const UserItem = () => {
         const user = response.data.user;
 
         dispatch(setUser(user));
-        dispatch(setCoordinates(user.coordinates));
+        dispatch(setCoordinates(user?.coordinates));
 
         const sosRideId = user.sosRideId;
 
