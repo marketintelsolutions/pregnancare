@@ -183,9 +183,12 @@ exports.getDriverDetails = async (req, res) => {
                 });
             }
             else if (rideData.assignedDriver) {
-                console.log('there is an assigned driver');
-                isDriverInRide = true;
-                matchedRide = rideData;
+                // check if the ride has not being completed
+                if (rideData.status !== 'completed') {
+                    console.log('there is an assigned driver');
+                    isDriverInRide = true;
+                    matchedRide = rideData;
+                }
             }
 
 
