@@ -170,12 +170,25 @@ exports.getDriverDetails = async (req, res) => {
             const rideData = rideDoc.data();
             const driversArray = rideData.drivers || [];
 
-            driversArray.forEach(driver => {
-                if (driver.email === email && !isDriverInRide) { // Ensure to check the matched ride only once
-                    isDriverInRide = true;
-                    matchedRide = rideData;
-                }
-            });
+            if (driversArray.length > 0) {
+
+                driversArray.forEach(driver => {
+                    if (driver.email === email && !isDriverInRide) {
+                        // Ensure to check the matched ride only once
+                        isDriverInRide = true;
+                        matchedRide = rideData;
+                        // return
+                    }
+                    // if(driver.assignedDriver.email === email)
+                });
+            }
+            else if (rideData.assignedDriver) {
+                console.log('there is an assigned driver');
+                isDriverInRide = true;
+                matchedRide = rideData;
+            }
+
+
         });
 
         // If the driver is found in any ride's drivers array, update sos to true
