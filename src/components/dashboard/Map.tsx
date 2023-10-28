@@ -174,7 +174,7 @@ function Map({ user }) {
           zoom={13}
           center={location}
         >
-          {isPlotted
+          {ride?.status === "accepted"
             ? closestHospital
               ? response && <DirectionsRenderer directions={hospitalResponse} />
               : response && <DirectionsRenderer directions={response} />

@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect } from "react";
 import sosImage from "../../../assets/images/sos.png";
 import Map from "../Map";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/rootReducer";
 import { useDispatch } from "react-redux";
-import { setIsPlotted } from "../../../features/mapSlice";
 import { fetchDriverDetails } from "../../../utils/helpers/fetchDriver";
 import dangerCircle from "../../../assets/logos/dangerCircle.svg";
 import {
@@ -31,7 +29,11 @@ const DashboardDriver = () => {
 
   useEffect(() => {
     let message =
-      ride?.status === "new" ? "Accept pick up request" : "No pick up request";
+      ride?.status === "new"
+        ? "Accept pick up request"
+        : ride?.status === "accepted"
+        ? "ride accepted"
+        : "No pick up request";
     dispatch(setMessage(message));
   }, [ride]);
 
