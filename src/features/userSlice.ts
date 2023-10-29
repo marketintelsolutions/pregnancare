@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: {},
-  ride: { status: "" },
+  ride: null,
   message: "Click here to request pickup",
 };
 

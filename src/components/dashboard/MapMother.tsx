@@ -10,11 +10,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { setLocation, setError } from "../../features/mapSlice";
 import { RootState } from "../../store/rootReducer";
 
-const mapContainerStyle = {
-  width: "559px",
-  height: "471px",
-};
-
 const center = {
   lat: 40.73061,
   lng: -73.935242, // Default to New York for example purposes
@@ -39,6 +34,14 @@ function Map({ user, userDetails, ride }) {
   const rideDetails = useSelector((state: RootState) => state.user.ride);
 
   const dispatch = useDispatch();
+
+  console.log(ride);
+
+  let mapWidth = ride !== null ? "866px" : "559px";
+  const mapContainerStyle = {
+    width: mapWidth,
+    height: "471px",
+  };
 
   const motherCoord = { ...location } || { lat: 0, lng: 0 };
   // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
@@ -135,7 +138,13 @@ function Map({ user, userDetails, ride }) {
   }, [ride]);
 
   return (
-    <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
+    <div
+      className={`${
+        ride !== null
+          ? "z-30 opacity-100 w-[866px] translate-x-[-34%] transition relative"
+          : "opacity-60 w-[559px] z-10 static"
+      } -ml-10  h-[471px] rounded-[42px] overflow-hidden  transition`}
+    >
       {error && <p>{error}</p>}
       <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
@@ -143,7 +152,7 @@ function Map({ user, userDetails, ride }) {
           zoom={13}
           center={location}
         >
-          {rideDetails?.status === "accepted"
+          {rideDetails?.status !== "new"
             ? response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}
         </GoogleMap>

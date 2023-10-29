@@ -10,10 +10,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { setLocation, setError } from "../../features/mapSlice";
 import { RootState } from "../../store/rootReducer";
 
-const mapContainerStyle = {
-  width: "559px",
-  height: "471px",
-};
+// const mapContainerStyle = {
+//   width: "559px",
+//   height: "471px",
+// };
 
 const center = {
   lat: 40.73061,
@@ -46,6 +46,13 @@ function Map({ user }) {
   const [userDetails, setUserDetails] = useState({ patientCoordinates: {} });
 
   const driverCoord = { ...location } || { lat: 0, lng: 0 };
+
+  let mapWidth = ride !== null ? "866px" : "559px";
+
+  const mapContainerStyle = {
+    width: mapWidth,
+    height: "471px",
+  };
 
   // Define your backend endpoint URL
   const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
@@ -166,7 +173,13 @@ function Map({ user }) {
   }, [closestHospital]);
 
   return (
-    <div className="-ml-6 z-10 w-[559px] h-[471px] rounded-[42px] overflow-hidden opacity-60">
+    <div
+      className={`${
+        ride !== null
+          ? "z-30 opacity-100 w-[866px] translate-x-[-34%] transition relative"
+          : "opacity-60 w-[559px] z-10 static"
+      } -ml-10  h-[471px] rounded-[42px] overflow-hidden  transition`}
+    >
       {error && <p>{error}</p>}
       <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
