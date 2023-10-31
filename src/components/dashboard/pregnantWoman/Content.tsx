@@ -21,13 +21,6 @@ const Content = ({ user }) => {
 
   const ride = useSelector((state: RootState) => state.user.ride);
   const message = useSelector((state: RootState) => state.user.message);
-  // const driver = useSelector((state: RootState) => state.driver.driver);
-
-  // const ride = JSON.parse(localStorage.getItem("ride")) || {};
-
-  // console.log("ride", ride);
-
-  // const driver = ride.assignedDriver || {};
 
   const dispatch = useDispatch();
 
@@ -218,7 +211,7 @@ const Content = ({ user }) => {
               >
                 {isModalOpen
                   ? `Hide Driver Details`
-                  : `Click to see driver details ${driver.email}`}
+                  : `Click to see driver details ${driver?.email}`}
               </button>
             </>
           )}

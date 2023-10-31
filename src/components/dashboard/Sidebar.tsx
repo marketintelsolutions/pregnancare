@@ -1,12 +1,22 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import avatar from "../../assets/images/avatar.png";
 import dashboard from "../../assets/images/dashboard.png";
+import { RootState } from "../../store/rootReducer";
 
 const Sidebar = () => {
+  // const user = useSelector((store: RootState) => store.user.user);
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log(user.imgUrl);
+
   return (
     <section className="w-80 bg-coolblue h-screen  px-5">
       <div className="profile flex flex-col items-center gap-11 mt-12">
-        <img src={avatar} alt="avatar" className="w-36 h-36" />
+        <img
+          src={user.imgUrl}
+          alt="avatar"
+          className="w-36 h-36 rounded-full object-cover"
+        />
 
         <nav className="bg-navyblue flex px-5 py-3 flex-col gap-8">
           <div className="flex items-center w-[205px] gap-3">

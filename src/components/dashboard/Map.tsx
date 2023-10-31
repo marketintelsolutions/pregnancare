@@ -175,7 +175,8 @@ function Map({ user }) {
   return (
     <div
       className={`${
-        ride !== null
+        // ride !== null
+        ride?.status !== "new" && ride !== null
           ? "z-30 opacity-100 w-[866px] translate-x-[-34%] transition relative"
           : "opacity-60 w-[559px] z-10 static"
       } -ml-10  h-[471px] rounded-[42px] overflow-hidden  transition`}
