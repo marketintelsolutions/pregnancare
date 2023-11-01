@@ -36,8 +36,6 @@ const ChoosePassword = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
 
-  console.log(user);
-
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);

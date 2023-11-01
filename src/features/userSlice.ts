@@ -5,6 +5,7 @@ const initialState = {
   user: {},
   ride: null,
   message: "Click here to request pickup",
+  loading: false,
 };
 
 const userSlice = createSlice({
@@ -20,8 +21,11 @@ const userSlice = createSlice({
     setMessage: (state, action) => {
       state.message = action.payload;
     },
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
   },
 });
 
-export const { setUser, setRide, setMessage } = userSlice.actions;
+export const { setUser, setRide, setMessage, setLoading } = userSlice.actions;
 export default userSlice.reducer;

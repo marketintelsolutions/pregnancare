@@ -4,13 +4,14 @@ import { useSelector } from "react-redux";
 import Map from "../MapMother";
 import { RootState } from "../../../store/rootReducer";
 import axios from "axios";
-import { setMessage, setRide } from "../../../features/userSlice";
+import { setLoading, setMessage, setRide } from "../../../features/userSlice";
 import sos from "../../../assets/images/sos.png";
 import dangerCircle from "../../../assets/logos/dangerCircle.svg";
 import car from "../../../assets/logos/car.svg";
 import star from "../../../assets/logos/star.svg";
 import trip from "../../../assets/logos/trip.svg";
 import driverImg from "../../../assets/logos/driver.svg";
+import loader from "../../../assets/images/loadwithoutbg.gif";
 
 const Content = ({ user }) => {
   const [drivers, setDrivers] = useState([]);
@@ -19,12 +20,14 @@ const Content = ({ user }) => {
   const [userDetails, setUserDetails] = useState({ sos: false, sosRideId: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const ride = useSelector((state: RootState) => state.user.ride);
+  const location = useSelector((state: RootState) => state.map.location);
   const message = useSelector((state: RootState) => state.user.message);
+  const ride = useSelector((state: RootState) => state.user.ride);
+  const loading = useSelector((state: RootState) => state.user.loading);
+
+  console.log(loading);
 
   const dispatch = useDispatch();
-
-  const location = useSelector((state: RootState) => state.map.location);
 
   useEffect(() => {
     if (ride) {
@@ -106,16 +109,18 @@ const Content = ({ user }) => {
         } else {
           setError(response.data.message);
         }
+        dispatch(setLoading(false));
       })
       .catch((err) => {
         console.error("Error fetching ride details:", err);
         setError("Error fetching ride details. Please try again.");
+        dispatch(setLoading(false));
       });
   }, [userDetails, message]);
 
   const fetchNearbyDrivers = () => {
-    // if (user.sos === true) return;
-    console.log("fetching drivers");
+    // console.log("fetching drivers");
+    dispatch(setLoading(true));
 
     const userType = "pregnant woman";
     const coordinates = {
@@ -136,6 +141,7 @@ const Content = ({ user }) => {
         } else {
           setError(response.data.message);
         }
+        dispatch(setLoading(false));
       })
       .catch((err) => {
         console.error("Error fetching drivers:", err);
@@ -144,7 +150,20 @@ const Content = ({ user }) => {
   };
 
   return (
-    <div className="flex items-center flex-col gap-4">
+    <div className="flex items-center flex-col gap-4 relative w-full">
+      {/* LOADER */}
+      {loading && (
+        <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.7)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-50">
+          <img
+            src={loader}
+            alt="loader"
+            className="h-[250px] object-cover w-[276px] rounded-[10%]"
+          />
+          <p className="text-2xl leading-8 font-medium text-center text-black">
+            Hold on a minute...
+          </p>
+        </div>
+      )}
       <section className="px-14 py-12">
         <div className="text-primarytext">
           <h1 className="text-4xl font-bold">
