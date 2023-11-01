@@ -30,6 +30,7 @@ const motherCoord = {
 };
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAP_API_KEY;
+let directionsService;
 
 function Map({ user }) {
   const dispatch = useDispatch();
@@ -120,7 +121,8 @@ function Map({ user }) {
     console.log("ride::", ride);
 
     try {
-      const directionsService = new google.maps.DirectionsService();
+      // const directionsService = new google.maps.DirectionsService();
+      directionsService = new google.maps.DirectionsService();
       directionsService.route(
         {
           origin: driverCoord,
@@ -152,7 +154,8 @@ function Map({ user }) {
     console.log("driver coord", driverCoord);
 
     try {
-      const directionsService = new google.maps.DirectionsService();
+      // const directionsService = new google.maps.DirectionsService();
+      // directionsService.set("directions", null);
       directionsService.route(
         {
           origin,
