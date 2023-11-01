@@ -626,6 +626,8 @@ exports.endTrip = async (req, res) => {
 
             // EMIT TO SOCKET (ALERT HOSPITALS)
             io.emit('newSos', { pregnantWomanUsers })
+            // EMIT TO USER
+            io.emit('rideEnded', { message: 'ride completed' })
         } catch (error) {
             console.error('Error fetching data:', error);
             res.status(500).json({ error: 'Internal server error' });
