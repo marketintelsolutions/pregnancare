@@ -6,6 +6,7 @@ import { RootState } from "../../../store/rootReducer";
 import { useDispatch } from "react-redux";
 import { fetchDriverDetails } from "../../../utils/helpers/fetchDriver";
 import dangerCircle from "../../../assets/logos/dangerCircle.svg";
+import loader from "../../../assets/images/loadwithoutbg.gif";
 import {
   acceptRide,
   driverButtons,
@@ -19,11 +20,10 @@ const DashboardDriver = () => {
   const ride = useSelector((state: RootState) => state.driver.ride);
   const sos = useSelector((state: RootState) => state.driver.sos);
   const message = useSelector((state: RootState) => state.driver.message);
-  // const [message, setMessage] = useState("");
+  const buttonMode = useSelector((state: RootState) => state.driver.buttonMode);
+  const loading = useSelector((state: RootState) => state.driver.loading);
 
   const dispatch = useDispatch();
-
-  const buttonMode = useSelector((state: RootState) => state.driver.buttonMode);
 
   const user = JSON.parse(localStorage.getItem("driver"));
 
@@ -48,7 +48,19 @@ const DashboardDriver = () => {
   }, [sos]);
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col relative w-full">
+      {loading && (
+        <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.7)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-50">
+          <img
+            src={loader}
+            alt="loader"
+            className="h-[250px] object-cover w-[276px] rounded-[10%]"
+          />
+          <p className="text-2xl leading-8 font-medium text-center text-black">
+            Hold on a minute...
+          </p>
+        </div>
+      )}
       <section className="px-14 py-12">
         <div className="text-primarytext">
           <h1 className="text-4xl font-bold">
@@ -66,7 +78,6 @@ const DashboardDriver = () => {
             onClick={async () => {
               // if (message === "ride accepted") return;
               await acceptRide(driverDetails, dispatch, ride);
-              dispatch(setMessage("ride accepted"));
             }}
           >
             <div className="text-white mx-auto max-w-[193px]">

@@ -41,6 +41,15 @@ const initializeSocketListeners = (dispatch) => {
     localStorage.setItem("ride", JSON.stringify(data.ride));
   });
 
+  // LISTEN FOR ride end (PATIENT)
+  socket.on("rideEnded", (data) => {
+    console.log(data.message);
+
+    dispatch(setMessage(data.message));
+    dispatch(setRide(null));
+    localStorage.removeItem("ride");
+  });
+
   // LISTEN FOR NEW SOS (HEALTCARE PROVIDER)
   socket.on("newSos", ({ rideDetails, pregnantWomanUsers }) => {
     // console.log("new sos ride", rideDetails);

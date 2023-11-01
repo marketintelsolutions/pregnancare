@@ -170,7 +170,6 @@ const Content = ({ user }) => {
             Hello. <span className="font-normal"> {user.firstname}</span>
           </h1>
           <p className="text-xl mt-2 opacity-80">Good Morning</p>
-          {/* {error && <p style={{ color: "red" }}>{error}</p>} */}
         </div>
 
         <div className="flex mt-10 items-center">

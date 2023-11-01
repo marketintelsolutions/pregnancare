@@ -11,6 +11,8 @@ const initialState = {
   isPlotted: false,
   message: "",
   closestHospital: null,
+  mapType: "position",
+  loading: false,
 };
 
 const driverSlice = createSlice({
@@ -52,6 +54,12 @@ const driverSlice = createSlice({
       state.closestHospital = action.payload;
       state.ride = { ...state.ride, closestHospital: action.payload };
     },
+    setMapType: (state, action) => {
+      state.mapType = action.payload;
+    },
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
   },
 });
 
@@ -63,5 +71,7 @@ export const {
   setIsPlotted,
   setMessage,
   setClosestHospital,
+  setMapType,
+  setLoading,
 } = driverSlice.actions;
 export default driverSlice.reducer;

@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   setButtonMode,
   setClosestHospital,
+  setLoading,
   setMessage,
   setRide,
 } from "../../features/driverSlice";
@@ -10,8 +11,8 @@ import { setIsPlotted } from "../../features/mapSlice";
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 export const acceptRide = async (driverDetails, dispatch, ride) => {
-  // if (driverDetails.sos) {
   console.log("accept clicked");
+  dispatch(setLoading(true));
 
   try {
     const response = await axios.post(
@@ -22,23 +23,18 @@ export const acceptRide = async (driverDetails, dispatch, ride) => {
       }
     );
 
-    console.log(response);
-    //   dispatch(setIsPlotted(true));
     dispatch(setButtonMode("arrivePickup"));
     dispatch(setRide(response.data.ride));
     dispatch(setIsPlotted(true));
-    // console.log(response.data.ride);
-
-    // setMessage(response.data.message);
+    dispatch(setMessage("ride accepted"));
+    dispatch(setLoading(false));
   } catch (error) {
-    // setMessage('Error accepting ride.');
     console.log(error);
   }
-  // }
 };
 
-export const handleRejectRide = async (ride, driverDetails) => {
-  console.log(ride?.rideId);
+export const handleRejectRide = async (ride, driverDetails, dispatch) => {
+  dispatch(setLoading(true));
 
   try {
     // Make a request to the backend route to reject the ride
@@ -52,15 +48,19 @@ export const handleRejectRide = async (ride, driverDetails) => {
 
     if (response.data.success) {
       console.log("Ride rejected successfully");
+      dispatch(setLoading(false));
     } else {
       console.error("Failed to reject ride:", response.data.message);
+      dispatch(setLoading(false));
     }
   } catch (error) {
     console.error("Error rejecting ride:", error);
+    dispatch(setLoading(false));
   }
 };
 
 export const arrivePickup = async (ride, _, dispatch) => {
+  dispatch(setLoading(true));
   console.log("arrived at pickup");
   try {
     // Make a request to the backend route to accept the ride
@@ -78,16 +78,20 @@ export const arrivePickup = async (ride, _, dispatch) => {
 
       // move to next button
       dispatch(setButtonMode("startTrip"));
+      dispatch(setLoading(false));
     } else {
       console.error("Failed to arrive ride:", response.data.message);
+      dispatch(setLoading(false));
     }
   } catch (error) {
     console.error("Error arriving ride:", error);
+    dispatch(setLoading(false));
   }
 };
 
 export const startTrip = async (ride, driverDetails, dispatch) => {
   console.log("starting trip");
+  dispatch(setLoading(true));
 
   const { lat, lng } = driverDetails.coordinates;
 
@@ -104,7 +108,7 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
         lon: lng,
         rideId: ride.rideId,
       })
-      .then((response) => {
+      .then(async (response) => {
         const data = response.data;
         if (data.success) {
           console.log(data.closestHospital);
@@ -112,42 +116,46 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
           console.log("hospital coordinates:", coordinates);
 
           dispatch(setClosestHospital(coordinates));
+
+          // CALL THIS ROUTE TO UPDATE THE STATE OF THE RIDE
+          // Make a request to the backend route to accept the ride
+
+          const response = await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/updateRide`,
+            {
+              rideId: ride.rideId,
+              message: "startTrip",
+            }
+          );
+
+          if (response.data.success) {
+            console.log("Ride status changed to arrived");
+            dispatch(setMessage("arrived at pickup"));
+
+            // move to next button
+            dispatch(setButtonMode("endTrip"));
+          } else {
+            console.error("Failed to arrive ride:", response.data.message);
+          }
         } else {
           alert("Error finding the closest hospital. Please try again.");
         }
+        dispatch(setLoading(false));
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("An error occurred. Please try again later.");
+        // alert("An error occurred. Please try again later.");
+        dispatch(setLoading(false));
       });
-
-    // CALL THIS ROUTE TO UPDATE THE STATE OF THE RIDE
-    // Make a request to the backend route to accept the ride
-
-    const response = await axios.post(
-      `${process.env.REACT_APP_BASE_URL}/updateRide`,
-      {
-        rideId: ride.rideId,
-        message: "startTrip",
-      }
-    );
-
-    if (response.data.success) {
-      console.log("Ride status changed to arrived");
-      dispatch(setMessage("arrived at pickup"));
-
-      // move to next button
-      dispatch(setButtonMode("endTrip"));
-    } else {
-      console.error("Failed to arrive ride:", response.data.message);
-    }
   } catch (error) {
     console.error("Error arriving ride:", error);
+    dispatch(setLoading(false));
   }
 };
 
 export const endTrip = async (ride, _, dispatch) => {
   console.log("ending trip");
+  dispatch(setLoading(true));
 
   try {
     console.log(ride);
@@ -156,9 +164,10 @@ export const endTrip = async (ride, _, dispatch) => {
     dispatch(setButtonMode("decline"));
     dispatch(setRide(null));
     console.log(response.data);
+    dispatch(setLoading(false));
   } catch (error) {
     console.error("Error completing ride:", error);
-    // Handle error
+    dispatch(setLoading(false));
   }
 };
 

@@ -37,6 +37,7 @@ function Map({ user }) {
   const location = useSelector((state: RootState) => state.map.location);
   const error = useSelector((state: RootState) => state.map.error);
   const ride = useSelector((state: RootState) => state.driver.ride);
+  const mapType = useSelector((state: RootState) => state.driver.mapType);
   const closestHospital = useSelector(
     (state: RootState) => state.driver.closestHospital
   );
@@ -116,6 +117,8 @@ function Map({ user }) {
 
   // USE EFFECT FOR DIRECTIONS SERVICE
   useEffect(() => {
+    console.log("ride::", ride);
+
     try {
       const directionsService = new google.maps.DirectionsService();
       directionsService.route(
