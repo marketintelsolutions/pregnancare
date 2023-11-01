@@ -154,6 +154,7 @@ export const endTrip = async (ride, _, dispatch) => {
 
     const response = await axios.post(`${baseUrl}/endTrip`, { ride });
     dispatch(setButtonMode("decline"));
+    dispatch(setRide(null));
     console.log(response.data);
   } catch (error) {
     console.error("Error completing ride:", error);
