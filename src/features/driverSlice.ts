@@ -13,6 +13,8 @@ const initialState = {
   closestHospital: null,
   mapType: "position",
   loading: false,
+  driverAlert: "",
+  isDriverAlert: false,
 };
 
 const driverSlice = createSlice({
@@ -50,7 +52,6 @@ const driverSlice = createSlice({
       state.message = action.payload;
     },
     setClosestHospital: (state, action) => {
-      // update the closest hospital and add the closest hospital to the ride
       state.closestHospital = action.payload;
       state.ride = { ...state.ride, closestHospital: action.payload };
     },
@@ -59,6 +60,12 @@ const driverSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
+    },
+    setDriverAlert: (state, action) => {
+      state.driverAlert = action.payload;
+    },
+    setIsDriverAlert: (state, action) => {
+      state.isDriverAlert = action.payload;
     },
   },
 });
@@ -73,5 +80,7 @@ export const {
   setClosestHospital,
   setMapType,
   setLoading,
+  setDriverAlert,
+  setIsDriverAlert,
 } = driverSlice.actions;
 export default driverSlice.reducer;

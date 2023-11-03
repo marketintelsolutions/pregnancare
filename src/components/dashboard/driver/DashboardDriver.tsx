@@ -10,10 +10,9 @@ import loader from "../../../assets/images/loadwithoutbg.gif";
 import {
   acceptRide,
   driverButtons,
-  handleRejectRide,
 } from "../../../utils/dashboardHelpers/driverDashboardHelpers";
 import ActionButton from "./ActionButton";
-import { setMessage } from "../../../features/driverSlice";
+import { setIsDriverAlert, setMessage } from "../../../features/driverSlice";
 
 const DashboardDriver = () => {
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
@@ -22,6 +21,12 @@ const DashboardDriver = () => {
   const message = useSelector((state: RootState) => state.driver.message);
   const buttonMode = useSelector((state: RootState) => state.driver.buttonMode);
   const loading = useSelector((state: RootState) => state.driver.loading);
+  const isDriverAlert = useSelector(
+    (state: RootState) => state.driver.isDriverAlert
+  );
+  const driverAlert = useSelector(
+    (state: RootState) => state.driver.driverAlert
+  );
 
   const dispatch = useDispatch();
 
@@ -49,6 +54,28 @@ const DashboardDriver = () => {
 
   return (
     <div className="flex items-center flex-col relative w-full">
+      {/* MODAL */}
+      {isDriverAlert && (
+        <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.9)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-[999]">
+          <div
+            className={` bg-primary-green text-center w-[413px] h-[413px] rounded-[42px] red-box flex items-center justify-center cursor-pointer `}
+          >
+            <div className="text-white mx-auto max-w-[193px] flex flex-col gap-3">
+              <img src={sosImage} alt="sos" className="mx-auto mb-2" />
+              <p className="italic uppercase text-4xl mb-2 "> ALERT</p>
+              <p className="font-normal text-lg">{driverAlert}</p>
+            </div>
+          </div>
+          <button
+            className="w-fit border border-[#3058A6] py-4 px-11 bg-[#3058A6] rounded-md text-white font-bold text-md cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear"
+            onClick={() => dispatch(setIsDriverAlert(false))}
+          >
+            Close
+          </button>
+        </div>
+      )}
+
+      {/* LOADER */}
       {loading && (
         <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.7)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-50">
           <img

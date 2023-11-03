@@ -9,6 +9,8 @@ const initialState = {
   message: "Click here to request pickup",
   loading: false,
   driver: null,
+  alert: "",
+  isAlert: false,
 };
 
 const userSlice = createSlice({
@@ -30,6 +32,12 @@ const userSlice = createSlice({
     setDriver: (state, action) => {
       state.driver = action.payload;
     },
+    setAlert: (state, action) => {
+      state.alert = action.payload;
+    },
+    setIsAlert: (state, action) => {
+      state.isAlert = action.payload;
+    },
   },
 });
 
@@ -39,5 +47,7 @@ export const {
   setMessage,
   setLoading,
   setDriver,
+  setAlert,
+  setIsAlert,
 } = userSlice.actions;
 export default userSlice.reducer;
