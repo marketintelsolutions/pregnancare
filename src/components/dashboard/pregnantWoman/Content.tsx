@@ -4,7 +4,12 @@ import { useSelector } from "react-redux";
 import Map from "../MapMother";
 import { RootState } from "../../../store/rootReducer";
 import axios from "axios";
-import { setLoading, setMessage, setRide } from "../../../features/userSlice";
+import {
+  setDriver,
+  setLoading,
+  setMessage,
+  setRide,
+} from "../../../features/userSlice";
 import sos from "../../../assets/images/sos.png";
 import dangerCircle from "../../../assets/logos/dangerCircle.svg";
 import car from "../../../assets/logos/car.svg";
@@ -15,7 +20,7 @@ import loader from "../../../assets/images/loadwithoutbg.gif";
 
 const Content = ({ user }) => {
   const [drivers, setDrivers] = useState([]);
-  const [driver, setDriver] = useState(null);
+  // const [driver, setDriver] = useState(null);
   const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState({ sos: false, sosRideId: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,8 +29,9 @@ const Content = ({ user }) => {
   const message = useSelector((state: RootState) => state.user.message);
   const ride = useSelector((state: RootState) => state.user.ride);
   const loading = useSelector((state: RootState) => state.user.loading);
+  const driver = useSelector((state: RootState) => state.user.driver);
 
-  console.log(loading);
+  console.log("driver", driver);
 
   const dispatch = useDispatch();
 
@@ -63,8 +69,7 @@ const Content = ({ user }) => {
                       message = "ride accepted";
                     }
 
-                    setDriver(ride.assignedDriver);
-
+                    dispatch(setDriver(ride.assignedDriver));
                     dispatch(setRide(ride));
                     dispatch(setMessage(message));
                   } else {
@@ -175,7 +180,7 @@ const Content = ({ user }) => {
         <div className="flex mt-10 items-center">
           {/* SOS */}
           <div
-            className={` bg-red z-30 text-center w-[413px] h-[413px] rounded-[42px] red-box flex items-center justify-center cursor-pointer `}
+            className={` bg-primary-red z-30 text-center w-[413px] h-[413px] rounded-[42px] red-box flex items-center justify-center cursor-pointer `}
             onClick={fetchNearbyDrivers}
           >
             <div className="text-white mx-auto max-w-[193px] ">
@@ -189,14 +194,18 @@ const Content = ({ user }) => {
           <Map user={user} userDetails={userDetails} ride={ride} />
         </div>
       </section>
-      {ride && ride.status !== "accepted" && (
-        <div className="relative flex flex-col gap-5">
+      {ride && ride.status !== "new" && (
+        <div className="relative flex flex-col gap-5 z-50">
           {/* RIDER MODAL */}
           {isModalOpen && (
             <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow absolute bottom-[140%] z-20">
               <div className="flex items-end">
                 <span>{driver.name}</span>
-                <img src={driver.imgUrl} alt="car" />
+                <img
+                  src={driver.imgUrl}
+                  alt="car"
+                  className="w-[108px] h-[108px] object-cover rounded-full"
+                />
               </div>
               <div className="flex items-center">
                 <img src={car} alt="car" />
@@ -229,7 +238,7 @@ const Content = ({ user }) => {
               >
                 {isModalOpen
                   ? `Hide Driver Details`
-                  : `Click to see driver details ${driver?.email}`}
+                  : `Click to see driver details`}
               </button>
             </>
           )}

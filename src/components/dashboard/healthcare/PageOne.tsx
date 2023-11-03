@@ -14,7 +14,6 @@ const PageOne = () => {
 
   const dispatch = useDispatch();
 
-  // Use state to manage the checked status of radio inputs
   const [radioStatus, setRadioStatus] = useState({});
 
   useEffect(() => {

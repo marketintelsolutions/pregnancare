@@ -1,11 +1,14 @@
 // features/mapSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 
+const ride = JSON.parse(localStorage.getItem("ride")) || null;
+
 const initialState = {
   user: {},
-  ride: null,
+  ride,
   message: "Click here to request pickup",
   loading: false,
+  driver: null,
 };
 
 const userSlice = createSlice({
@@ -24,8 +27,17 @@ const userSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
+    setDriver: (state, action) => {
+      state.driver = action.payload;
+    },
   },
 });
 
-export const { setUser, setRide, setMessage, setLoading } = userSlice.actions;
+export const {
+  setUser,
+  setRide,
+  setMessage,
+  setLoading,
+  setDriver,
+} = userSlice.actions;
 export default userSlice.reducer;

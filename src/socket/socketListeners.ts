@@ -1,8 +1,8 @@
 // socketListeners.js
 import io from "socket.io-client";
-import { setDriver, setSos } from "../features/driverSlice";
+import { setSos } from "../features/driverSlice";
 import { setLatestRide, setUsers } from "../features/healthcareSlice";
-import { setMessage, setRide } from "../features/userSlice";
+import { setMessage, setRide, setDriver } from "../features/userSlice";
 
 const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
   transports: ["websocket"], // Use only WebSocket transport
@@ -25,6 +25,9 @@ const initializeSocketListeners = (dispatch) => {
     console.log("accepted ride", data.ride);
     dispatch(setMessage(data.message));
     dispatch(setRide(data.ride));
+    console.log(data.ride);
+
+    dispatch(setDriver(data.ride.assignedDriver));
     localStorage.setItem("ride", JSON.stringify(data.ride));
   });
 
@@ -38,6 +41,7 @@ const initializeSocketListeners = (dispatch) => {
     }
     dispatch(setMessage(message));
     dispatch(setRide(data.ride));
+    dispatch(setDriver(data.ride.assignedDriver));
     localStorage.setItem("ride", JSON.stringify(data.ride));
   });
 

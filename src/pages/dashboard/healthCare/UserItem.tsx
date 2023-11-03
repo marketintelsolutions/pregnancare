@@ -62,8 +62,6 @@ const UserItem = () => {
     axios
       .post(API_URL, { rideId: sosRideId })
       .then((response) => {
-        // console.log(response.data);
-
         const ride = response.data.ride;
         console.log(ride);
 
