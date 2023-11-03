@@ -274,30 +274,52 @@ exports.acceptRide = async (req, res) => {
         console.log('Calculating distance and time...');
 
         // Calculate distance and time using the calculateDistance function
-        const distanceAndTime = await calculateDistance({
+        // const distanceAndTime = await calculateDistance({
+        //     lat: driverCoord.lat,
+        //     lon: driverCoord.lng,
+        //     dest_lat: patientCoord.lat,
+        //     dest_lon: patientCoord.lng
+        // });
+
+        // console.log('Distance and Time:', distanceAndTime);
+
+        const distanceAndTimePromise = calculateDistance({
             lat: driverCoord.lat,
             lon: driverCoord.lng,
             dest_lat: patientCoord.lat,
             dest_lon: patientCoord.lng
         });
 
-        console.log('Distance and Time:', distanceAndTime);
+        try {
+            // Add a timeout of 10 seconds (adjust as needed)
+            // const distanceAndTime = await Promise.race([distanceAndTimePromise, new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 20000))]);
+            const distanceAndTime = await distanceAndTimePromise
 
-        // Update the ride with distance and time information
-        await rideDoc.update({
-            distance: distanceAndTime.distance.text,
-            duration: distanceAndTime.duration.text
-        });
+            console.log('Distance and Time:', distanceAndTime);
 
-        // // get latest details
-        updatedRideSnapshot = await rideDoc.get();
-        updatedRide = updatedRideSnapshot.data();
+            // Update the ride with distance and time information
+            await rideDoc.update({
+                distance: distanceAndTime.distance.text,
+                duration: distanceAndTime.duration.text
+            });
 
-        console.log('Ride updated with distance and time');
-        io.emit('acceptRide', { message: 'ride accepted', ride: updatedRide });
+            // // get latest details
+            updatedRideSnapshot = await rideDoc.get();
+            updatedRide = updatedRideSnapshot.data();
+
+            console.log('Ride updated with distance and time');
+            io.emit('acceptRide', { message: 'ride accepted', ride: updatedRide });
+
+            res.status(200).json({ success: true, message: 'Ride accepted successfully!', ride: updatedRide });
+        } catch (error) {
+            console.error("Error calculating distance and time:", error);
+            res.status(500).json({ success: false, message: 'Error calculating distance and time.' });
+        }
 
 
-        res.status(200).json({ success: true, message: 'Ride accepted successfully!', ride: updatedRide });
+
+
+
 
     } catch (error) {
         console.error("Error:", error);
