@@ -52,6 +52,18 @@ const DashboardDriver = () => {
     fetchDriverDetails(dispatch);
   }, [sos]);
 
+  // Function to get the time of day
+  const getTimeOfDay = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour >= 5 && currentHour < 12) {
+      return "Good Morning";
+    } else if (currentHour >= 12 && currentHour < 18) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
+
   return (
     <div className="flex items-center flex-col relative w-full">
       {/* MODAL */}
@@ -93,7 +105,7 @@ const DashboardDriver = () => {
           <h1 className="text-4xl font-bold">
             Hello. <span className="font-normal"> {user.name}</span>
           </h1>
-          <p className="text-xl mt-2 opacity-80">Good Morning</p>
+          <p className="text-xl mt-2 opacity-80">{getTimeOfDay()}</p>
         </div>
 
         <div className="flex mt-10 items-center">

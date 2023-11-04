@@ -95,7 +95,11 @@ const UserItem = () => {
               <div className="flex flex-col gap-3 rounded-lg px-12 py-6 shadow bottom-[140%] z-20 bg-white">
                 <div className="flex items-end">
                   <span>{driver?.name}</span>
-                  <img src={driver?.imgUrl} alt="car" />
+                  <img
+                    src={driver?.imgUrl}
+                    alt="car"
+                    className="w-[108px] h-[108px] rounded-full"
+                  />
                 </div>
                 <div className="flex items-center">
                   <img src={car} alt="car" />
@@ -117,9 +121,13 @@ const UserItem = () => {
             )}
             {/* USER */}
             <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow  z-20">
-              <div className="flex items-end">
+              <div className="flex items-end gap-3">
                 <span>{user?.firstname}</span>
-                <img src={user?.imgUrl} alt="car" />
+                <img
+                  src={user?.imgUrl}
+                  alt="car"
+                  className="w-[108px] h-[108px] rounded-full"
+                />
               </div>
             </div>
           </div>
@@ -128,7 +136,7 @@ const UserItem = () => {
           <p className="flex gap-2 items-center mx-auto">
             <img src={dangerCircle} alt="dangerCircle" />{" "}
             {ride?.assignedDriver
-              ? "15 mins away from pick up point"
+              ? `${ride?.duration} away from pick up point`
               : "no driver assigned"}
           </p>
           <button

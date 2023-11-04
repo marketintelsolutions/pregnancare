@@ -34,7 +34,6 @@ function MapHealthcare({ user, ride }) {
 
   const location = useSelector((state: RootState) => state.healthcare.location);
   const error = useSelector((state: RootState) => state.healthcare.error);
-  // const user = useSelector((state: RootState) => state.healthcare.user);
   const coordinates = useSelector(
     (state: RootState) => state.healthcare.coordinates
   );
@@ -79,14 +78,6 @@ function MapHealthcare({ user, ride }) {
   useEffect(() => {
     console.log("rerendering map");
 
-    // let driverCoord;
-
-    // if (ride?.assignedDriver) {
-    //   driverCoord = ride.assignedDriver.coordinates;
-    // } else {
-    //   driverCoord = "";
-    // }
-
     try {
       const directionsService = new google.maps.DirectionsService();
       directionsService.route(
@@ -98,6 +89,7 @@ function MapHealthcare({ user, ride }) {
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK) {
             setResponse(result);
+            console.log("rerendering complete");
           } else {
             console.error(`error fetching directions ${result}`);
           }
@@ -110,7 +102,7 @@ function MapHealthcare({ user, ride }) {
   }, [ride, user]);
 
   return (
-    <div className="-ml-6 z-10 min-w-[100%] max-w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
+    <div className="-ml-6 z-10 w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
       {error && <p>{error}</p>}
       <LoadScript googleMapsApiKey={`${API_KEY}`}>
         <GoogleMap
@@ -118,10 +110,10 @@ function MapHealthcare({ user, ride }) {
           zoom={13}
           center={location}
         >
+          {/* <DirectionsRenderer directions={response} /> */}
           {ride?.assignedDriver
             ? response && <DirectionsRenderer directions={response} />
             : location && <Marker position={location} />}
-          {/* <Marker position={location} /> */}
         </GoogleMap>
       </LoadScript>
     </div>
