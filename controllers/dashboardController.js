@@ -268,8 +268,15 @@ exports.acceptRide = async (req, res) => {
 
         console.log(updatedRide);
 
+        // dummy location (to be removed in prod)
+        const motherCoord = {
+            lat: 7.41809,
+            lng: 3.90521,
+        };
+
         const driverCoord = updatedRide.assignedDriver.coordinates
-        const patientCoord = updatedRide.patient.coordinates
+        // const patientCoord = updatedRide.patient.coordinates
+        const patientCoord = motherCoord
 
         console.log('Calculating distance and time...');
 

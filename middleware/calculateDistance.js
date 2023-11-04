@@ -8,7 +8,7 @@ calculateDistance = async ({ lat, lon, dest_lat, dest_lon }) => {
         );
 
         console.log("time calculated successfully");
-        // console.log(callingJson.data.rows[0].elements[0], "time from source");
+        console.log(callingJson.data, "time from source");
 
         return callingJson.data.rows[0].elements[0];
     } catch (e) {
