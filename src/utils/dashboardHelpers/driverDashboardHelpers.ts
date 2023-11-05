@@ -12,6 +12,8 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 export const acceptRide = async (driverDetails, dispatch, ride) => {
   console.log("accept clicked");
+  if (ride?.status !== "new") return;
+
   dispatch(setLoading(true));
 
   try {
@@ -49,6 +51,8 @@ export const handleRejectRide = async (ride, driverDetails, dispatch) => {
     if (response.data.success) {
       console.log("Ride rejected successfully");
       dispatch(setLoading(false));
+      dispatch(setRide(null));
+      dispatch(setMessage("ride rejected"));
     } else {
       console.error("Failed to reject ride:", response.data.message);
       dispatch(setLoading(false));

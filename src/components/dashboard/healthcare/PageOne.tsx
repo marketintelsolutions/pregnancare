@@ -54,7 +54,7 @@ const PageOne = () => {
     <div>
       <table className="flex flex-col my-8 text-center text-base">
         <thead>
-          <tr className="grid grid-cols-7 ">
+          <tr className="grid grid-cols-8">
             <th className="border p-4">S/N</th>
             <th className="border p-4">Name</th>
             <th className="border p-4">Age</th>
@@ -62,6 +62,7 @@ const PageOne = () => {
             <th className="border p-4">Number of CS</th>
             <th className="border p-4">Number of Children</th>
             <th className="border p-4">Alert Status</th>
+            <th className="border p-4">Details</th>
           </tr>
         </thead>
         <tbody>
@@ -76,13 +77,9 @@ const PageOne = () => {
               sos,
             } = data;
             return (
-              <tr key={index} className="grid grid-cols-7">
+              <tr key={index} className="grid grid-cols-8">
                 <td className="border p-4">{index + 1}</td>
-                <td className="border p-4">
-                  <Link to={`/dashboard/healthcare-provider/${id}`}>
-                    {firstname}
-                  </Link>
-                </td>
+                <td className="border p-4">{firstname}</td>
                 <td className="border p-4">{age}</td>
                 <td className="border p-4">{genotype}</td>
                 <td className="border p-4">{csection}</td>
@@ -93,6 +90,11 @@ const PageOne = () => {
                     checked={radioStatus[id]}
                     onChange={() => handleRadioChange(id)} // Update the status
                   />
+                </td>
+                <td className="border p-4 underline text-blue-400">
+                  <Link to={`/dashboard/healthcare-provider/${id}`}>
+                    See details
+                  </Link>
                 </td>
               </tr>
             );

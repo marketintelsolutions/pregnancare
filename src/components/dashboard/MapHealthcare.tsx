@@ -46,16 +46,8 @@ function MapHealthcare({ user, ride }) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // console.log(user);
-
-          //   const { lat, lng } =
-          //     (ride?.patient && ride?.patient.coordinates) || {};
           const lat = user?.coordinates && user.coordinates.lat;
           const lng = user?.coordinates && user.coordinates.lng;
-
-          // const { lat, lng } = coordinates || {};
-
-          console.log(lat, lng);
 
           // save location to state
           dispatch(
@@ -76,6 +68,7 @@ function MapHealthcare({ user, ride }) {
 
   // USE EFFECT FOR DIRECTIONS SERVICE
   useEffect(() => {
+    if (!ride || !ride.assignedDriver) return;
     console.log("rerendering map");
 
     try {
@@ -104,18 +97,16 @@ function MapHealthcare({ user, ride }) {
   return (
     <div className="-ml-6 z-10 w-[866px] h-[471px] rounded-[42px] overflow-hidden opacity-60 mx-auto shadow-mapShadow">
       {error && <p>{error}</p>}
-      <LoadScript googleMapsApiKey={`${API_KEY}`}>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          zoom={13}
-          center={location}
-        >
-          {/* <DirectionsRenderer directions={response} /> */}
-          {ride?.assignedDriver
-            ? response && <DirectionsRenderer directions={response} />
-            : location && <Marker position={location} />}
-        </GoogleMap>
-      </LoadScript>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        zoom={13}
+        center={location}
+      >
+        {/* <DirectionsRenderer directions={response} /> */}
+        {ride?.assignedDriver
+          ? response && <DirectionsRenderer directions={response} />
+          : location && <Marker position={location} />}
+      </GoogleMap>
     </div>
   );
 }
