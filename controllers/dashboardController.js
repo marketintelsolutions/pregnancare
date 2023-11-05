@@ -46,6 +46,8 @@ exports.getNearbyDrivers = async (req, res) => {
     const { userType, email } = user
     const io = req.io;
 
+    console.log(user, coordinates);
+
     if (userType !== 'pregnant woman') {
         return res.status(400).json({ success: false, message: 'Invalid user type.' });
     }
@@ -323,11 +325,6 @@ exports.acceptRide = async (req, res) => {
             res.status(500).json({ success: false, message: 'Error calculating distance and time.' });
         }
 
-
-
-
-
-
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error updating ride details.' });
@@ -392,7 +389,8 @@ exports.getUserDetails = async (req, res) => {
 
 exports.getUserRideDetails = async (req, res) => {
     const { rideId } = req.body;
-    console.log(rideId);
+    console.log('rideId', rideId);
+    if (!rideId) return
 
     try {
         const ridesRef = db.collection('rides');
@@ -520,7 +518,7 @@ exports.findClosestHospital = async (req, res) => {
         }
 
         // Build the Google Places API URL with driver coordinates
-        const apiKey = 'AIzaSyDwmXwwjgVeR05p7CfvN9aCcdgbhC21Z9s';
+        const apiKey = `${process.env.GOOGLE_MAP_API_KEY}`;
         const radius = 1500; // Search radius in meters
         const type = 'hospital';
         const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&type=${type}&key=${apiKey}`;

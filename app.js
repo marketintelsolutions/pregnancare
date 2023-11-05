@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
@@ -7,7 +8,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
 const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers } = require('./controllers/dashboardController');
-require("dotenv").config();
 
 //Setting up cors
 const corsOption = {

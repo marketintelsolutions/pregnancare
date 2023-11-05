@@ -12,8 +12,9 @@ calculateDistance = async ({ lat, lon, dest_lat, dest_lon }) => {
 
         return callingJson.data.rows[0].elements[0];
     } catch (e) {
-        console.log("there was an error calculating the time");
-        return "0 mins";
+
+        console.log("there was an error calculating the time", e);
+        return { distance: { text: '' }, duration: { text: '' }, };
     }
 };
 
