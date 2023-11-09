@@ -43,7 +43,7 @@ const Landing = () => {
       {/* CONTENT */}
       <article className="bg-[#3058A6] min-h-screen flex items-center flex-col pt-20 pb-12">
         <div className="scroll-text">
-          Some aspects of this site are still under construction
+          Some aspects of this site are still under construction.
         </div> <br/> <br/>
         <div className="mb-5">
           <img src={woman} alt="woman" />
