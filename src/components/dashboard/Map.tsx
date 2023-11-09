@@ -165,7 +165,7 @@ function Map({ user }) {
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK) {
             // Clear old directions before setting the new one
-            setResponse(null);
+            // setResponse(null);
             setHospitalResponse(result);
           } else {
             console.error(`error fetching directions ${result}`);

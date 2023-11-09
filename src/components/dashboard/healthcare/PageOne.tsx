@@ -54,11 +54,12 @@ const PageOne = () => {
     <div>
       <table className="flex flex-col my-8 text-center text-base">
         <thead>
-          <tr className="grid grid-cols-8">
+          <tr className="grid grid-cols-9">
             <th className="border p-4">S/N</th>
             <th className="border p-4">Name</th>
             <th className="border p-4">Age</th>
             <th className="border p-4">Genotype</th>
+            <th className="border p-4">Blood Group</th>
             <th className="border p-4">Number of CS</th>
             <th className="border p-4">Number of Children</th>
             <th className="border p-4">Alert Status</th>
@@ -72,16 +73,18 @@ const PageOne = () => {
               firstname,
               age,
               genotype,
+              bloodGroup,
               csection,
               children,
               sos,
             } = data;
             return (
-              <tr key={index} className="grid grid-cols-8">
+              <tr key={index} className="grid grid-cols-9">
                 <td className="border p-4">{index + 1}</td>
                 <td className="border p-4">{firstname}</td>
                 <td className="border p-4">{age}</td>
                 <td className="border p-4">{genotype}</td>
+                <td className="border p-4">{bloodGroup}</td>
                 <td className="border p-4">{csection}</td>
                 <td className="border p-4">{children}</td>
                 <td className="border p-4">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import SharedLayout from "../../../components/dashboard/healthcare/SharedLayout";
 import { RootState } from "../../../store/rootReducer";
 import car from "../../../assets/logos/car.svg";
@@ -33,6 +33,7 @@ const UserItem = () => {
 
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const API_URL = `${process.env.REACT_APP_BASE_URL}/getUserDetails`;
@@ -81,12 +82,21 @@ const UserItem = () => {
       });
   };
 
+  const gobackHandler = () => {
+    navigate(-1);
+  };
+
   return (
     <SharedLayout>
+      <button
+        className="w-fit border border-[#3058A6] py-4 px-7 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear my-5"
+        onClick={gobackHandler}
+      >
+        Go back
+      </button>
       <div className="flex mt-10 items-center mx-auto w-fit">
         <MapHealthcare user={user} ride={ride} />
       </div>
-
       <div className="relative flex flex-col my-8">
         {isModalOpen && (
           <div className="flex flex-row gap-11 bg-none rounded-lg px-12 py-6 absolute bottom-[140%] z-20 mx-auto w-full items-end justify-center">
@@ -121,13 +131,15 @@ const UserItem = () => {
             )}
             {/* USER */}
             <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow  z-20">
-              <div className="flex items-end gap-3">
-                <span>{user?.firstname}</span>
+              <div className="flex  gap-3 flex-col">
                 <img
                   src={user?.imgUrl}
                   alt="car"
                   className="w-[108px] h-[108px] rounded-full"
                 />
+                <span>Firstname - {user?.firstname}</span>
+                <span>Genotype - {user?.genotype}</span>
+                <span>Blood Group - {user?.bloodGroup}</span>
               </div>
             </div>
           </div>
@@ -135,7 +147,9 @@ const UserItem = () => {
         <>
           <p className="flex gap-2 items-center mx-auto">
             <img src={dangerCircle} alt="dangerCircle" />{" "}
-            {ride?.assignedDriver
+            {ride?.status === "onTrip"
+              ? "Enroute to hospital"
+              : ride?.assignedDriver
               ? `${ride?.duration} away from pick up point`
               : "no driver assigned"}
           </p>
