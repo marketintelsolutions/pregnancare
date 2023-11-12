@@ -5,6 +5,17 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { setUsers } from "../../../features/healthcareSlice";
 import { RootState } from "../../../store/rootReducer";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/animations/alert.json";
+
+const lottieOptions = {
+  loop: true,
+  autoplay: true,
+  animationData: animationData,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice",
+  },
+};
 
 const PageOne = () => {
   const users = useSelector((store: RootState) => store.healthcare.users);
@@ -87,12 +98,16 @@ const PageOne = () => {
                 <td className="border p-4">{bloodGroup}</td>
                 <td className="border p-4">{csection}</td>
                 <td className="border p-4">{children}</td>
-                <td className="border p-4">
-                  <input
+                <td className="border p-4 flex items-center justify-center">
+                  {/* <input
                     type="radio"
                     checked={radioStatus[id]}
                     onChange={() => handleRadioChange(id)} // Update the status
-                  />
+                  /> */}
+                  <div className="rounded-full border-red border-[2px] w-[26px] h-[26px] mx-auto">
+                    {" "}
+                    {radioStatus[id] && <Lottie options={lottieOptions} />}
+                  </div>
                 </td>
                 <td className="border p-4 underline text-blue-400">
                   <Link to={`/dashboard/healthcare-provider/${id}`}>

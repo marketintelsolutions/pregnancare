@@ -18,3 +18,9 @@ declare module "*.gif" {
   const src: string;
   export default src;
 }
+
+declare module "*.json" {
+  import React = require("react");
+  const src: string;
+  export default src;
+}
