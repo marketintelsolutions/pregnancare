@@ -7,7 +7,7 @@ const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword } = require('./controllers/userController');
-const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers } = require('./controllers/dashboardController');
+const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers, nearbyHospitals } = require('./controllers/dashboardController');
 
 //Setting up cors
 const corsOption = {
@@ -74,6 +74,8 @@ app.post('/rejectRide', rejectRide);
 app.post('/updateRide', (req, res) => updateRide(req, res, req.io));
 app.post('/findClosestHospital', findClosestHospital);
 app.post('/endTrip', (req, res) => endTrip(req, res, req.io));
+
+app.post('/getNearbyHospitals', nearbyHospitals)
 
 // HEALTHCARE ROUTES
 app.get('/getAllUsers', getAllUsers);

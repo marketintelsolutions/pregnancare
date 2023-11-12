@@ -528,6 +528,7 @@ exports.findClosestHospital = async (req, res) => {
 
         // Send a GET request to the Google Places API
         const response = await axios.get(apiUrl);
+        const hospitals = response.data
 
         console.log(response.data);
 
@@ -567,7 +568,7 @@ exports.findClosestHospital = async (req, res) => {
             });
 
 
-            return res.status(200).json({ success: true, closestHospital });
+            return res.status(200).json({ success: true, closestHospital, hospitals });
         } else {
             console.log(response.data);
             return res.status(500).json({ success: false, message: 'Error fetching hospital data from Google Places API' });
@@ -679,7 +680,7 @@ exports.getAllUsers = async (req, res) => {
         const pregnantWomanUsers = [];
 
         snapshot.forEach(doc => {
-            // Include the document ID in the data
+            // Include the document ID in the dataZ
             pregnantWomanUsers.push({
                 id: doc.id,
                 ...doc.data(),
@@ -691,5 +692,45 @@ exports.getAllUsers = async (req, res) => {
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+exports.nearbyHospitals = async (req, res) => {
+    try {
+        // Extract driver coordinates from the request body
+        const { lat, lon } = req.body;
+
+        if (!lat || !lon) {
+            return res.status(400).json({ success: false, message: 'Latitude and longitude are required.' });
+        }
+
+        // Build the Google Places API URL with driver coordinates
+        const apiKey = `${process.env.GOOGLE_MAP_API_KEY}`;
+        console.log(apiKey);
+
+        const radius = 1500; // Search radius in meters
+        const type = 'hospital';
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&type=${type}&key=${apiKey}`;
+
+        // Send a GET request to the Google Places API
+        const response = await axios.get(apiUrl);
+        const hospitals = response.data.results
+
+        console.log(hospitals);
+
+        if (response.data.status === 'OK') {
+            // If results are returned, find the closest hospital
+            const results = response.data.results;
+
+
+
+            return res.status(200).json({ success: true, hospitals });
+        } else {
+            console.log(response.data);
+            return res.status(500).json({ success: false, message: 'Error fetching hospital data from Google Places API' });
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 }
