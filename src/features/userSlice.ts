@@ -11,6 +11,7 @@ const initialState = {
   driver: null,
   alert: "",
   isAlert: false,
+  selectedHospitalCoordinates: null,
 };
 
 const userSlice = createSlice({
@@ -38,6 +39,9 @@ const userSlice = createSlice({
     setIsAlert: (state, action) => {
       state.isAlert = action.payload;
     },
+    setSelectedHospitalCoordinates: (state, action) => {
+      state.selectedHospitalCoordinates = action.payload;
+    },
   },
 });
 
@@ -49,5 +53,6 @@ export const {
   setDriver,
   setAlert,
   setIsAlert,
+  setSelectedHospitalCoordinates,
 } = userSlice.actions;
 export default userSlice.reducer;

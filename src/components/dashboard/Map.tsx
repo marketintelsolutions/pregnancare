@@ -118,6 +118,7 @@ function Map({ user }) {
 
   // USE EFFECT FOR DIRECTIONS SERVICE
   useEffect(() => {
+    if (!ride) return;
     console.log("ride::", ride);
 
     try {

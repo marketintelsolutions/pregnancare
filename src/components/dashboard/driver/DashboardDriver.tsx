@@ -44,11 +44,6 @@ const DashboardDriver = () => {
   }, [ride]);
 
   useEffect(() => {
-    // if (driverDetails.sos && (ride === null || ride?.rideId)) return;
-    console.log("new ride gotten");
-
-    console.log(sos);
-
     fetchDriverDetails(dispatch);
   }, [sos]);
 

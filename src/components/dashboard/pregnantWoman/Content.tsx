@@ -18,12 +18,14 @@ import star from "../../../assets/logos/star.svg";
 import trip from "../../../assets/logos/trip.svg";
 import driverImg from "../../../assets/logos/driver.svg";
 import loader from "../../../assets/images/loadwithoutbg.gif";
+import LocationSearch from "../../LocationSearch";
 
 const Content = ({ user }) => {
   const [drivers, setDrivers] = useState([]);
   const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState({ sos: false, sosRideId: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   const location = useSelector((state: RootState) => state.map.location);
   const message = useSelector((state: RootState) => state.user.message);
@@ -32,6 +34,9 @@ const Content = ({ user }) => {
   const driver = useSelector((state: RootState) => state.user.driver);
   const isAlert = useSelector((state: RootState) => state.user.isAlert);
   const alert = useSelector((state: RootState) => state.user.alert);
+  const selectedHospitalCoordinates = useSelector(
+    (state: RootState) => state.user.selectedHospitalCoordinates
+  );
 
   console.log("driver", driver);
 
@@ -125,19 +130,22 @@ const Content = ({ user }) => {
       });
   }, [userDetails, message]);
 
-  const fetchNearbyDrivers = () => {
-    // console.log("fetching drivers");
+  const fetchNearbyDrivers = (selectedHospital) => {
     dispatch(setLoading(true));
 
-    const userType = "pregnant woman";
     const coordinates = {
       ...location,
     };
+
+    // const selectedHospital = {
+    //   ...selectedHospitalCoordinates,
+    // };
 
     axios
       .post(`${process.env.REACT_APP_BASE_URL}/getNearbyDrivers`, {
         user,
         coordinates,
+        selectedHospital,
       })
       .then((response) => {
         if (response.data.success) {
@@ -149,6 +157,7 @@ const Content = ({ user }) => {
           setError(response.data.message);
         }
         dispatch(setLoading(false));
+        setIsLocationOpen(false);
       })
       .catch((err) => {
         console.error("Error fetching drivers:", err);
@@ -181,7 +190,7 @@ const Content = ({ user }) => {
 
       {/* LOADER */}
       {loading && (
-        <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.7)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-50">
+        <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.7)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-[999]">
           <img
             src={loader}
             alt="loader"
@@ -192,6 +201,12 @@ const Content = ({ user }) => {
           </p>
         </div>
       )}
+
+      {/* SEARCH BAR */}
+      {isLocationOpen && (
+        <LocationSearch fetchNearbyDrivers={fetchNearbyDrivers} />
+      )}
+
       <section className="px-14 py-12">
         <div className="text-primarytext">
           <h1 className="text-4xl font-bold">
@@ -204,7 +219,7 @@ const Content = ({ user }) => {
           {/* SOS */}
           <div
             className={` bg-primary-red z-30 text-center w-[413px] h-[413px] rounded-[42px] red-box flex items-center justify-center cursor-pointer `}
-            onClick={fetchNearbyDrivers}
+            onClick={() => setIsLocationOpen(true)}
           >
             <div className="text-white mx-auto max-w-[193px] ">
               <img src={sos} alt="sos" className="mx-auto mb-2" />

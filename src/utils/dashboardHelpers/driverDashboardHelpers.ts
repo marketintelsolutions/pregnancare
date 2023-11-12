@@ -116,7 +116,20 @@ export const startTrip = async (ride, driverDetails, dispatch) => {
         const data = response.data;
         if (data.success) {
           console.log(data.closestHospital);
-          const coordinates = data.closestHospital.geometry.location;
+          let coordinates;
+
+          console.log("ride 2", ride);
+
+          console.log("selected hospital", ride.patient.selectedHospital);
+
+          if (ride.patient.selectedHospital === null) {
+            console.log("there is no selected hospital");
+            coordinates = data.closestHospital.geometry.location;
+          } else {
+            console.log("there is a selected hospital");
+            coordinates = ride.patient.selectedHospital;
+          }
+
           console.log("hospital coordinates:", coordinates);
 
           dispatch(setClosestHospital(coordinates));
