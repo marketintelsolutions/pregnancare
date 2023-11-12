@@ -13,6 +13,7 @@ import {
 } from "../../../utils/dashboardHelpers/driverDashboardHelpers";
 import ActionButton from "./ActionButton";
 import { setIsDriverAlert, setMessage } from "../../../features/driverSlice";
+import { getTimeOfDay } from "../../../utils/dashboardHelpers/getTimeofDay";
 
 const DashboardDriver = () => {
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
@@ -46,18 +47,6 @@ const DashboardDriver = () => {
   useEffect(() => {
     fetchDriverDetails(dispatch);
   }, [sos]);
-
-  // Function to get the time of day
-  const getTimeOfDay = () => {
-    const currentHour = new Date().getHours();
-    if (currentHour >= 5 && currentHour < 12) {
-      return "Good Morning";
-    } else if (currentHour >= 12 && currentHour < 18) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
-    }
-  };
 
   return (
     <div className="flex items-center flex-col relative w-full">

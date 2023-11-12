@@ -1,8 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom"; // Import useLocation
-import avatar from "../../assets/images/avatar.png";
 import dashboard from "../../assets/images/dashboard.png";
-import { RootState } from "../../store/rootReducer";
 
 const menuItems = [
   { path: "/dashboard/pregnant-woman", label: "SOS" },
@@ -21,7 +19,7 @@ const Sidebar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <section className="w-80 bg-coolblue h-screen px-5">
+    <section className="w-80 bg-coolblue h-auto min-h-screen px-5">
       <div className="profile flex flex-col items-center gap-11 mt-12">
         <img
           src={user.imgUrl}

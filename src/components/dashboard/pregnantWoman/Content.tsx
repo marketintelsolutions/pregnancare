@@ -19,6 +19,7 @@ import trip from "../../../assets/logos/trip.svg";
 import driverImg from "../../../assets/logos/driver.svg";
 import loader from "../../../assets/images/loadwithoutbg.gif";
 import LocationSearch from "../../LocationSearch";
+import { getTimeOfDay } from "../../../utils/dashboardHelpers/getTimeofDay";
 
 const Content = ({ user }) => {
   const [drivers, setDrivers] = useState([]);
@@ -137,10 +138,6 @@ const Content = ({ user }) => {
       ...location,
     };
 
-    // const selectedHospital = {
-    //   ...selectedHospitalCoordinates,
-    // };
-
     axios
       .post(`${process.env.REACT_APP_BASE_URL}/getNearbyDrivers`, {
         user,
@@ -166,7 +163,7 @@ const Content = ({ user }) => {
   };
 
   return (
-    <div className="flex items-center flex-col gap-4 relative w-full">
+    <div className="flex flex-col gap-4 relative w-full  max-w-[1000px]">
       {/* MODAL */}
       {isAlert && (
         <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.9)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-[999]">
@@ -207,12 +204,12 @@ const Content = ({ user }) => {
         <LocationSearch fetchNearbyDrivers={fetchNearbyDrivers} />
       )}
 
-      <section className="px-14 py-12">
+      <section className=" px-14 py-12">
         <div className="text-primarytext">
           <h1 className="text-4xl font-bold">
             Hello. <span className="font-normal"> {user.firstname}</span>
           </h1>
-          <p className="text-xl mt-2 opacity-80">Good Morning</p>
+          <p className="text-xl mt-2 opacity-80">{getTimeOfDay()}</p>
         </div>
 
         <div className="flex mt-10 items-center">
