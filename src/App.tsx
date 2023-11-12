@@ -17,6 +17,8 @@ import ForgotPasswordStepthree from "./pages/auth/ForgotPasswordStepthree";
 import initializeSocketListeners from "./socket/socketListeners";
 import { useDispatch } from "react-redux";
 import UserItem from "./pages/dashboard/healthCare/UserItem";
+import Profile from "./pages/dashboard/pregnantWoman/Profile";
+import NearbyFacilities from "./pages/dashboard/pregnantWoman/NearbyFacilities";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -53,8 +55,18 @@ const App = () => {
       />
 
       {/* DASHBOARD */}
+      {/* ------PREGNANT WOMAN------- */}
       <Route path="/dashboard/pregnant-woman" element={<PregnantDashboard />} />
+      <Route path="/dashboard/pregnant-woman/profile" element={<Profile />} />
+      <Route
+        path="/dashboard/pregnant-woman/nearby-facilities"
+        element={<NearbyFacilities />}
+      />
+
+      {/* ------DRIVER------- */}
       <Route path="/dashboard/driver" element={<DriverDashboard />} />
+
+      {/* ------HEALTHCARE PROVIDER------- */}
       <Route
         path="/dashboard/healthcare-provider"
         element={<HealthcareDashboard />}

@@ -5,6 +5,7 @@ import { RootState } from "../../../store/rootReducer";
 import Header from "../../../components/dashboard/Header";
 import Content from "../../../components/dashboard/pregnantWoman/Content";
 import Sidebar from "../../../components/dashboard/Sidebar";
+import SharedLayout from "../../../components/dashboard/pregnantWoman/SharedLayout";
 
 const PregnantDashboard = () => {
   const isAuth = localStorage.getItem("isAuth");
@@ -18,11 +19,9 @@ const PregnantDashboard = () => {
   }
   return (
     <>
-      <Header />
-      <div className="flex">
-        <Sidebar />
+      <SharedLayout>
         <Content user={user} />
-      </div>
+      </SharedLayout>
     </>
   );
 };
