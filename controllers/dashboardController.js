@@ -42,7 +42,7 @@ exports.saveLocation = async (req, res) => {
 }
 
 exports.getNearbyDrivers = async (req, res) => {
-    const { user, coordinates } = req.body;
+    const { user, coordinates, selectedHospital } = req.body;
     const { userType, email } = user
     const io = req.io;
 
@@ -94,7 +94,8 @@ exports.getNearbyDrivers = async (req, res) => {
             patient: {
                 email,
                 // ...user,
-                coordinates
+                coordinates,
+                selectedHospital
             },
             drivers: nearbyDrivers,
             status: 'new'
@@ -105,7 +106,7 @@ exports.getNearbyDrivers = async (req, res) => {
 
         await ridesRef.add(rideDetails);
 
-        await motherRef.update({ sos: true, sosRideId: rideDetails.rideId })
+        await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, selectedHospital })
 
         const updatedMotherData = motherSnapshot.docs[0].data();
 
@@ -519,6 +520,8 @@ exports.findClosestHospital = async (req, res) => {
 
         // Build the Google Places API URL with driver coordinates
         const apiKey = `${process.env.GOOGLE_MAP_API_KEY}`;
+        console.log(apiKey);
+
         const radius = 1500; // Search radius in meters
         const type = 'hospital';
         const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&type=${type}&key=${apiKey}`;
