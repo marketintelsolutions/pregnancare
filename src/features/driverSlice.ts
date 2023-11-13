@@ -23,6 +23,7 @@ const driverSlice = createSlice({
   reducers: {
     setDriver: (state, action) => {
       state.driver = action.payload;
+      state.ride = action.payload.rideDetails;
     },
     setRide: (state, action) => {
       const ride = action.payload;

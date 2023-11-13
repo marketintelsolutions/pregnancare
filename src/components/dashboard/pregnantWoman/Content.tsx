@@ -138,7 +138,7 @@ const Content = ({ user }) => {
     // Create a new object without circular references
     const coordinates = {
       lat: location.lat,
-      lon: location.lng,
+      lng: location.lng,
     };
 
     axios

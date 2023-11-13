@@ -8,8 +8,8 @@ import {
 import { setLatestRide, setUsers } from "../features/healthcareSlice";
 import {
   setMessage,
-  setRide,
   setDriver,
+  setRide,
   setAlert,
   setIsAlert,
 } from "../features/userSlice";
@@ -20,12 +20,12 @@ const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
 
 const initializeSocketListeners = (dispatch) => {
   // LISTEN FOR RIDE FROM PATIENT (DRIVER)
-  socket.on("updateDrivers", (updatedDrivers) => {
-    const driver = updatedDrivers[0];
+  socket.on("updateDrivers", ({ nearbyDrivers, rideDetails }) => {
+    const driver = nearbyDrivers[0];
 
-    console.log(driver);
+    console.log(nearbyDrivers);
 
-    dispatch(setDriver(driver));
+    dispatch(setDriver({ ...driver, rideDetails }));
     dispatch(setSos("new ride"));
     dispatch(setDriverAlert("There is a new ride request"));
     dispatch(setIsDriverAlert(true));

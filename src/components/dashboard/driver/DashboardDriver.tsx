@@ -45,6 +45,8 @@ const DashboardDriver = () => {
   }, [ride]);
 
   useEffect(() => {
+    console.log("fetching driver details");
+
     fetchDriverDetails(dispatch);
   }, [sos]);
 
