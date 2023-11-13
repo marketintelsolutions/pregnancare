@@ -73,6 +73,9 @@ exports.getNearbyDrivers = async (req, res) => {
 
             // Check if the driver is within 15 km using the haversine formula
             const distance = haversineDistance(coordinates, driverCoords);
+            console.log('mother coordinates', coordinates);
+            console.log('driver coords', driverCoords);
+            console.log('distance', distance);
 
             if (distance <= 15) {
                 // Save updated data back to Firestore and add the promise to our array
@@ -89,29 +92,53 @@ exports.getNearbyDrivers = async (req, res) => {
         // Create a new ride document with the patient's details, drivers and status
         const ridesRef = db.collection('rides');
 
-        const rideDetails = {
-            rideId: generateId(),
-            patient: {
-                email,
-                // ...user,
-                coordinates,
-                selectedHospital
-            },
-            drivers: nearbyDrivers,
-            status: 'new'
-        };
+        let rideDetails
+        console.log(selectedHospital);
+        if (selectedHospital) {
+            console.log('hello there is a selected hospital');
+            rideDetails = {
+                rideId: generateId(),
+                patient: {
+                    email,
+                    // ...user,
+                    coordinates,
+                    selectedHospital
+                },
+                drivers: nearbyDrivers,
+                status: 'new'
+            };
+        } else {
+            console.log('hello there is a no selected hospital');
+            rideDetails = {
+                rideId: generateId(),
+                patient: {
+                    email,
+                    // ...user,
+                    coordinates,
+                },
+                drivers: nearbyDrivers,
+                status: 'new'
+            };
+        }
+
+
+        console.log('updateDrivers', { nearbyDrivers, rideDetails });
 
         // EMIT TO SOCKET (ALERT NEARBY DRIVERS)
-        io.emit('updateDrivers', nearbyDrivers);
+        io.emit('updateDrivers', { nearbyDrivers, rideDetails });
 
         await ridesRef.add(rideDetails);
 
-        await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, selectedHospital })
+        if (selectedHospital) {
+            await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, selectedHospital })
+        } else {
+            await motherRef.update({ sos: true, sosRideId: rideDetails.rideId })
+        }
 
         const updatedMotherData = motherSnapshot.docs[0].data();
 
-        // console.log('Nearby Drivers:', nearbyDrivers);
-        console.log('nearby drivers sent');
+        console.log('Nearby Drivers:', nearbyDrivers);
+        // console.log('nearby drivers sent');
 
         // GET ALL USERS AND ALERT HOSPITALS
 
@@ -126,8 +153,6 @@ exports.getNearbyDrivers = async (req, res) => {
                     ...doc.data(),
                 });
             });
-
-            console.log(pregnantWomanUsers);
 
             // EMIT TO SOCKET (ALERT HOSPITALS)
             io.emit('newSos', { rideDetails, pregnantWomanUsers })
