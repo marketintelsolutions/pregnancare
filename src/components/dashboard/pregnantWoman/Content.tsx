@@ -134,8 +134,11 @@ const Content = ({ user }) => {
   const fetchNearbyDrivers = (selectedHospital) => {
     dispatch(setLoading(true));
 
+    console.log("Selected hospital", selectedHospital);
+    // Create a new object without circular references
     const coordinates = {
-      ...location,
+      lat: location.lat,
+      lon: location.lng,
     };
 
     axios
@@ -233,10 +236,10 @@ const Content = ({ user }) => {
         </div>
       </section>
       {ride && ride.status !== "new" && (
-        <div className="relative flex flex-col gap-5 z-50">
+        <div className="relative flex flex-col gap-5 z-50 w-fit mx-auto items-center">
           {/* RIDER MODAL */}
           {isModalOpen && (
-            <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow absolute bottom-[140%] z-20">
+            <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow absolute bottom-[140%] z-20 mx-auto">
               <div className="flex items-end">
                 <span>{driver.name}</span>
                 <img
@@ -265,7 +268,7 @@ const Content = ({ user }) => {
           )}
 
           {ride && ride.status !== "new" && (
-            <>
+            <div className="flex flex-col gap-5 mx-auto items-center">
               <p className="flex gap-2 items-center mx-auto">
                 <img src={dangerCircle} alt="dangerCircle" /> The driver is{" "}
                 {ride.duration} away from you
@@ -278,7 +281,7 @@ const Content = ({ user }) => {
                   ? `Hide Driver Details`
                   : `Click to see driver details`}
               </button>
-            </>
+            </div>
           )}
         </div>
       )}
