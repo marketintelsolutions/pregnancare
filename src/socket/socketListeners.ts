@@ -21,8 +21,9 @@ const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
 const initializeSocketListeners = (dispatch) => {
   // LISTEN FOR RIDE FROM PATIENT (DRIVER)
   socket.on("updateDrivers", (updatedDrivers) => {
-    const notificationSound = new Audio("/path/to/notification.mp3");
     const driver = updatedDrivers[0];
+
+    console.log(driver);
 
     dispatch(setDriver(driver));
     dispatch(setSos("new ride"));
