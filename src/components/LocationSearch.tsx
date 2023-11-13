@@ -13,7 +13,7 @@ const LocationSearch = ({ setIsLocationOpen, fetchNearbyDrivers }) => {
   const dispatch = useDispatch();
 
   const setSelectedHospital = (coordinates) => {
-    // console.log(coordinates);
+    console.log(coordinates);
 
     dispatch(setSelectedHospitalCoordinates(coordinates));
     fetchNearbyDrivers(coordinates);
@@ -91,7 +91,7 @@ const LocationSearch = ({ setIsLocationOpen, fetchNearbyDrivers }) => {
           )}
           <button
             className="w-full border border-[#3058A6] py-4 px-7 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear"
-            onClick={fetchNearbyDrivers}
+            onClick={() => fetchNearbyDrivers(null)}
           >
             Use a nearby healthcare facility
           </button>
