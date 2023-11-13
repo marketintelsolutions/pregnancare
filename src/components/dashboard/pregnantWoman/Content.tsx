@@ -201,7 +201,10 @@ const Content = ({ user }) => {
 
       {/* SEARCH BAR */}
       {isLocationOpen && (
-        <LocationSearch fetchNearbyDrivers={fetchNearbyDrivers} />
+        <LocationSearch
+          setIsLocationOpen={setIsLocationOpen}
+          fetchNearbyDrivers={fetchNearbyDrivers}
+        />
       )}
 
       <section className=" px-14 py-12">

@@ -44,7 +44,7 @@ const NearbyFacilities = () => {
           </div>
         </section>
         <div className="text-primarytext flex flex-col gap-4">
-          <h1 className="text-4xl font-bold">Nearby Facilities:</h1>
+          <h1 className="text-4xl font-bold">Nearby Healthcare Facilities:</h1>
           {hospitals?.map((hospital, index) => (
             <p
               className="text-base mt-2 opacity-80 border p-4 hover:bg-darkblue hover:text-white transition cursor-pointer"

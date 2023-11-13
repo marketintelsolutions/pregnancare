@@ -5,7 +5,7 @@ import { setSelectedHospitalCoordinates } from "../features/userSlice";
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAP_API_KEY;
 
-const LocationSearch = ({ fetchNearbyDrivers }) => {
+const LocationSearch = ({ setIsLocationOpen, fetchNearbyDrivers }) => {
   const [address, setAddress] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -99,7 +99,7 @@ const LocationSearch = ({ fetchNearbyDrivers }) => {
       </div>
       <button
         className="w-fit border border-[#3058A6] py-4 px-10 bg-[#3058A6] rounded-md text-white font-medium text-sm cursor-pointer hover:bg-white hover:text-[#3058A6] transition linear"
-        onClick={fetchNearbyDrivers}
+        onClick={() => setIsLocationOpen(false)}
       >
         Close
       </button>
