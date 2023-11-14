@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import sosImage from "../../../assets/images/sos.png";
 import Map from "../Map";
 import { useSelector } from "react-redux";
@@ -14,8 +14,11 @@ import {
 import ActionButton from "./ActionButton";
 import { setIsDriverAlert, setMessage } from "../../../features/driverSlice";
 import { getTimeOfDay } from "../../../utils/dashboardHelpers/getTimeofDay";
+import sound from "../../../assets/audios/livechat.mp3";
 
 const DashboardDriver = () => {
+  const [playsound, setPlaysound] = useState(false);
+
   const driverDetails = useSelector((state: RootState) => state.driver.driver);
   const ride = useSelector((state: RootState) => state.driver.ride);
   const sos = useSelector((state: RootState) => state.driver.sos);
@@ -33,6 +36,8 @@ const DashboardDriver = () => {
 
   const user = JSON.parse(localStorage.getItem("driver"));
 
+  const notificationSound = new Audio(sound);
+
   useEffect(() => {
     let message =
       ride?.status === "new"
@@ -42,6 +47,30 @@ const DashboardDriver = () => {
         : "No pick up request";
     dispatch(setMessage(message));
     console.log(ride);
+
+    // notificationSound.play();
+    const handleMousemove = () => {
+      // Play notification sound on mouse movement
+      // playNotification();
+      console.log(document.hasFocus());
+
+      if (document.hasFocus()) {
+        console.log("document is focused");
+
+        notificationSound.play();
+      }
+
+      // You can remove the event listener after the first mouse movement if needed
+      document.removeEventListener("click", handleMousemove);
+    };
+
+    // Add a click event listener to document
+    document.addEventListener("click", handleMousemove);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("click", handleMousemove);
+    };
   }, [ride]);
 
   useEffect(() => {

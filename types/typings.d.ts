@@ -24,3 +24,9 @@ declare module "*.json" {
   const src: string;
   export default src;
 }
+
+declare module "*.mp3" {
+  import React = require("react");
+  const src: string;
+  export default src;
+}

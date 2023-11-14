@@ -13,10 +13,13 @@ import {
   setAlert,
   setIsAlert,
 } from "../features/userSlice";
+// import notificationSound from '../assets/audios/livechat.mp3'
 
 const socket = io(`${process.env.REACT_APP_BASE_URL}`, {
   transports: ["websocket"], // Use only WebSocket transport
 });
+
+// const notificationSound = new Audio("../assets/audios/livechat.mp3");
 
 const initializeSocketListeners = (dispatch) => {
   // LISTEN FOR RIDE FROM PATIENT (DRIVER)
@@ -29,6 +32,9 @@ const initializeSocketListeners = (dispatch) => {
     dispatch(setSos("new ride"));
     dispatch(setDriverAlert("There is a new ride request"));
     dispatch(setIsDriverAlert(true));
+
+    // Play notification sound
+    // notificationSound.play();
   });
 
   // LISTEN FOR RIDE ACCEPTED (PATIENT)
