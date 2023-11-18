@@ -1,13 +1,16 @@
 import React from "react";
-import logo from "../../assets/logos/logo.svg";
-import notification from "../../assets/images/notification.png";
+import logo from "../../../assets/logos/logo.svg";
+import notification from "../../../assets/images/notification.png";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { logoutStates } from "../../../features/userSlice";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Header = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     const { email } = JSON.parse(localStorage.getItem("user"));
@@ -25,6 +28,8 @@ const Header = () => {
         localStorage.removeItem("user");
         localStorage.removeItem("driver");
         localStorage.removeItem("ride");
+
+        dispatch(logoutStates(""));
         navigate("/");
       } else {
         console.error("Logout failed");

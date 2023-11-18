@@ -6,8 +6,8 @@ import {
   Marker,
 } from "@react-google-maps/api";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../store/rootReducer";
-import { setError, setLocation } from "../../features/healthcareSlice";
+import { RootState } from "../../../store/rootReducer";
+import { setError, setLocation } from "../../../features/healthcareSlice";
 
 const mapContainerStyle = {
   width: "866px",

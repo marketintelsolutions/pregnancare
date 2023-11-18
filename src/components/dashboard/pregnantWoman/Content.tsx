@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import Map from "../MapMother";
+import Map from "./MapMother";
 import { RootState } from "../../../store/rootReducer";
 import axios from "axios";
 import {
@@ -166,7 +166,7 @@ const Content = ({ user }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 relative w-full ">
+    <div className="flex flex-col gap-4 relative w-full items-center mx-auto">
       {/* MODAL */}
       {isAlert && (
         <div className="flex flex-col gap-5 bg-[rgba(205,201,201,0.9)] items-center justify-center pt-[200px] pb-[140px] px-[98px]  absolute top-0 left-0 h-full w-full z-[999]">

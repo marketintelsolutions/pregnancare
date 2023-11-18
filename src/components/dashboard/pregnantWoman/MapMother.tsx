@@ -7,8 +7,8 @@ import {
 } from "@react-google-maps/api";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setLocation, setError } from "../../features/mapSlice";
-import { RootState } from "../../store/rootReducer";
+import { setLocation, setError } from "../../../features/mapSlice";
+import { RootState } from "../../../store/rootReducer";
 
 const center = {
   lat: 40.73061,

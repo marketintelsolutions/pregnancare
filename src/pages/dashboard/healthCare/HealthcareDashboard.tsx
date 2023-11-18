@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import Header from "../../../components/dashboard/Header";
+import Header from "../../../components/dashboard/pregnantWoman/Header";
 import PageOne from "../../../components/dashboard/healthcare/PageOne";
 import SharedLayout from "../../../components/dashboard/healthcare/SharedLayout";
 import Sidebar from "../../../components/dashboard/healthcare/Sidebar";

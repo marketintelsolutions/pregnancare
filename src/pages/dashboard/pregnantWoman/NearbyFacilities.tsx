@@ -34,7 +34,7 @@ const NearbyFacilities = () => {
 
   return (
     <SharedLayout>
-      <div className="w-full max-w-[1000px] px-14 py-12 flex flex-col gap-6">
+      <div className="px-14 py-12 flex flex-col gap-6">
         <section className="justify-between w-full">
           <div className="text-primarytext">
             <h1 className="text-4xl font-bold">

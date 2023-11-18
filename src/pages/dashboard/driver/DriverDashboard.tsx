@@ -1,8 +1,8 @@
 import React from "react";
-import Header from "../../../components/dashboard/Header";
 import Sidebar from "../../../components/dashboard/Sidebar";
 import DashboardDriver from "../../../components/dashboard/driver/DashboardDriver";
 import { Navigate } from "react-router-dom";
+import Header from "../../../components/dashboard/driver/Header";
 
 const DriverDashboard = () => {
   const isAuth = localStorage.getItem("isAuth");

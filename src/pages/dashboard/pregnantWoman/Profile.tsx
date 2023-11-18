@@ -6,7 +6,7 @@ const Profile = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   return (
     <SharedLayout>
-      <div className="w-full max-w-[1000px] px-14 py-12">
+      <div className="mx-auto w-full px-14 py-12">
         <section className="flex justify-between w-full">
           <div className="text-primarytext">
             <h1 className="text-4xl font-bold">

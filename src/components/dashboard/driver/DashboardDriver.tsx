@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import sosImage from "../../../assets/images/sos.png";
-import Map from "../Map";
+import Map from "./Map";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/rootReducer";
 import { useDispatch } from "react-redux";

@@ -10,7 +10,7 @@ import driverImg from "../../../assets/logos/driver.svg";
 import dangerCircle from "../../../assets/logos/dangerCircle.svg";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import MapHealthcare from "../../../components/dashboard/MapHealthcare";
+import MapHealthcare from "../../../components/dashboard/healthcare/MapHealthcare";
 import {
   setCoordinates,
   setMessage,

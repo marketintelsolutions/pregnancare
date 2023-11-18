@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "../Header";
+import Header from "../pregnantWoman/Header";
 import Sidebar from "./Sidebar";
 import { LoadScript } from "@react-google-maps/api";
 
