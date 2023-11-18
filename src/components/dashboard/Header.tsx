@@ -2,14 +2,39 @@ import React from "react";
 import logo from "../../assets/logos/logo.svg";
 import notification from "../../assets/images/notification.png";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Header = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAuth");
-    navigate("/");
+  const handleLogout = async () => {
+    const { email } = JSON.parse(localStorage.getItem("user"));
+
+    try {
+      // Make a request to your server to get the user ID based on the email
+      const response = await axios.post(`${baseUrl}/logout`, { email });
+
+      // Check if the request was successful
+      if (response.status === 200) {
+        console.log("Logged out successfully");
+        // Handle any additional actions after successful logout
+
+        localStorage.removeItem("isAuth");
+        localStorage.removeItem("user");
+        localStorage.removeItem("driver");
+        navigate("/");
+      } else {
+        console.error("Logout failed");
+        // Handle any error scenarios
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Handle any network or server error
+    }
   };
+
   return (
     <header className="flex justify-between items-center px-24 py-4 bg-lightblue">
       <Link to="/">

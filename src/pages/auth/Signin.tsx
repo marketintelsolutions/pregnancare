@@ -28,7 +28,10 @@ const Signin = () => {
     setIsValidEmail(validateEmail(e.target.value));
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/login`,
@@ -83,7 +86,7 @@ const Signin = () => {
         <div className="py-7 px-14 bg-primary-red flex justify-center rounded-t-lg">
           <Logo aria-label="logo" />
         </div>
-        <div className="py-10 px-14 bg-white flex flex-col gap-5 rounded-b-lg">
+        <form className="py-10 px-14 bg-white flex flex-col gap-5 rounded-b-lg">
           <article>
             <h2 className="text-black text-3xl leading-10 font-medium">
               Sign in
@@ -149,8 +152,9 @@ const Signin = () => {
           </Link>
           {errorMessage && <p>{errorMessage}</p>}
           <button
-            onClick={handleLogin}
+            onClick={(e) => handleLogin(e)}
             className="rounded-md bg-[#3058A6] py-3 px-6 text-white text-sm font-medium leading-5 border-[1px] hover:bg-white hover:border-[#3058A6] hover:text-[#3058A6] transition linear"
+            type="submit"
           >
             Login
           </button>
@@ -163,7 +167,7 @@ const Signin = () => {
               <img src={arrowRight} alt="arrow" />
             </span>
           </p>
-        </div>
+        </form>
       </aside>
     </section>
   );
