@@ -264,3 +264,66 @@ exports.resetPassword = async (req, res) => {
 }
 
 
+exports.logout = async (req, res) => {
+    try {
+        // Get the user ID using the email address
+        const { email } = req.body;
+        const usersRef = admin.firestore().collection('users');
+        const userSnapshot = await usersRef.where('email', '==', email).get();
+
+        if (userSnapshot.empty) {
+            return res.status(400).json({ message: 'User not found with the provided email address' });
+        }
+
+        const userId = userSnapshot.docs[0].id;
+
+        // Get the user data for additional operations
+        const userData = userSnapshot.docs[0].data();
+
+        // Update the user's status and remove sosRideId
+        await admin.firestore().collection('users').doc(userId).update({
+            sos: false,
+            sosRideId: null,
+        });
+
+        // Additional feature: Check and cancel the ride
+        if (userData.sosRideId) {
+            const ridesRef = admin.firestore().collection('rides');
+            // const rideSnapshot = await ridesRef.doc(userData.sosRideId).get();
+            const rideSnapshot = await ridesRef.where('rideId', '==', userData.sosRideId).get();
+
+            if (!rideSnapshot.empty) {
+                console.log('ride exists');
+                const rideData = rideSnapshot.docs[0].data();
+
+                // Set the ride status to 'cancelled'
+                await ridesRef.doc(rideSnapshot.docs[0].id).update({ status: 'cancelled' });
+
+                // Additional feature: Check and update driver status
+                if (rideData.assignedDriver) {
+                    // const driverSnapshot = await usersRef.doc(rideData.assignedDriver).get();
+                    const driverSnapshot = await usersRef.where('email', '==', rideData.assignedDriver.email).get();
+
+                    if (!driverSnapshot.empty) {
+                        console.log('there is assigned driver');
+                        // Update the driver's sos status to false
+                        await usersRef.doc(driverSnapshot.docs[0].id).update({ sos: false });
+                    }
+                }
+            } else {
+                console.log('ride not found');
+            }
+        }
+
+        // Send a positive response
+        res.status(200).json({ message: 'Logged out successfully' });
+
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+
+
+
