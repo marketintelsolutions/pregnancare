@@ -24,6 +24,7 @@ const Header = () => {
         localStorage.removeItem("isAuth");
         localStorage.removeItem("user");
         localStorage.removeItem("driver");
+        localStorage.removeItem("ride");
         navigate("/");
       } else {
         console.error("Logout failed");

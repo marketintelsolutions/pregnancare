@@ -23,12 +23,22 @@ const driverSlice = createSlice({
   reducers: {
     setDriver: (state, action) => {
       state.driver = action.payload;
+
       state.ride = action.payload.rideDetails;
     },
     setRide: (state, action) => {
       const ride = action.payload;
-      state.ride = ride;
 
+      let newRide;
+
+      if (ride.status === "cancelled" || ride.status === "completed") {
+        newRide = null;
+      } else {
+        newRide = ride;
+      }
+
+      state.ride = newRide;
+      // state.ride = ride;
       if (ride !== null) {
         // update the button status based on the ride
         if (ride.status === "accepted") {
