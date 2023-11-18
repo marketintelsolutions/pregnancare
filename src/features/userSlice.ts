@@ -42,6 +42,12 @@ const userSlice = createSlice({
     setSelectedHospitalCoordinates: (state, action) => {
       state.selectedHospitalCoordinates = action.payload;
     },
+    logoutStates: (state, _) => {
+      state.ride = null;
+      state.driver = null;
+      state.user = {};
+      state.selectedHospitalCoordinates = null;
+    },
   },
 });
 
@@ -54,5 +60,6 @@ export const {
   setAlert,
   setIsAlert,
   setSelectedHospitalCoordinates,
+  logoutStates,
 } = userSlice.actions;
 export default userSlice.reducer;
