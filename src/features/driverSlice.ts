@@ -15,6 +15,7 @@ const initialState = {
   loading: false,
   driverAlert: "",
   isDriverAlert: false,
+  notifications: [],
 };
 
 const driverSlice = createSlice({
@@ -78,6 +79,9 @@ const driverSlice = createSlice({
     setIsDriverAlert: (state, action) => {
       state.isDriverAlert = action.payload;
     },
+    setNotifications: (state, action) => {
+      state.notifications = action.payload;
+    },
   },
 });
 
@@ -93,5 +97,6 @@ export const {
   setLoading,
   setDriverAlert,
   setIsDriverAlert,
+  setNotifications,
 } = driverSlice.actions;
 export default driverSlice.reducer;

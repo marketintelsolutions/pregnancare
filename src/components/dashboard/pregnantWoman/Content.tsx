@@ -59,7 +59,7 @@ const Content = ({ user }) => {
               : "Click here to request pickup";
             dispatch(setMessage(message));
 
-            if (user.sosRideId) {
+            if (user.sosRideId || ride) {
               // Move the second axios call here, inside the .then block
               console.log("there is a ride");
 
@@ -80,6 +80,9 @@ const Content = ({ user }) => {
                     dispatch(setDriver(ride.assignedDriver));
                     dispatch(setRide(ride));
                     dispatch(setMessage(message));
+
+                    localStorage.setItem("ride", JSON.stringify(ride));
+                    console.log("ride reset");
                   } else {
                     setError(rideResponse.data.message);
                   }

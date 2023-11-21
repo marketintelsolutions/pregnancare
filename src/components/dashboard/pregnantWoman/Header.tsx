@@ -48,7 +48,28 @@ const Header = () => {
       </Link>
 
       <div className="flex gap-5 items-center">
-        <img src={notification} alt="notification" className="w-6 h-6" />
+        <div className="relative">
+          <img src={notification} alt="notification" className="w-6 h-6" />
+
+          {/* NOTIFICATION */}
+          <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow absolute top-[200%] z-20 mx-auto w-[290px]">
+            <div className="flex">
+              <span>NO NOTIFICATIONS</span>
+            </div>
+            {/* <div className="flex items-center">
+              <span>Toyota Fj Crusier - 5FJXK1</span>
+            </div>
+            <div className="flex items-center">
+              <span>Rating - 4.2</span>
+            </div>
+            <div className="flex items-center">
+              <span>Trips - 2,239</span>
+            </div>
+            <div className="flex items-center">
+              <span>Years - 2</span>
+            </div> */}
+          </div>
+        </div>
         <div className="rounded-[50%] flex justify-center items-center bg-darkblue w-8 h-8 ">
           <span className="font-bold text-[10px] text-white">AA</span>
         </div>
