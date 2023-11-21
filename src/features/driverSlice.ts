@@ -31,12 +31,14 @@ const driverSlice = createSlice({
     setRide: (state, action) => {
       const ride = action.payload;
 
-      let newRide;
+      let newRide = null;
 
-      if (ride.status === "cancelled" || ride.status === "completed") {
-        newRide = null;
-      } else {
-        newRide = ride;
+      if (ride) {
+        if (ride.status === "cancelled" || ride.status === "completed") {
+          newRide = null;
+        } else {
+          newRide = ride;
+        }
       }
 
       state.ride = newRide;
