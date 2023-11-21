@@ -26,6 +26,9 @@ const Header = () => {
   const notifications = useSelector(
     (state: RootState) => state.driver.notifications
   );
+  const isNotification = useSelector(
+    (state: RootState) => state.driver.isNotification
+  );
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -75,45 +78,54 @@ const Header = () => {
 
       <div className="flex gap-5 items-center">
         <div className="relative">
-          {/* <img
-            src={notification}
-            alt="notification"
-            className="w-6 h-6"
+          <div
+            className="w-8 h-8 relative"
             onClick={() =>
               setNotificationModalVisibility(!isNotificationModalVisible)
             }
-          /> */}
-          <div className="w-8 h-8 relative">
-            <Lottie options={lottieOptions} />
-            <span className="h-4 w-4 bg-[#FF4D4F] absolute top-0 right-0 text-[9px] text-white flex items-center justify-center rounded-full border-[1.5px] border-white">
-              {notifications.length}
-            </span>
+          >
+            {isNotification ? (
+              <>
+                <Lottie options={lottieOptions} />
+                <span className="h-4 w-4 bg-[#FF4D4F] absolute top-0 right-0 text-[9px] text-white flex items-center justify-center rounded-full border-[1.5px] border-white">
+                  {notifications.length}
+                </span>
+              </>
+            ) : (
+              <img src={notification} alt="notification" className="w-6 h-6" />
+            )}
           </div>
           {/* NOTIFICATION MODAL */}
           {isNotificationModalVisible && (
             <div className="flex flex-col gap-3 bg-white rounded-lg px-12 py-6 shadow absolute top-[200%] z-20 mx-auto w-[290px]">
               <div className="flex">
-                <span>NO NOTIFICATIONS</span>
+                {notifications.length > 0 ? (
+                  <span>{notifications.length} Notification(s)</span>
+                ) : (
+                  <span>NO NOTIFICATIONS</span>
+                )}
               </div>
-              {notifications.map((notification) => {
-                return (
-                  <div className="flex items-center">
-                    <span>Rating - 4.2</span>
-                  </div>
-                );
-              })}
-              {/* <div className="flex items-center">
-              <span>Toyota Fj Crusier - 5FJXK1</span>
-            </div>
-            <div className="flex items-center">
-              <span>Rating - 4.2</span>
-            </div>
-            <div className="flex items-center">
-              <span>Trips - 2,239</span>
-            </div>
-            <div className="flex items-center">
-              <span>Years - 2</span>
-            </div> */}
+              {notifications.length > 0 &&
+                notifications.map((notification, index) => {
+                  return (
+                    <div className="flex flex-col gap-5" key={index}>
+                      <div className="flex flex-col gap-5">
+                        <span className="text-[12px]">
+                          There is a new ride request
+                        </span>
+                        <div className="flex justify-between">
+                          <button className="rounded py-[7px] px-[14px] bg-[#DB3E4D] text-white">
+                            Reject
+                          </button>
+                          <button className="rounded py-[7px] px-[14px] bg-[#3058A6] text-white">
+                            Accept
+                          </button>
+                        </div>
+                      </div>
+                      <hr />
+                    </div>
+                  );
+                })}
             </div>
           )}
         </div>

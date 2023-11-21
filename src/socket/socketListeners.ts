@@ -3,6 +3,8 @@ import io from "socket.io-client";
 import {
   setDriverAlert,
   setIsDriverAlert,
+  setIsNotification,
+  setNotifications,
   setSos,
 } from "../features/driverSlice";
 import { setLatestRide, setUsers } from "../features/healthcareSlice";
@@ -32,6 +34,17 @@ const initializeSocketListeners = (dispatch) => {
     dispatch(setSos("new ride"));
     dispatch(setDriverAlert("There is a new ride request"));
     dispatch(setIsDriverAlert(true));
+
+    let notifications = [];
+
+    const notification = {
+      message: "there is a new ride request",
+    };
+
+    notifications.push(notification);
+
+    dispatch(setNotifications(notifications));
+    dispatch(setIsNotification(true));
 
     // Play notification sound
     // notificationSound.play();

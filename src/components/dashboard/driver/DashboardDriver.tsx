@@ -130,7 +130,6 @@ const DashboardDriver = () => {
               ride?.status === "new" ? "bg-green-500" : "bg-blue-800"
             } text-center z-20 w-[413px] h-[413px] rounded-[42px] flex items-center justify-center cursor-pointer`}
             onClick={async () => {
-              // if (message === "ride accepted") return;
               await acceptRide(driverDetails, dispatch, ride);
             }}
           >
