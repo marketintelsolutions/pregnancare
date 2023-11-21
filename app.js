@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword, logout } = require('./controllers/userController');
+const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword, logout, logoutDriver } = require('./controllers/userController');
 const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers, nearbyHospitals } = require('./controllers/dashboardController');
 
 //Setting up cors
@@ -62,6 +62,7 @@ app.post('/login', login);
 app.post('/sendResetEmail', resetEmail);
 app.post('/reset/:token', resetPassword);
 app.post('/logout', logout);
+app.post('/logoutDriver', logoutDriver);
 
 // DASHBOARD ROUTES (PATIENT AND DRIVER)
 app.post('/saveLocation', saveLocation);
