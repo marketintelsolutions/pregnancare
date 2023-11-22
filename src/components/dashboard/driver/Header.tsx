@@ -113,14 +113,6 @@ const Header = () => {
                         <span className="text-[12px]">
                           There is a new ride request
                         </span>
-                        <div className="flex justify-between">
-                          <button className="rounded py-[7px] px-[14px] bg-[#DB3E4D] text-white">
-                            Reject
-                          </button>
-                          <button className="rounded py-[7px] px-[14px] bg-[#3058A6] text-white">
-                            Accept
-                          </button>
-                        </div>
                       </div>
                       <hr />
                     </div>

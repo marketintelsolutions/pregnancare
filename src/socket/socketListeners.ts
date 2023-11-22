@@ -28,7 +28,7 @@ const initializeSocketListeners = (dispatch) => {
   socket.on("updateDrivers", ({ nearbyDrivers, rideDetails }) => {
     const driver = nearbyDrivers[0];
 
-    console.log(nearbyDrivers);
+    console.log(rideDetails);
 
     dispatch(setDriver({ ...driver, rideDetails }));
     dispatch(setSos("new ride"));
