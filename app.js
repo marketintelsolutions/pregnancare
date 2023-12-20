@@ -23,7 +23,7 @@ app.use(express.json());
 const io = new Server(server, {
     cors: {
         // origin: "http://localhost:5174", // Replace with your frontend's URL
-        origin: "0.0.0.0", // Replace with your frontend's URL
+        origin: "0.0.0.0",
         // origin: "http://localhost:3001", // Replace with your frontend's URL
         methods: ["GET", "POST"],
         credentials: true,
