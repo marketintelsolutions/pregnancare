@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const { haversineDistance, generateId, getClosestHospital, } = require("../middleware/dashboardMiddleware");
 const calculateDistance = require('../middleware/calculateDistance')
 const axios = require('axios');
+const connection = require('../database/db');
 
 exports.saveLocation = async (req, res) => {
     console.log('request made');
