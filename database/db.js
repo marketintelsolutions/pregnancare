@@ -1,5 +1,5 @@
 // mysqlConnection.js
-const mysql = require('mysql2');
+const mysql = require('mysql');
 
 const connection = mysql.createConnection({
     connectionLimit: 100,
