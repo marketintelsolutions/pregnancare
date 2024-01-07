@@ -5,46 +5,218 @@ const calculateDistance = require('../middleware/calculateDistance')
 const axios = require('axios');
 const connection = require('../database/db');
 
+// exports.saveLocation = async (req, res) => {
+//     console.log('request made');
+
+//     const { user, coordinates, address } = req.body;
+
+//     try {
+//         const usersRef = db.collection('users');
+//         const userSnapshot = await usersRef.where('email', '==', user.email).get();
+
+//         if (userSnapshot.empty) {
+//             // User doesn't exist, return an error
+//             return res.status(404).json({ success: false, message: 'User not found.' });
+//         }
+
+//         // User exists, update the coordinates and address
+//         const userId = userSnapshot.docs[0].id;
+//         await usersRef.doc(userId).update({
+//             coordinates: {
+//                 lat: coordinates.lat,
+//                 lng: coordinates.lng
+//             },
+//             address: address
+//         });
+
+//         // Fetch updated user data
+//         const updatedUserDoc = await usersRef.doc(userId).get();
+//         const userData = updatedUserDoc.data();
+
+//         console.log('Location data saved');
+//         res.status(200).json({ success: true, user: userData });
+
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ success: false, message: 'Error saving location data.' });
+//     }
+// }
 exports.saveLocation = async (req, res) => {
     console.log('request made');
 
     const { user, coordinates, address } = req.body;
 
     try {
-        const usersRef = db.collection('users');
-        const userSnapshot = await usersRef.where('email', '==', user.email).get();
+        // Check if the user exists in the MySQL database
+        const selectUserQuery = 'SELECT * FROM users WHERE email = ?';
+        await connection.query(selectUserQuery, [user.email], async (error, results) => {
+            if (error) {
+                console.log(error);
+                return
+            } else {
+                if (results.length === 0) {
+                    // User doesn't exist, return an error
 
-        if (userSnapshot.empty) {
-            // User doesn't exist, return an error
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
+                    return res.status(404).json({ success: false, message: 'User not found.' });
+                }
 
-        // User exists, update the coordinates and address
-        const userId = userSnapshot.docs[0].id;
-        await usersRef.doc(userId).update({
-            coordinates: {
-                lat: coordinates.lat,
-                lng: coordinates.lng
-            },
-            address: address
+                // User exists, update the coordinates and address
+                const userId = results[0].id;
+                const updateLocationQuery = 'UPDATE users SET coordinates_lat = ?, coordinates_lng = ?, address = ? WHERE id = ?';
+                await connection.query(updateLocationQuery, [coordinates.lat, coordinates.lng, address, userId]);
+
+                // Fetch updated user data
+                const selectUpdatedUserQuery = 'SELECT * FROM users WHERE id = ?';
+                await connection.query(selectUpdatedUserQuery, [userId], (error, results) => {
+                    if (error) {
+                        console.log(error);
+                        return
+                    } else {
+                        const userData = results[0];
+
+                        console.log('Location data saved');
+                        res.status(200).json({ success: true, user: userData });
+                    }
+                });
+            }
         });
-
-        // Fetch updated user data
-        const updatedUserDoc = await usersRef.doc(userId).get();
-        const userData = updatedUserDoc.data();
-
-        console.log('Location data saved');
-        res.status(200).json({ success: true, user: userData });
-
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error saving location data.' });
     }
-}
+};
 
+
+// exports.getNearbyDrivers = async (req, res) => {
+//     const { user, coordinates, selectedHospital } = req.body;
+//     const { userType, email } = user
+//     const io = req.io;
+
+//     console.log(user, coordinates);
+
+//     if (userType !== 'pregnant woman') {
+//         return res.status(400).json({ success: false, message: 'Invalid user type.' });
+//     }
+
+//     try {
+//         const usersRef = db.collection('users');
+//         const driverSnapshot = await usersRef.where('userType', '==', 'driver').get();
+
+//         const motherSnapshot = await usersRef.where('email', '==', email).get();
+//         const motherId = motherSnapshot.docs[0].id
+//         const motherRef = usersRef.doc(motherId)
+
+//         if (motherSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'Mother not found.' });
+//         }
+
+//         let nearbyDrivers = [];
+//         let updatePromises = [];  // Store promises for updating the Firestore
+
+//         driverSnapshot.forEach(doc => {
+//             const driverData = doc.data();
+//             const driverCoords = driverData.coordinates;
+
+//             // Check if the driver is within 15 km using the haversine formula
+//             const distance = haversineDistance(coordinates, driverCoords);
+//             console.log('mother coordinates', coordinates);
+//             console.log('driver coords', driverCoords);
+//             console.log('distance', distance);
+
+//             if (distance <= 15) {
+//                 // Save updated data back to Firestore and add the promise to our array
+//                 const updatePromise = usersRef.doc(doc.id).update({ patientCoordinates: coordinates });
+//                 updatePromises.push(updatePromise);
+
+//                 nearbyDrivers.push(driverData);
+//             }
+//         });
+
+//         // Wait for all Firestore updates to complete
+//         await Promise.all(updatePromises);
+
+//         // Create a new ride document with the patient's details, drivers and status
+//         const ridesRef = db.collection('rides');
+
+//         let rideDetails
+//         console.log(selectedHospital);
+//         if (selectedHospital) {
+//             console.log('hello there is a selected hospital');
+//             rideDetails = {
+//                 rideId: generateId(),
+//                 patient: {
+//                     email,
+//                     // ...user,
+//                     coordinates,
+//                     selectedHospital
+//                 },
+//                 drivers: nearbyDrivers,
+//                 status: 'new'
+//             };
+//         } else {
+//             console.log('hello there is a no selected hospital');
+//             rideDetails = {
+//                 rideId: generateId(),
+//                 patient: {
+//                     email,
+//                     // ...user,
+//                     coordinates,
+//                 },
+//                 drivers: nearbyDrivers,
+//                 status: 'new'
+//             };
+//         }
+
+
+//         console.log('updateDrivers', { nearbyDrivers, rideDetails });
+
+//         // EMIT TO SOCKET (ALERT NEARBY DRIVERS)
+//         io.emit('updateDrivers', { nearbyDrivers, rideDetails });
+
+//         await ridesRef.add(rideDetails);
+
+//         if (selectedHospital) {
+//             await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, selectedHospital })
+//         } else {
+//             await motherRef.update({ sos: true, sosRideId: rideDetails.rideId })
+//         }
+
+//         const updatedMotherData = motherSnapshot.docs[0].data();
+
+//         console.log('Nearby Drivers:', nearbyDrivers);
+//         // console.log('nearby drivers sent');
+
+//         // GET ALL USERS AND ALERT HOSPITALS
+
+//         try {
+//             const snapshot = await usersRef.where('userType', '==', 'pregnant woman').get();
+//             const pregnantWomanUsers = [];
+
+//             snapshot.forEach(doc => {
+//                 // Include the document ID in the data
+//                 pregnantWomanUsers.push({
+//                     id: doc.id,
+//                     ...doc.data(),
+//                 });
+//             });
+
+//             // EMIT TO SOCKET (ALERT HOSPITALS)
+//             io.emit('newSos', { rideDetails, pregnantWomanUsers })
+//         } catch (error) {
+//             console.error('Error fetching data:', error);
+//             res.status(500).json({ error: 'Internal server error' });
+//         }
+
+//         res.status(200).json({ success: true, drivers: nearbyDrivers, ride: rideDetails, user: updatedMotherData });
+
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ success: false, message: 'Error fetching or updating driver coordinates.' });
+//     }
+// }
 exports.getNearbyDrivers = async (req, res) => {
     const { user, coordinates, selectedHospital } = req.body;
-    const { userType, email } = user
+    const { userType, email } = user;
     const io = req.io;
 
     console.log(user, coordinates);
@@ -54,121 +226,114 @@ exports.getNearbyDrivers = async (req, res) => {
     }
 
     try {
-        const usersRef = db.collection('users');
-        const driverSnapshot = await usersRef.where('userType', '==', 'driver').get();
+        // Check if the user exists in the MySQL database
+        const selectMotherQuery = 'SELECT * FROM users WHERE email = ?';
+        await connection.query(selectMotherQuery, [email], async (error, motherResults) => {
+            if (error) {
+                console.log(error);
+                return
+            } else {
+                if (motherResults.length === 0) {
+                    return res.status(404).json({ success: false, message: 'Mother not found.' });
+                }
 
-        const motherSnapshot = await usersRef.where('email', '==', email).get();
-        const motherId = motherSnapshot.docs[0].id
-        const motherRef = usersRef.doc(motherId)
+                const motherId = motherResults[0].id;
 
-        if (motherSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'Mother not found.' });
-        }
+                // Fetch all nearby drivers within 15 km
+                const selectDriversQuery = 'SELECT * FROM users WHERE userType = "driver"';
+                await connection.query(selectDriversQuery, async (error, driverResults) => {
+                    if (error) {
+                        console.log(error);
+                        return
+                    } else {
+                        let nearbyDrivers = [];
+                        let updatePromises = [];  // Store promises for updating MySQL
 
-        let nearbyDrivers = [];
-        let updatePromises = [];  // Store promises for updating the Firestore
 
-        driverSnapshot.forEach(doc => {
-            const driverData = doc.data();
-            const driverCoords = driverData.coordinates;
+                        for (const driverData of driverResults) {
+                            const coordinates = {
+                                lat: driverData.coordinates_lat,
+                                lng: driverData.coordinates_lng
+                            }
 
-            // Check if the driver is within 15 km using the haversine formula
-            const distance = haversineDistance(coordinates, driverCoords);
-            console.log('mother coordinates', coordinates);
-            console.log('driver coords', driverCoords);
-            console.log('distance', distance);
+                            const driverCoords = coordinates
 
-            if (distance <= 15) {
-                // Save updated data back to Firestore and add the promise to our array
-                const updatePromise = usersRef.doc(doc.id).update({ patientCoordinates: coordinates });
-                updatePromises.push(updatePromise);
 
-                nearbyDrivers.push(driverData);
+                            // Check if the driver is within 15 km using the haversine formula
+                            const distance = haversineDistance(coordinates, driverCoords);
+                            console.log('mother coordinates', coordinates);
+                            console.log('driver coords', driverCoords);
+                            console.log('distance', distance);
+
+                            if (distance <= 15) {
+                                // Save updated data back to MySQL and add the promise to our array
+                                const updatePromise = connection.query('UPDATE users SET patientCoordinates = ? WHERE id = ?', [JSON.stringify(coordinates), driverData.id]);
+                                updatePromises.push(updatePromise);
+
+                                nearbyDrivers.push(driverData);
+                            }
+                        }
+
+                        // Wait for all MySQL updates to complete
+                        await Promise.all(updatePromises);
+
+                        // Create a new ride document with the patient's details, drivers, and status
+                        const insertRideQuery = 'INSERT INTO rides (rideId, patient, drivers, status) VALUES (?, ?, ?, ?)';
+                        const rideId = generateId();
+                        const rideDetails = selectedHospital
+                            ? [rideId, JSON.stringify({ email, coordinates, selectedHospital }), JSON.stringify(nearbyDrivers), 'new']
+                            : [rideId, JSON.stringify({ email, coordinates }), JSON.stringify(nearbyDrivers), 'new'];
+
+                        await connection.query(insertRideQuery, rideDetails);
+
+                        // Update mother's SOS status and SOS ride ID in MySQL
+                        const updateMotherQuery = selectedHospital
+                            ? 'UPDATE users SET sos = true, sosRideId = ?, selectedHospital = ? WHERE id = ?'
+                            : 'UPDATE users SET sos = true, sosRideId = ? WHERE id = ?';
+
+                        const updateMotherParams = selectedHospital ? [rideId, selectedHospital, motherId] : [rideId, motherId];
+                        await connection.query(updateMotherQuery, updateMotherParams);
+
+                        // Fetch updated mother data from MySQL
+                        const selectUpdatedMotherQuery = 'SELECT * FROM users WHERE id = ?';
+                        await connection.query(selectUpdatedMotherQuery, [motherId], async (error, updatedMotherResults) => {
+                            if (error) {
+                                console.log(error);
+                                return
+                            } else {
+                                const updatedMotherData = updatedMotherResults[0];
+
+                                console.log('Nearby Drivers:', nearbyDrivers);
+
+                                // GET ALL USERS AND ALERT HOSPITALS
+                                try {
+                                    const selectPregnantWomenQuery = 'SELECT * FROM users WHERE userType = "pregnant woman"';
+                                    await connection.query(selectPregnantWomenQuery, (error, pregnantWomanResults) => {
+                                        if (error) {
+                                            console.log(error);
+                                            return
+                                        } else {
+                                            // EMIT TO SOCKET (ALERT HOSPITALS)
+                                            io.emit('newSos', { rideDetails, pregnantWomanUsers: pregnantWomanResults });
+                                        }
+                                    });
+                                } catch (error) {
+                                    console.error('Error fetching data:', error);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                }
+
+                                res.status(200).json({ success: true, drivers: nearbyDrivers, ride: rideDetails, user: updatedMotherData });
+                            }
+                        });
+                    }
+                });
             }
         });
-
-        // Wait for all Firestore updates to complete
-        await Promise.all(updatePromises);
-
-        // Create a new ride document with the patient's details, drivers and status
-        const ridesRef = db.collection('rides');
-
-        let rideDetails
-        console.log(selectedHospital);
-        if (selectedHospital) {
-            console.log('hello there is a selected hospital');
-            rideDetails = {
-                rideId: generateId(),
-                patient: {
-                    email,
-                    // ...user,
-                    coordinates,
-                    selectedHospital
-                },
-                drivers: nearbyDrivers,
-                status: 'new'
-            };
-        } else {
-            console.log('hello there is a no selected hospital');
-            rideDetails = {
-                rideId: generateId(),
-                patient: {
-                    email,
-                    // ...user,
-                    coordinates,
-                },
-                drivers: nearbyDrivers,
-                status: 'new'
-            };
-        }
-
-
-        console.log('updateDrivers', { nearbyDrivers, rideDetails });
-
-        // EMIT TO SOCKET (ALERT NEARBY DRIVERS)
-        io.emit('updateDrivers', { nearbyDrivers, rideDetails });
-
-        await ridesRef.add(rideDetails);
-
-        if (selectedHospital) {
-            await motherRef.update({ sos: true, sosRideId: rideDetails.rideId, selectedHospital })
-        } else {
-            await motherRef.update({ sos: true, sosRideId: rideDetails.rideId })
-        }
-
-        const updatedMotherData = motherSnapshot.docs[0].data();
-
-        console.log('Nearby Drivers:', nearbyDrivers);
-        // console.log('nearby drivers sent');
-
-        // GET ALL USERS AND ALERT HOSPITALS
-
-        try {
-            const snapshot = await usersRef.where('userType', '==', 'pregnant woman').get();
-            const pregnantWomanUsers = [];
-
-            snapshot.forEach(doc => {
-                // Include the document ID in the data
-                pregnantWomanUsers.push({
-                    id: doc.id,
-                    ...doc.data(),
-                });
-            });
-
-            // EMIT TO SOCKET (ALERT HOSPITALS)
-            io.emit('newSos', { rideDetails, pregnantWomanUsers })
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
-
-        res.status(200).json({ success: true, drivers: nearbyDrivers, ride: rideDetails, user: updatedMotherData });
-
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error fetching or updating driver coordinates.' });
     }
-}
+};
 
 exports.getDriverDetails = async (req, res) => {
     const email = req.body.email;

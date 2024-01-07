@@ -2,11 +2,13 @@ require("dotenv").config();
 const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
+const multer = require('multer');
+const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword, logout, logoutDriver } = require('./controllers/userController');
+const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword, logout, logoutDriver, uploadImage } = require('./controllers/userController');
 const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers, nearbyHospitals } = require('./controllers/dashboardController');
 
 //Setting up cors
@@ -49,6 +51,20 @@ io.on('connection', (socket) => {
     });
 });
 
+// Multer configuration for handling file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Specify the upload directory
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const upload = multer({ storage: storage });
+
+// Serve static files (images)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // AUTH ROUTES
 app.get('/', (req, res) => {
@@ -63,6 +79,8 @@ app.post('/sendResetEmail', resetEmail);
 app.post('/reset/:token', resetPassword);
 app.post('/logout', logout);
 app.post('/logoutDriver', logoutDriver);
+// API endpoint for uploading an image and associating it with a user
+app.post('/upload/:email', upload.single('image'), uploadImage);
 
 // DASHBOARD ROUTES (PATIENT AND DRIVER)
 app.post('/saveLocation', saveLocation);
