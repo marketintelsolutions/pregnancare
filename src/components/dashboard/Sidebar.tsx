@@ -12,7 +12,10 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const userType = localStorage.getItem("userType");
+
+  let storage = userType === "driver" ? "driver" : "user";
+  const user = JSON.parse(localStorage.getItem(`${storage}`));
   const location = useLocation(); // Get the current location
 
   // Function to determine if the path matches
@@ -22,7 +25,7 @@ const Sidebar = () => {
     <section className="w-80 bg-coolblue h-auto min-h-screen px-5">
       <div className="profile flex flex-col items-center gap-11 mt-12">
         <img
-          src={user.imgUrl}
+          src={`http://localhost:8080/${user.imgUrl}`}
           alt="avatar"
           className="w-36 h-36 rounded-full object-cover"
         />

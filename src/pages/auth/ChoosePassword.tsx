@@ -77,7 +77,8 @@ const ChoosePassword = () => {
           `${process.env.REACT_APP_BASE_URL}/storePassword`,
           {
             password,
-            email: formData.email, // Assuming you also send the email or some identifier
+            email: formData.email,
+            userType: formData.userType,
           }
         );
 
@@ -89,6 +90,8 @@ const ChoosePassword = () => {
 
           // add user to store
           dispatch(setUser(user));
+
+          localStorage.setItem("isAuth", "true");
 
           setTimeout(() => {
             if (userType === "pregnant woman") {
@@ -105,8 +108,6 @@ const ChoosePassword = () => {
               navigate("/dashboard/healthcare-provider");
             }
           }, 6000);
-
-          // Handle successful password storage e.g. redirect to login or another page
         } else {
           // Handle any errors e.g. display a message to the user
         }

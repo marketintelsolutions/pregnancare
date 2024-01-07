@@ -39,7 +39,10 @@ const Header = () => {
   );
 
   const handleLogout = async () => {
-    const { email } = JSON.parse(localStorage.getItem("user"));
+    const userType = localStorage.getItem("userType");
+
+    let storage = userType === "pregnant woman" ? "user" : "driver";
+    const { email } = JSON.parse(localStorage.getItem(`${storage}`));
 
     try {
       // Make a request to your server to get the user ID based on the email

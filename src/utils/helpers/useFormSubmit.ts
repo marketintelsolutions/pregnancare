@@ -20,40 +20,65 @@ const useFormSubmit = (initialData: any, postURL: string) => {
   // console.log(formData);
 
   const image = formData.image;
+  const email = formData.email;
 
   useEffect(() => {
-    const uploadFile = () => {
-      const storageRef = ref(storage, `${image?.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, image);
+    // const uploadFile = () => {
+    //   const storageRef = ref(storage, `${image?.name}`);
+    //   const uploadTask = uploadBytesResumable(storageRef, image);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(progress);
+    //   uploadTask.on(
+    //     "state_changed",
+    //     (snapshot) => {
+    //       const progress =
+    //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    //       setProgress(progress);
 
-          switch (snapshot.state) {
-            case "paused":
-              console.log("upload is paused");
-              break;
-            case "running":
-              console.log("Upload is running");
-              break;
-            default:
-              break;
-          }
-        },
-        (error) => {
-          console.log(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-            setFormData((prev) => ({ ...prev, imgUrl: downloadUrl }));
-            console.log("upload completed");
-          });
+    //       switch (snapshot.state) {
+    //         case "paused":
+    //           console.log("upload is paused");
+    //           break;
+    //         case "running":
+    //           console.log("Upload is running");
+    //           break;
+    //         default:
+    //           break;
+    //       }
+    //     },
+    //     (error) => {
+    //       console.log(error);
+    //     },
+    //     () => {
+    //       getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+    //         setFormData((prev) => ({ ...prev, imgUrl: downloadUrl }));
+    //         console.log("upload completed");
+    //       });
+    //     }
+    //   );
+    // };
+
+    const uploadFile = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("image", image);
+
+        // Upload image to the server
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/upload/${email}`,
+          formData
+        );
+
+        if (response.status === 200) {
+          const { imgUrl } = response.data;
+          setFormData((prev) => ({ ...prev, imgUrl }));
         }
-      );
+
+        // Handle success or update UI as needed
+
+        console.log("Image uploaded successfully");
+      } catch (error) {
+        console.error("Image upload error:", error);
+      }
     };
 
     // console.log(formData);

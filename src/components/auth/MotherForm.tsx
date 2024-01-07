@@ -196,6 +196,7 @@ const MotherForm = () => {
           placeholder="AA"
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
           onChange={handleChange}
+          disabled={!formData.email}
         />
         <FieldError error={errors.genotype} text="image is required" />
       </div>
