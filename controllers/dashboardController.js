@@ -305,7 +305,7 @@ exports.getNearbyDrivers = async (req, res) => {
 
                         const { patient, drivers, status } = rideDetails
 
-                        await connection.query(insertRideQuery, [rideId, JSON.stringify({ ...patient }), JSON.stringify({ ...drivers }), status]);
+                        await connection.query(insertRideQuery, [rideId, JSON.stringify({ ...patient }), JSON.stringify([...drivers]), status]);
 
                         // Update mother's SOS status and SOS ride ID in MySQL
                         const updateMotherQuery = selectedHospital
@@ -470,6 +470,9 @@ exports.getDriverDetails = async (req, res) => {
                     let { drivers } = rideData
 
                     drivers = JSON.parse(drivers)
+
+                    console.log('driver type', typeof drivers);
+                    console.log('drivers', drivers);
 
                     if (drivers) {
                         drivers.forEach(driver => {
@@ -637,7 +640,7 @@ exports.acceptRide = async (req, res) => {
     try {
         // Query to update the ride details
         const updateRideQuery = 'UPDATE rides SET drivers = ?, assignedDriver = ?, status = ? WHERE rideId = ?';
-        await connection.query(updateRideQuery, [[], JSON.stringify(driverDetails), 'accepted', rideId]);
+        await connection.query(updateRideQuery, [JSON.stringify([]), JSON.stringify(driverDetails), 'accepted', rideId]);
 
         // Fetch the updated ride data
         const selectUpdatedRideQuery = 'SELECT * FROM rides WHERE rideId = ?';
@@ -647,7 +650,7 @@ exports.acceptRide = async (req, res) => {
                 res.status(403).json({ success: false, message: error.message });
 
             }
-            const updatedRide = updatedRideResults[0];
+            const updatedRide = JSON.parse(JSON.stringify(updatedRideResults[0]));
 
             // Dummy location (to be removed in prod)
             const motherCoord = {
@@ -655,7 +658,14 @@ exports.acceptRide = async (req, res) => {
                 lng: 3.90521,
             };
 
-            const driverCoord = JSON.parse(updatedRide.assignedDriver).coordinates;
+            console.log('updatedRide', updatedRide);
+
+            console.log('assignedDrivers', updatedRide.assignedDriver);
+
+            const { coordinates_lat, coordinates_lng } = JSON.parse(updatedRide.assignedDriver);
+            const driverCoord = {
+                coordinates_lat, coordinates_lng
+            }
             // const patientCoord = JSON.parse(updatedRide.patient).coordinates;
             const patientCoord = motherCoord;
 
@@ -680,8 +690,6 @@ exports.acceptRide = async (req, res) => {
 
             res.status(200).json({ success: true, message: 'Ride accepted successfully!', ride: updatedRide });
         });
-
-
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Error updating ride details.' });

@@ -12,10 +12,25 @@ const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, rese
 const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers, nearbyHospitals } = require('./controllers/dashboardController');
 
 //Setting up cors
+
+
+// cors: {
+//     origin: ["www.one.com", "www.two.com", "www.three.com"],
+//     default: "www.one.com"
+// }
+
+// app.all('*', function (req, res, next) {
+//     const origin = cors.origin.includes(req.header('origin').toLowerCase()) ? req.headers.origin : cors.default;
+//     res.header("Access-Control-Allow-Origin", origin);
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     next();
+// });
+
 const corsOption = {
     origin: "*",
+    // origin: ["http://localhost:3000", "http://localhost:3002"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
+    credentials: false,
     exposedHeaders: ["x-auth-token"],
 };
 app.use(cors(corsOption));
@@ -26,7 +41,7 @@ const io = new Server(server, {
     cors: {
         // origin: "http://localhost:5174", // Replace with your frontend's URL
         origin: "0.0.0.0",
-        // origin: "http://localhost:3001", // Replace with your frontend's URL
+        // origin: ["http://localhost:3000", "http://localhost:3002"], // Replace with your frontend's URL
         methods: ["GET", "POST"],
         credentials: true,
     },
