@@ -45,7 +45,7 @@ const saveUser = async (userData, res) => {
             if (err) {
                 // console.log('Email already in use');
                 console.log(err);
-                return res.status(400).json('Email already in use');
+                return res.status(400).json({ message: err.message });
             } else {
                 console.log('saved user');
                 resolve(results);
