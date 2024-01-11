@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const { sendVerificationCode } = require("../middleware/emailService");
 const { saveUser } = require('../middleware/userQueries');
-const connection = require("../database/db");
+const { connection, withTransaction, executeQuery } = require("../database/db");
 const { async } = require("@firebase/util");
 
 // const getAuth = () => admin.auth();
@@ -565,52 +565,110 @@ exports.resetPassword = async (req, res) => {
 };
 
 
+// exports.logoutDriver = async (req, res) => {
+//     try {
+//         // Get the user ID using the email address
+//         const { email, ride } = req.body;
+//         const { rideId, patient } = ride
+
+//         const usersRef = admin.firestore().collection('users');
+//         const userSnapshot = await usersRef.where('email', '==', email).get();
+
+//         if (userSnapshot.empty) {
+//             return res.status(400).json({ message: 'User not found with the provided email address' });
+//         }
+
+//         const userId = userSnapshot.docs[0].id;
+
+//         // Get the user data for additional operations
+//         const userData = userSnapshot.docs[0].data();
+
+//         // Update the user's status and remove sosRideId
+//         await admin.firestore().collection('users').doc(userId).update({
+//             sos: false,
+//             patientCoordinates: null
+//         });
+
+//         // Additional feature: Check and cancel the ride
+//         if (rideId) {
+//             const ridesRef = admin.firestore().collection('rides');
+//             // const rideSnapshot = await ridesRef.doc(userData.sosRideId).get();
+//             const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+
+//             if (!rideSnapshot.empty) {
+//                 console.log('ride exists');
+//                 const rideData = rideSnapshot.docs[0].data();
+
+//                 // Set the ride status to 'cancelled'
+//                 await ridesRef.doc(rideSnapshot.docs[0].id).update({ status: 'cancelled' });
+
+//                 // Additional feature: Check and update driver status
+//                 if (patient) {
+//                     // const driverSnapshot = await usersRef.doc(rideData.assignedDriver).get();
+//                     const motherSnapshot = await usersRef.where('email', '==', patient.email).get();
+
+//                     if (!motherSnapshot.empty) {
+//                         console.log('there is mother');
+//                         // Update the driver's sos status to false
+//                         await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: false, sosRideId: null });
+//                     }
+//                 }
+//             } else {
+//                 console.log('ride not found');
+//             }
+//         }
+
+//         // Send a positive response
+//         res.status(200).json({ message: 'Logged out successfully' });
+
+//     } catch (error) {
+//         console.error('Logout error:', error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// }
+
 exports.logoutDriver = async (req, res) => {
     try {
-        // Get the user ID using the email address
         const { email, ride } = req.body;
-        const { rideId, patient } = ride
+        const { rideId, patient } = ride;
 
-        const usersRef = admin.firestore().collection('users');
-        const userSnapshot = await usersRef.where('email', '==', email).get();
+        // Get the user ID using the email address
+        const selectUserQuery = 'SELECT * FROM users WHERE email = ?';
+        const [userResults] = await connection.query(selectUserQuery, [email]);
 
-        if (userSnapshot.empty) {
+        if (userResults.length === 0) {
             return res.status(400).json({ message: 'User not found with the provided email address' });
         }
 
-        const userId = userSnapshot.docs[0].id;
-
-        // Get the user data for additional operations
-        const userData = userSnapshot.docs[0].data();
+        const userId = userResults[0].id;
 
         // Update the user's status and remove sosRideId
-        await admin.firestore().collection('users').doc(userId).update({
-            sos: false,
-            patientCoordinates: null
-        });
+        const updateUserQuery = 'UPDATE users SET sos = false, patientCoordinates = null WHERE id = ?';
+        await connection.query(updateUserQuery, [userId]);
 
         // Additional feature: Check and cancel the ride
         if (rideId) {
-            const ridesRef = admin.firestore().collection('rides');
-            // const rideSnapshot = await ridesRef.doc(userData.sosRideId).get();
-            const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+            const selectRideQuery = 'SELECT * FROM rides WHERE rideId = ?';
+            const [rideResults] = await connection.query(selectRideQuery, [rideId]);
 
-            if (!rideSnapshot.empty) {
+            if (rideResults.length > 0) {
                 console.log('ride exists');
-                const rideData = rideSnapshot.docs[0].data();
+                const rideData = rideResults[0];
 
                 // Set the ride status to 'cancelled'
-                await ridesRef.doc(rideSnapshot.docs[0].id).update({ status: 'cancelled' });
+                const updateRideQuery = 'UPDATE rides SET status = ? WHERE id = ?';
+                await connection.query(updateRideQuery, ['cancelled', rideData.id]);
 
                 // Additional feature: Check and update driver status
                 if (patient) {
-                    // const driverSnapshot = await usersRef.doc(rideData.assignedDriver).get();
-                    const motherSnapshot = await usersRef.where('email', '==', patient.email).get();
+                    const selectMotherQuery = 'SELECT * FROM users WHERE email = ?';
+                    const [motherResults] = await connection.query(selectMotherQuery, [patient.email]);
 
-                    if (!motherSnapshot.empty) {
+                    if (motherResults.length > 0) {
                         console.log('there is mother');
                         // Update the driver's sos status to false
-                        await usersRef.doc(motherSnapshot.docs[0].id).update({ sos: false, sosRideId: null });
+                        const updateMotherQuery = 'UPDATE users SET sos = false, sosRideId = null WHERE id = ?';
+                        await connection.query(updateMotherQuery, [motherResults[0].id]);
                     }
                 }
             } else {
@@ -625,125 +683,129 @@ exports.logoutDriver = async (req, res) => {
         console.error('Logout error:', error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
-// exports.logoutDriver = async (req, res) => {
-//   try {
-//     const { email, ride } = req.body;
-//     const { rideId, patient } = ride;
+// exports.logout = async (req, res) => {
+//     try {
+//         // Get the user ID using the email address
+//         const { email } = req.body;
+//         const usersRef = admin.firestore().collection('users');
+//         const userSnapshot = await usersRef.where('email', '==', email).get();
 
-//     // Get the user ID using the email address
-//     const selectUserQuery = 'SELECT * FROM users WHERE email = ?';
-//     const [userResults] = await connection.query(selectUserQuery, [email]);
-
-//     if (userResults.length === 0) {
-//       return res.status(400).json({ message: 'User not found with the provided email address' });
-//     }
-
-//     const userId = userResults[0].id;
-
-//     // Update the user's status and remove sosRideId
-//     const updateUserQuery = 'UPDATE users SET sos = false, patientCoordinates = null WHERE id = ?';
-//     await connection.query(updateUserQuery, [userId]);
-
-//     // Additional feature: Check and cancel the ride
-//     if (rideId) {
-//       const selectRideQuery = 'SELECT * FROM rides WHERE rideId = ?';
-//       const [rideResults] = await connection.query(selectRideQuery, [rideId]);
-
-//       if (rideResults.length > 0) {
-//         console.log('ride exists');
-//         const rideData = rideResults[0];
-
-//         // Set the ride status to 'cancelled'
-//         const updateRideQuery = 'UPDATE rides SET status = ? WHERE id = ?';
-//         await connection.query(updateRideQuery, ['cancelled', rideData.id]);
-
-//         // Additional feature: Check and update driver status
-//         if (patient) {
-//           const selectMotherQuery = 'SELECT * FROM users WHERE email = ?';
-//           const [motherResults] = await connection.query(selectMotherQuery, [patient.email]);
-
-//           if (motherResults.length > 0) {
-//             console.log('there is mother');
-//             // Update the driver's sos status to false
-//             const updateMotherQuery = 'UPDATE users SET sos = false, sosRideId = null WHERE id = ?';
-//             await connection.query(updateMotherQuery, [motherResults[0].id]);
-//           }
+//         if (userSnapshot.empty) {
+//             return res.status(400).json({ message: 'User not found with the provided email address' });
 //         }
-//       } else {
-//         console.log('ride not found');
-//       }
+
+//         const userId = userSnapshot.docs[0].id;
+
+//         // Get the user data for additional operations
+//         const userData = userSnapshot.docs[0].data();
+
+//         // Update the user's status and remove sosRideId
+//         await admin.firestore().collection('users').doc(userId).update({
+//             sos: false,
+//             sosRideId: null,
+//         });
+
+//         // Additional feature: Check and cancel the ride
+//         if (userData.sosRideId) {
+//             const ridesRef = admin.firestore().collection('rides');
+//             // const rideSnapshot = await ridesRef.doc(userData.sosRideId).get();
+//             const rideSnapshot = await ridesRef.where('rideId', '==', userData.sosRideId).get();
+
+//             if (!rideSnapshot.empty) {
+//                 console.log('ride exists');
+//                 const rideData = rideSnapshot.docs[0].data();
+
+//                 // Set the ride status to 'cancelled'
+//                 await ridesRef.doc(rideSnapshot.docs[0].id).update({ status: 'cancelled' });
+
+//                 // Additional feature: Check and update driver status
+//                 if (rideData.assignedDriver) {
+//                     // const driverSnapshot = await usersRef.doc(rideData.assignedDriver).get();
+//                     const driverSnapshot = await usersRef.where('email', '==', rideData.assignedDriver.email).get();
+
+//                     if (!driverSnapshot.empty) {
+//                         console.log('there is assigned driver');
+//                         // Update the driver's sos status to false
+//                         await usersRef.doc(driverSnapshot.docs[0].id).update({ sos: false });
+//                     }
+//                 }
+//             } else {
+//                 console.log('ride not found');
+//             }
+//         }
+
+//         // Send a positive response
+//         res.status(200).json({ message: 'Logged out successfully' });
+
+//     } catch (error) {
+//         console.error('Logout error:', error);
+//         res.status(500).json({ message: 'Server error' });
 //     }
-
-//     // Send a positive response
-//     res.status(200).json({ message: 'Logged out successfully' });
-
-//   } catch (error) {
-//     console.error('Logout error:', error);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
+// }
 
 exports.logout = async (req, res) => {
     try {
-        // Get the user ID using the email address
+        // Get data from request body
         const { email } = req.body;
-        const usersRef = admin.firestore().collection('users');
-        const userSnapshot = await usersRef.where('email', '==', email).get();
 
-        if (userSnapshot.empty) {
-            return res.status(400).json({ message: 'User not found with the provided email address' });
-        }
+        // Use transaction for data consistency
+        await withTransaction(async () => {
+            // 1. Get user ID by email
+            await executeQuery('SELECT id FROM users WHERE email = ?', [email], async (error, userRow) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(400).json({ message: error.message });
 
-        const userId = userSnapshot.docs[0].id;
+                }
 
-        // Get the user data for additional operations
-        const userData = userSnapshot.docs[0].data();
+                if (!userRow) {
+                    return res.status(400).json({ message: 'User not found with the provided email address' });
+                }
+                const userId = userRow[0].id;
 
-        // Update the user's status and remove sosRideId
-        await admin.firestore().collection('users').doc(userId).update({
-            sos: false,
-            sosRideId: null,
+                // 2. Update user's sos status and remove ride ID
+                await executeQuery('UPDATE users SET sos = 0, sosRideId = NULL WHERE id = ?', [userId]);
+
+                // 3. Check and cancel ride (if exists)
+                await executeQuery('SELECT id, assignedDriver FROM rides WHERE rideId = ?', [userData.sosRideId], async (error, rideRow) => {
+                    if (error) {
+                        console.log(error);
+                        return res.status(400).json({ message: error.message });
+                    }
+
+                    if (rideRow) {
+                        console.log('ride exists');
+
+                        // Update ride status to cancelled
+                        await executeQuery('UPDATE rides SET status = "cancelled" WHERE id = ?', [rideRow[0].id]);
+
+                        // Check and update driver's sos status
+                        if (rideRow[0].assignedDriver) {
+                            const [driverRow] = await executeQuery('SELECT id FROM users WHERE email = ?', [rideData.assignedDriver.email]);
+                            if (driverRow) {
+                                console.log('there is assigned driver');
+                                await executeQuery('UPDATE users SET sos = 0 WHERE id = ?', [driverRow[0].id]);
+                            }
+                        }
+                    } else {
+                        console.log('ride not found');
+                    }
+                });
+
+            });
+
         });
 
-        // Additional feature: Check and cancel the ride
-        if (userData.sosRideId) {
-            const ridesRef = admin.firestore().collection('rides');
-            // const rideSnapshot = await ridesRef.doc(userData.sosRideId).get();
-            const rideSnapshot = await ridesRef.where('rideId', '==', userData.sosRideId).get();
-
-            if (!rideSnapshot.empty) {
-                console.log('ride exists');
-                const rideData = rideSnapshot.docs[0].data();
-
-                // Set the ride status to 'cancelled'
-                await ridesRef.doc(rideSnapshot.docs[0].id).update({ status: 'cancelled' });
-
-                // Additional feature: Check and update driver status
-                if (rideData.assignedDriver) {
-                    // const driverSnapshot = await usersRef.doc(rideData.assignedDriver).get();
-                    const driverSnapshot = await usersRef.where('email', '==', rideData.assignedDriver.email).get();
-
-                    if (!driverSnapshot.empty) {
-                        console.log('there is assigned driver');
-                        // Update the driver's sos status to false
-                        await usersRef.doc(driverSnapshot.docs[0].id).update({ sos: false });
-                    }
-                }
-            } else {
-                console.log('ride not found');
-            }
-        }
-
-        // Send a positive response
+        // Send successful response
         res.status(200).json({ message: 'Logged out successfully' });
 
     } catch (error) {
         console.error('Logout error:', error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
 exports.uploadImage = async (req, res) => {
     try {

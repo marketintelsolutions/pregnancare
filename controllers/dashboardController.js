@@ -301,6 +301,9 @@ exports.getNearbyDrivers = async (req, res) => {
 
                         const { patient, drivers, status } = rideDetails
 
+                        // EMIT TO SOCKET (ALERT NEARBY DRIVERS)
+                        io.emit('updateDrivers', { nearbyDrivers, rideDetails });
+
                         await connection.query(insertRideQuery, [rideId, JSON.stringify({ ...patient }), JSON.stringify([...drivers]), status]);
 
                         // Update mother's SOS status and SOS ride ID in MySQL
@@ -1429,8 +1432,6 @@ exports.nearbyHospitals = async (req, res) => {
         if (response.data.status === 'OK') {
             // If results are returned, find the closest hospital
             const results = response.data.results;
-
-
 
             return res.status(200).json({ success: true, hospitals });
         } else {
