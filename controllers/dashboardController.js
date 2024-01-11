@@ -1394,7 +1394,7 @@ exports.getAllUsers = async (req, res) => {
         const query = 'SELECT * FROM users WHERE userType = ?';
         const values = [userType];
 
-        const result = await db.executeQuery(query, values);
+        const result = await executeQuery(query, values);
 
         const pregnantWomanUsers = result.results;
 
