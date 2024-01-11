@@ -1,6 +1,7 @@
 const axios = require("axios").default;
 
 calculateDistance = async ({ lat, lon, dest_lat, dest_lon }) => {
+    console.log('coordinates', lat, lon, dest_lat, dest_lon);
     try {
 
         let callingJson = await axios(

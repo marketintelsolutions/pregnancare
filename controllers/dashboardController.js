@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const { haversineDistance, generateId, getClosestHospital, } = require("../middleware/dashboardMiddleware");
 const calculateDistance = require('../middleware/calculateDistance')
 const axios = require('axios');
-const connection = require('../database/db');
+const { connection, withTransaction, executeQuery } = require('../database/db');
 
 // exports.saveLocation = async (req, res) => {
 //     console.log('request made');
@@ -219,8 +219,6 @@ exports.getNearbyDrivers = async (req, res) => {
     const { userType, email } = user;
     const io = req.io;
 
-    console.log(user, coordinates);
-
     if (userType !== 'pregnant woman') {
         return res.status(400).json({ success: false, message: 'Invalid user type.' });
     }
@@ -250,7 +248,7 @@ exports.getNearbyDrivers = async (req, res) => {
                         let updatePromises = [];  // Store promises for updating MySQL
 
                         for (const driverData of driverResults) {
-                            const coordinates = {
+                            const driverCoords = {
                                 lat: driverData.coordinates_lat,
                                 lng: driverData.coordinates_lng
                             }
@@ -258,17 +256,15 @@ exports.getNearbyDrivers = async (req, res) => {
                             const modifiedDriverData = JSON.parse(JSON.stringify(driverData))
 
                             console.log('driverData', JSON.parse(JSON.stringify(driverData)));
-                            const driverCoords = coordinates
+                            // const driverCoords = coordinates
 
                             // Check if the driver is within 15 km using the haversine formula
                             const distance = haversineDistance(coordinates, driverCoords);
-                            console.log('mother coordinates', coordinates);
-                            console.log('driver coords', driverCoords);
-                            console.log('distance', distance);
+
 
                             if (distance <= 15) {
                                 // Save updated data back to MySQL and add the promise to our array
-                                const updatePromise = connection.query('UPDATE users SET patientCoordinates = ? WHERE id = ?', [JSON.stringify(coordinates), driverData.id]);
+                                const updatePromise = connection.query('UPDATE users SET patientCoordinates = ?, coordinates=? WHERE id = ?', [JSON.stringify(coordinates), JSON.stringify(driverCoords), driverData.id]);
                                 updatePromises.push(updatePromise);
 
                                 nearbyDrivers.push(modifiedDriverData);
@@ -471,9 +467,6 @@ exports.getDriverDetails = async (req, res) => {
 
                     drivers = JSON.parse(drivers)
 
-                    console.log('driver type', typeof drivers);
-                    console.log('drivers', drivers);
-
                     if (drivers) {
                         drivers.forEach(driver => {
                             if (driver.email === email && !isDriverInRide) {
@@ -640,7 +633,12 @@ exports.acceptRide = async (req, res) => {
     try {
         // Query to update the ride details
         const updateRideQuery = 'UPDATE rides SET drivers = ?, assignedDriver = ?, status = ? WHERE rideId = ?';
-        await connection.query(updateRideQuery, [JSON.stringify([]), JSON.stringify(driverDetails), 'accepted', rideId]);
+        await connection.query(updateRideQuery, [JSON.stringify([]), JSON.stringify({
+            ...driverDetails, coordinates: {
+                lat: driverDetails.coordinates_lat,
+                lng: driverDetails.coordinates_lng
+            }
+        }), 'accepted', rideId]);
 
         // Fetch the updated ride data
         const selectUpdatedRideQuery = 'SELECT * FROM rides WHERE rideId = ?';
@@ -663,18 +661,15 @@ exports.acceptRide = async (req, res) => {
             console.log('assignedDrivers', updatedRide.assignedDriver);
 
             const { coordinates_lat, coordinates_lng } = JSON.parse(updatedRide.assignedDriver);
-            const driverCoord = {
-                coordinates_lat, coordinates_lng
-            }
-            // const patientCoord = JSON.parse(updatedRide.patient).coordinates;
+
             const patientCoord = motherCoord;
 
             console.log('Calculating distance and time...');
 
             // Calculate distance and time
             const distanceAndTime = await calculateDistance({
-                lat: driverCoord.lat,
-                lon: driverCoord.lng,
+                lat: coordinates_lat,
+                lon: coordinates_lng,
                 dest_lat: patientCoord.lat,
                 dest_lon: patientCoord.lng
             });
@@ -697,61 +692,61 @@ exports.acceptRide = async (req, res) => {
 };
 
 
-exports.getUserDetails = async (req, res) => {
-    const email = req.body.email;
-    const id = req.body.id
+// exports.getUserDetails = async (req, res) => {
+//     const email = req.body.email;
+//     const id = req.body.id
 
-    console.log('id', id);
+//     console.log('id', id);
 
-    const usersRef = db.collection('users');
-    if (!email) {
-        // return res.status(400).json({ success: false, message: 'Email is required.' });
+//     const usersRef = db.collection('users');
+//     if (!email) {
+//         // return res.status(400).json({ success: false, message: 'Email is required.' });
 
-        // search using id if there is no email
-        if (!id) {
-            console.log('there is no id');
-            return res.status(400).json({ success: false, message: 'Email or id is required.' });
-        }
-        try {
-            console.log('there is an id', id);
-            const userSnapshot = await usersRef.doc(id).get();
+//         // search using id if there is no email
+//         if (!id) {
+//             console.log('there is no id');
+//             return res.status(400).json({ success: false, message: 'Email or id is required.' });
+//         }
+//         try {
+//             console.log('there is an id', id);
+//             const userSnapshot = await usersRef.doc(id).get();
 
-            console.log('user snapshot', userSnapshot.exists);
+//             console.log('user snapshot', userSnapshot.exists);
 
-            if (userSnapshot.exits) {
-                return res.status(404).json({ success: false, message: 'User not found.' });
-            }
+//             if (userSnapshot.exits) {
+//                 return res.status(404).json({ success: false, message: 'User not found.' });
+//             }
 
-            const userData = userSnapshot.data();
-
-
-            // Return user details
-            return res.status(200).json({ success: true, user: userData });
-        } catch (error) {
-            console.error("Error:", error);
-            res.status(500).json({ success: false, message: 'Error fetching user details.' });
-        }
-        return
-    }
+//             const userData = userSnapshot.data();
 
 
-    // search using email
-    try {
-        const userSnapshot = await usersRef.where('email', '==', email).get();
+//             // Return user details
+//             return res.status(200).json({ success: true, user: userData });
+//         } catch (error) {
+//             console.error("Error:", error);
+//             res.status(500).json({ success: false, message: 'Error fetching user details.' });
+//         }
+//         return
+//     }
 
-        if (userSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
 
-        const userData = userSnapshot.docs[0].data();
+//     // search using email
+//     try {
+//         const userSnapshot = await usersRef.where('email', '==', email).get();
 
-        // Return user details
-        return res.status(200).json({ success: true, user: userData });
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ success: false, message: 'Error fetching driver details.' });
-    }
-}
+//         if (userSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'User not found.' });
+//         }
+
+//         const userData = userSnapshot.docs[0].data();
+
+//         // Return user details
+//         return res.status(200).json({ success: true, user: userData });
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ success: false, message: 'Error fetching driver details.' });
+//     }
+// }
 
 // exports.getUserRideDetails = async (req, res) => {
 //     const { rideId } = req.body;
@@ -775,6 +770,74 @@ exports.getUserDetails = async (req, res) => {
 //         res.status(500).json({ success: false, message: 'Error fetching ride details.' });
 //     }
 // }
+exports.getUserDetails = async (req, res) => {
+    const email = req.body.email;
+    const id = req.body.id;
+
+    console.log('id', id);
+
+    if (!email) {
+        // Return error if neither email nor id is provided
+        if (!id) {
+            console.log('there is no id');
+            return res.status(400).json({ success: false, message: 'Email or id is required.' });
+        }
+
+        try {
+            console.log('there is an id', id);
+
+            // Query to get user details by id
+            const selectUserByIdQuery = 'SELECT * FROM users WHERE id = ?';
+            await connection.query(selectUserByIdQuery, [id], (error, userResults) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(404).json({ success: false, message: error.message });
+                }
+
+                if (userResults.length === 0) {
+                    return res.status(404).json({ success: false, message: 'User not found.' });
+                }
+
+                const userData = userResults[0];
+
+                // Return user details
+                return res.status(200).json({ success: true, user: userData });
+            });
+        } catch (error) {
+            console.error("Error:", error);
+            res.status(500).json({ success: false, message: 'Error fetching user details.' });
+        }
+
+        return;
+    }
+
+    // Search using email
+    try {
+        // Query to get user details by email
+        const selectUserByEmailQuery = 'SELECT * FROM users WHERE email = ?';
+        await connection.query(selectUserByEmailQuery, [email], (error, userResults) => {
+            if (error) {
+                console.log(error);
+                return res.status(404).json({ success: false, message: error.message });
+            }
+
+            if (userResults.length === 0) {
+                return res.status(404).json({ success: false, message: 'User not found.' });
+            }
+
+            const userData = userResults[0];
+
+            // Return user details
+            return res.status(200).json({ success: true, user: userData });
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, message: 'Error fetching user details.' });
+    }
+};
+
+
+
 exports.getUserRideDetails = async (req, res) => {
     const { rideId } = req.body;
     console.log('rideId', rideId);
@@ -805,6 +868,61 @@ exports.getUserRideDetails = async (req, res) => {
     }
 };
 
+// exports.rejectRide = async (req, res) => {
+//     const { rideId, driverEmail } = req.body;
+
+//     console.log(driverEmail);
+
+//     if (!rideId || !driverEmail) {
+//         return res.status(400).json({ success: false, message: 'Ride ID and driver email are required.' });
+//     }
+
+//     try {
+//         // Update the driver's SOS status
+//         const driversRef = db.collection('users');
+//         const driverSnapshot = await driversRef.where('email', '==', driverEmail).get()
+//         const driverId = driverSnapshot.docs[0].id
+//         const driverRef = driversRef.doc(driverId)
+
+//         if (driverSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'Driver not found.' });
+//         }
+
+//         // const driverDoc = driverSnapshot.docs[0].data();
+//         await driverRef.update({ sos: false })
+//         console.log('driver set to false');
+
+//         const ridesRef = db.collection('rides');
+//         const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+//         const id = rideSnapshot.docs[0].id;
+//         const rideRef = ridesRef.doc(id);
+
+//         if (rideSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'Ride not found.' });
+//         }
+
+//         const rideData = rideSnapshot.docs[0].data();
+
+//         const drivers = rideData.drivers;
+
+//         // Find the driver in the drivers array using email
+//         const updatedDriversArray = drivers.filter(driver => driver.email !== driverEmail);
+
+//         // Update the ride's status to 'declined' and drivers array
+//         await rideRef.update({
+//             status: 'declined',
+//             drivers: updatedDriversArray,
+//         });
+
+//         console.log('ride declined');
+
+//         return res.status(200).json({ success: true, message: 'Ride rejected successfully.' });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+//     }
+// };
+
 exports.rejectRide = async (req, res) => {
     const { rideId, driverEmail } = req.body;
 
@@ -816,91 +934,217 @@ exports.rejectRide = async (req, res) => {
 
     try {
         // Update the driver's SOS status
-        const driversRef = db.collection('users');
-        const driverSnapshot = await driversRef.where('email', '==', driverEmail).get()
-        const driverId = driverSnapshot.docs[0].id
-        const driverRef = driversRef.doc(driverId)
+        const updateDriverSosQuery = 'UPDATE users SET sos = false WHERE email = ?';
+        await connection.query(updateDriverSosQuery, [driverEmail], async (error, updateDriverResults) => {
+            if (error) {
+                console.log(error);
+                return res.status(404).json({ success: false, message: 'Driver not found.' });
+            }
 
-        if (driverSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'Driver not found.' });
-        }
+            const ridesRef = 'rides'; // Replace with your actual table name
 
-        // const driverDoc = driverSnapshot.docs[0].data();
-        await driverRef.update({ sos: false })
-        console.log('driver set to false');
+            // Query to get ride details by rideId
+            const selectRideQuery = 'SELECT * FROM ?? WHERE rideId = ?';
+            await connection.query(selectRideQuery, [ridesRef, rideId], async (error, rideResults) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(404).json({ success: false, message: 'Ride not found.' });
+                }
 
-        const ridesRef = db.collection('rides');
-        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
-        const id = rideSnapshot.docs[0].id;
-        const rideRef = ridesRef.doc(id);
+                const rideData = rideResults[0];
 
-        if (rideSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'Ride not found.' });
-        }
+                const drivers = JSON.parse(rideData.drivers);
 
-        const rideData = rideSnapshot.docs[0].data();
+                // Find the driver in the drivers array using email
+                const updatedDriversArray = drivers.filter(driver => driver.email !== driverEmail);
 
-        const drivers = rideData.drivers;
+                // Update the ride's status to 'declined' and drivers array
+                const updateRideQuery = 'UPDATE ?? SET status = ?, drivers = ? WHERE rideId = ?';
+                await connection.query(updateRideQuery, [ridesRef, 'declined', JSON.stringify(updatedDriversArray), rideId], (error, updateRideResults) => {
+                    if (error) {
+                        console.log(error);
+                        return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+                    }
 
-        // Find the driver in the drivers array using email
-        const updatedDriversArray = drivers.filter(driver => driver.email !== driverEmail);
+                    console.log('ride declined');
 
-        // Update the ride's status to 'declined' and drivers array
-        await rideRef.update({
-            status: 'declined',
-            drivers: updatedDriversArray,
+                    return res.status(200).json({ success: true, message: 'Ride rejected successfully.' });
+                });
+            });
         });
-
-        console.log('ride declined');
-
-        return res.status(200).json({ success: true, message: 'Ride rejected successfully.' });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
     }
 };
 
+
+// exports.updateRide = async (req, res) => {
+//     const { rideId, message } = req.body;
+//     const io = req.io
+
+
+//     if (!rideId) {
+//         return res.status(400).json({ success: false, message: 'Ride is required' });
+//     }
+
+//     try {
+//         const ridesRef = db.collection('rides');
+//         const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+//         const id = rideSnapshot.docs[0].id;
+//         const rideRef = ridesRef.doc(id);
+
+//         if (rideSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'Ride not found.' });
+//         }
+
+//         const rideData = rideSnapshot.docs[0].data();
+
+//         // Update the ride's status to 'declined' and drivers array
+//         await rideRef.update({
+//             status: message,
+//         });
+
+//         // // get latest details
+//         updatedRideSnapshot = await rideRef.get();
+//         updatedRide = updatedRideSnapshot.data();
+
+//         console.log('message', message);
+
+//         io.emit(`${message}`, { message, ride: updatedRide });
+
+//         return res.status(200).json({ success: true, message: `ride status updated to: ${message}` });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+//     }
+// }
+
 exports.updateRide = async (req, res) => {
     const { rideId, message } = req.body;
-    const io = req.io
-
+    const io = req.io;
 
     if (!rideId) {
         return res.status(400).json({ success: false, message: 'Ride is required' });
     }
 
     try {
-        const ridesRef = db.collection('rides');
-        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
-        const id = rideSnapshot.docs[0].id;
-        const rideRef = ridesRef.doc(id);
+        const ridesRef = 'rides'; // Replace with your actual table name
 
-        if (rideSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'Ride not found.' });
-        }
+        // Query to get ride details by rideId
+        const selectRideQuery = 'SELECT * FROM ?? WHERE rideId = ?';
+        await connection.query(selectRideQuery, [ridesRef, rideId], async (error, rideResults) => {
+            if (error) {
+                console.log(error);
+                return res.status(404).json({ success: false, message: 'Ride not found.' });
+            }
 
-        const rideData = rideSnapshot.docs[0].data();
+            const rideData = rideResults[0];
 
-        // Update the ride's status to 'declined' and drivers array
-        await rideRef.update({
-            status: message,
+            // Update the ride's status to the specified message
+            const updateRideQuery = 'UPDATE ?? SET status = ? WHERE rideId = ?';
+            await connection.query(updateRideQuery, [ridesRef, message, rideId], (error, updateRideResults) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(500).json({ success: false, message: 'Error updating ride status.' });
+                }
+
+                console.log(`Ride status updated to: ${message}`);
+
+                // Get the latest ride details
+                const selectUpdatedRideQuery = 'SELECT * FROM ?? WHERE rideId = ?';
+                connection.query(selectUpdatedRideQuery, [ridesRef, rideId], async (error, updatedRideResults) => {
+                    if (error) {
+                        console.log(error);
+                        return res.status(500).json({ success: false, message: 'Error fetching updated ride details.' });
+                    }
+
+                    const updatedRideData = updatedRideResults[0];
+
+                    io.emit(`${message}`, { message, ride: updatedRideData });
+
+                    return res.status(200).json({ success: true, message: `Ride status updated to: ${message}` });
+                });
+            });
         });
-
-        // // get latest details
-        updatedRideSnapshot = await rideRef.get();
-        updatedRide = updatedRideSnapshot.data();
-
-        console.log('message', message);
-
-        io.emit(`${message}`, { message, ride: updatedRide });
-
-        return res.status(200).json({ success: true, message: `ride status updated to: ${message}` });
     } catch (error) {
         console.error('Error:', error);
-        return res.status(500).json({ success: false, message: 'Error rejecting ride.' });
+        return res.status(500).json({ success: false, message: 'Error updating ride status.' });
     }
-}
+};
 
+
+// exports.findClosestHospital = async (req, res) => {
+//     const { rideId } = req.body;
+
+//     try {
+//         // Extract driver coordinates from the request body
+//         const { lat, lon } = req.body;
+
+//         if (!lat || !lon) {
+//             return res.status(400).json({ success: false, message: 'Latitude and longitude are required.' });
+//         }
+
+//         // Build the Google Places API URL with driver coordinates
+//         const apiKey = `${process.env.GOOGLE_MAP_API_KEY}`;
+//         console.log(apiKey);
+
+//         const radius = 1500; // Search radius in meters
+//         const type = 'hospital';
+//         const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&type=${type}&key=${apiKey}`;
+
+//         // Send a GET request to the Google Places API
+//         const response = await axios.get(apiUrl);
+//         const hospitals = response.data
+
+//         console.log(response.data);
+
+//         if (response.data.status === 'OK') {
+//             // If results are returned, find the closest hospital
+//             const results = response.data.results;
+//             let closestHospital = null;
+//             let closestDistance = Number.MAX_VALUE;
+
+//             for (const hospital of results) {
+//                 const hospitalLat = hospital.geometry.location.lat;
+//                 const hospitalLon = hospital.geometry.location.lng;
+
+//                 // Calculate the distance using Haversine formula or the provided calculateDistance function
+//                 const distance = getClosestHospital({ lat, lon, dest_lat: hospitalLat, dest_lon: hospitalLon });
+
+//                 if (distance < closestDistance) {
+//                     closestHospital = hospital;
+//                     closestDistance = distance;
+//                 }
+//             }
+
+//             const ridesRef = db.collection('rides');
+//             const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+//             const id = rideSnapshot.docs[0].id;
+//             const rideRef = ridesRef.doc(id);
+
+//             if (rideSnapshot.empty) {
+//                 return res.status(404).json({ success: false, message: 'Ride not found.' });
+//             }
+
+//             const rideData = rideSnapshot.docs[0].data();
+
+//             // Update the ride to add the closest hospital
+//             await rideRef.update({
+//                 closestHospital
+//             });
+
+
+//             return res.status(200).json({ success: true, closestHospital, hospitals });
+//         } else {
+//             console.log(response.data);
+//             return res.status(500).json({ success: false, message: 'Error fetching hospital data from Google Places API' });
+//         }
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ success: false, message: 'Internal server error.' });
+//     }
+// }
 exports.findClosestHospital = async (req, res) => {
     const { rideId } = req.body;
 
@@ -922,7 +1166,7 @@ exports.findClosestHospital = async (req, res) => {
 
         // Send a GET request to the Google Places API
         const response = await axios.get(apiUrl);
-        const hospitals = response.data
+        const hospitals = response.data;
 
         console.log(response.data);
 
@@ -945,24 +1189,31 @@ exports.findClosestHospital = async (req, res) => {
                 }
             }
 
-            const ridesRef = db.collection('rides');
-            const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
-            const id = rideSnapshot.docs[0].id;
-            const rideRef = ridesRef.doc(id);
+            const ridesRef = 'rides'; // Replace with your actual table name
 
-            if (rideSnapshot.empty) {
-                return res.status(404).json({ success: false, message: 'Ride not found.' });
-            }
+            // Query to get ride details by rideId
+            const selectRideQuery = 'SELECT * FROM ?? WHERE rideId = ?';
+            await connection.query(selectRideQuery, [ridesRef, rideId], async (error, rideResults) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(404).json({ success: false, message: 'Ride not found.' });
+                }
 
-            const rideData = rideSnapshot.docs[0].data();
+                const rideData = rideResults[0];
 
-            // Update the ride to add the closest hospital
-            await rideRef.update({
-                closestHospital
+                // Update the ride to add the closest hospital
+                const updateRideQuery = 'UPDATE ?? SET closestHospital = ? WHERE rideId = ?';
+                await connection.query(updateRideQuery, [ridesRef, JSON.stringify(closestHospital), rideId], (error, updateRideResults) => {
+                    if (error) {
+                        console.log(error);
+                        return res.status(500).json({ success: false, message: 'Error updating closest hospital in ride details.' });
+                    }
+
+                    console.log('Closest hospital added to ride details');
+
+                    return res.status(200).json({ success: true, closestHospital, hospitals });
+                });
             });
-
-
-            return res.status(200).json({ success: true, closestHospital, hospitals });
         } else {
             console.log(response.data);
             return res.status(500).json({ success: false, message: 'Error fetching hospital data from Google Places API' });
@@ -971,115 +1222,178 @@ exports.findClosestHospital = async (req, res) => {
         console.error("Error:", error);
         res.status(500).json({ success: false, message: 'Internal server error.' });
     }
-}
+};
+
+
+// exports.endTrip = async (req, res) => {
+//     const { ride } = req.body;
+//     const { rideId } = ride
+//     const io = req.io;
+
+
+//     const patientEmail = ride.patient.email
+//     const driverEmail = ride.assignedDriver.email
+
+//     console.log(patientEmail, driverEmail);
+
+//     try {
+//         // FOR RIDE
+//         const ridesRef = db.collection('rides');
+//         const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
+//         const id = rideSnapshot.docs[0].id;
+//         const rideRef = ridesRef.doc(id);
+
+//         const usersRef = db.collection('users');
+
+//         // FOR PATIENT
+//         const patientSnapshot = await usersRef.where('email', '==', patientEmail).get();
+//         const patientId = patientSnapshot.docs[0].id;
+//         const patientRef = usersRef.doc(patientId);
+
+//         // FOR DRIVER
+//         const driverSnapshot = await usersRef.where('email', '==', driverEmail).get();
+//         const driverId = driverSnapshot.docs[0].id;
+//         const driverRef = usersRef.doc(driverId);
+
+
+//         if (rideSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'Ride not found.' });
+//         } else if (patientSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'patient not found.' });
+//         } else if (driverSnapshot.empty) {
+//             return res.status(404).json({ success: false, message: 'driver not found.' });
+//         }
+//         console.log('everyone found');
+
+//         // Perform multiple Firestore operations in a batch
+//         const batch = db.batch();
+
+//         // Update assignedDriver's SOS to false
+//         batch.update(driverRef, { sos: false });
+
+//         // Update patient's SOS to false
+//         batch.update(patientRef, { sos: false });
+
+//         // Delete patient's SOSRideId
+//         batch.update(patientRef, { sosRideId: null });
+
+//         // Update ride status to 'completed'
+//         batch.update(rideRef, { status: 'completed' });
+
+//         // Commit the batch
+//         await batch.commit();
+
+//         console.log('everyone updated');
+
+//         // GET ALL USERS AND ALERT HOSPITALS
+
+//         try {
+//             const snapshot = await usersRef.where('userType', '==', 'pregnant woman').get();
+//             const pregnantWomanUsers = [];
+
+//             snapshot.forEach(doc => {
+//                 // Include the document ID in the data
+//                 pregnantWomanUsers.push({
+//                     id: doc.id,
+//                     ...doc.data(),
+//                 });
+//             });
+
+//             console.log(pregnantWomanUsers);
+
+//             // EMIT TO SOCKET (ALERT HOSPITALS)
+//             io.emit('newSos', { pregnantWomanUsers })
+//             // EMIT TO USER
+//             io.emit('rideEnded', { message: 'ride completed' })
+//         } catch (error) {
+//             console.error('Error fetching data:', error);
+//             res.status(500).json({ error: 'Internal server error' });
+//             return
+//         }
+
+//         res.status(200).json({ message: 'Ride completed successfully.' });
+//     } catch (error) {
+//         console.error('Error completing ride:', error);
+//         res.status(500).json({ error: 'An error occurred while completing the ride.' });
+//     }
+// }
 
 exports.endTrip = async (req, res) => {
     const { ride } = req.body;
-    const { rideId } = ride
+    const { rideId } = ride;
     const io = req.io;
 
-
-    const patientEmail = ride.patient.email
-    const driverEmail = ride.assignedDriver.email
+    const patientEmail = ride.patient.email;
+    const driverEmail = ride.assignedDriver.email;
 
     console.log(patientEmail, driverEmail);
 
     try {
-        // FOR RIDE
-        const ridesRef = db.collection('rides');
-        const rideSnapshot = await ridesRef.where('rideId', '==', rideId).get();
-        const id = rideSnapshot.docs[0].id;
-        const rideRef = ridesRef.doc(id);
+        await withTransaction(async () => {
+            // Update assignedDriver's SOS to false
+            await executeQuery('UPDATE users SET sos = false WHERE email = ?', [driverEmail]);
 
-        const usersRef = db.collection('users');
+            // Update patient's SOS to false and clear SOSRideId
+            await executeQuery('UPDATE users SET sos = false, sosRideId = null WHERE email = ?', [patientEmail]);
 
-        // FOR PATIENT
-        const patientSnapshot = await usersRef.where('email', '==', patientEmail).get();
-        const patientId = patientSnapshot.docs[0].id;
-        const patientRef = usersRef.doc(patientId);
+            // Update ride status to 'completed'
+            await executeQuery('UPDATE rides SET status = "completed" WHERE rideId = ?', [rideId]);
 
-        // FOR DRIVER
-        const driverSnapshot = await usersRef.where('email', '==', driverEmail).get();
-        const driverId = driverSnapshot.docs[0].id;
-        const driverRef = usersRef.doc(driverId);
+            console.log('everyone updated');
 
-
-        if (rideSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'Ride not found.' });
-        } else if (patientSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'patient not found.' });
-        } else if (driverSnapshot.empty) {
-            return res.status(404).json({ success: false, message: 'driver not found.' });
-        }
-        console.log('everyone found');
-
-        // Perform multiple Firestore operations in a batch
-        const batch = db.batch();
-
-        // Update assignedDriver's SOS to false
-        batch.update(driverRef, { sos: false });
-
-        // Update patient's SOS to false
-        batch.update(patientRef, { sos: false });
-
-        // Delete patient's SOSRideId
-        batch.update(patientRef, { sosRideId: null });
-
-        // Update ride status to 'completed'
-        batch.update(rideRef, { status: 'completed' });
-
-        // Commit the batch
-        await batch.commit();
-
-        console.log('everyone updated');
-
-        // GET ALL USERS AND ALERT HOSPITALS
-
-        try {
-            const snapshot = await usersRef.where('userType', '==', 'pregnant woman').get();
-            const pregnantWomanUsers = [];
-
-            snapshot.forEach(doc => {
-                // Include the document ID in the data
-                pregnantWomanUsers.push({
-                    id: doc.id,
-                    ...doc.data(),
-                });
-            });
+            // GET ALL USERS AND ALERT HOSPITALS
+            const { results: pregnantWomanUsers } = await executeQuery('SELECT * FROM users WHERE userType = "pregnant woman"');
 
             console.log(pregnantWomanUsers);
 
             // EMIT TO SOCKET (ALERT HOSPITALS)
-            io.emit('newSos', { pregnantWomanUsers })
+            io.emit('newSos', { pregnantWomanUsers });
+
             // EMIT TO USER
-            io.emit('rideEnded', { message: 'ride completed' })
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            res.status(500).json({ error: 'Internal server error' });
-            return
-        }
+            io.emit('rideEnded', { message: 'ride completed' });
+        });
 
         res.status(200).json({ message: 'Ride completed successfully.' });
     } catch (error) {
         console.error('Error completing ride:', error);
         res.status(500).json({ error: 'An error occurred while completing the ride.' });
     }
-}
+};
+
+
+// exports.getAllUsers = async (req, res) => {
+//     const usersCollection = db.collection('users'); // Adjust the collection name to match your Firebase setup
+
+//     try {
+//         const snapshot = await usersCollection.where('userType', '==', 'pregnant woman').get();
+//         const pregnantWomanUsers = [];
+
+//         snapshot.forEach(doc => {
+//             // Include the document ID in the dataZ
+//             pregnantWomanUsers.push({
+//                 id: doc.id,
+//                 ...doc.data(),
+//             });
+//         });
+
+//         console.log(pregnantWomanUsers);
+//         res.json(pregnantWomanUsers);
+//     } catch (error) {
+//         console.error('Error fetching data:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// }
 
 exports.getAllUsers = async (req, res) => {
-    const usersCollection = db.collection('users'); // Adjust the collection name to match your Firebase setup
-
     try {
-        const snapshot = await usersCollection.where('userType', '==', 'pregnant woman').get();
-        const pregnantWomanUsers = [];
+        const userType = 'pregnant woman';
 
-        snapshot.forEach(doc => {
-            // Include the document ID in the dataZ
-            pregnantWomanUsers.push({
-                id: doc.id,
-                ...doc.data(),
-            });
-        });
+        const query = 'SELECT * FROM users WHERE userType = ?';
+        const values = [userType];
+
+        const result = await db.executeQuery(query, values);
+
+        const pregnantWomanUsers = result.results;
 
         console.log(pregnantWomanUsers);
         res.json(pregnantWomanUsers);
@@ -1087,7 +1401,7 @@ exports.getAllUsers = async (req, res) => {
         console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-}
+};
 
 exports.nearbyHospitals = async (req, res) => {
     try {
