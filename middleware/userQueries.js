@@ -1,5 +1,5 @@
 // userQueries.js
-const connection = require('../database/db');
+const { connection } = require('../database/db');
 
 // const saveUser = async (userData, res) => {
 //     console.log(userData);
