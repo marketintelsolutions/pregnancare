@@ -94,10 +94,12 @@ export const arrivePickup = async (ride, _, dispatch) => {
 };
 
 export const startTrip = async (ride, driverDetails, dispatch) => {
-  console.log("starting trip");
+  console.log("starting trip...");
   dispatch(setLoading(true));
 
-  const { lat, lng } = driverDetails.coordinates;
+  console.log("driverDetails", driverDetails);
+
+  const { lat, lng } = JSON.parse(driverDetails.coordinates);
 
   if (!lat || !lng) {
     console.log("long and lat of driver is required");

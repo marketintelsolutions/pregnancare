@@ -48,6 +48,8 @@ const DashboardDriver = () => {
     dispatch(setMessage(message));
     console.log(ride);
 
+    console.log("driverDetails", driverDetails);
+
     // notificationSound.play();
     const handleMousemove = () => {
       // Play notification sound on mouse movement
