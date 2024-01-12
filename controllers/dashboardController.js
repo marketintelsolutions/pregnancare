@@ -62,8 +62,8 @@ exports.saveLocation = async (req, res) => {
 
                 // User exists, update the coordinates and address
                 const userId = results[0].id;
-                const updateLocationQuery = 'UPDATE users SET coordinates_lat = ?, coordinates_lng = ?, address = ? WHERE id = ?';
-                await connection.query(updateLocationQuery, [coordinates.lat, coordinates.lng, address, userId]);
+                const updateLocationQuery = 'UPDATE users SET coordinates_lat = ?, coordinates_lng = ?, address = ?, coordinates = ? WHERE id = ?';
+                await connection.query(updateLocationQuery, [coordinates.lat, coordinates.lng, address, JSON.stringify(coordinates), userId]);
 
                 // Fetch updated user data
                 const selectUpdatedUserQuery = 'SELECT * FROM users WHERE id = ?';
@@ -1321,47 +1321,47 @@ exports.findClosestHospital = async (req, res) => {
 //     }
 // }
 
-exports.endTrip = async (req, res) => {
-    const { ride } = req.body;
-    const { rideId } = ride;
-    const io = req.io;
+// exports.endTrip = async (req, res) => {
+//     const { ride } = req.body;
+//     const { rideId } = ride;
+//     const io = req.io;
 
-    const patientEmail = ride.patient.email;
-    const driverEmail = ride.assignedDriver.email;
+//     const patientEmail = ride.patient.email;
+//     const driverEmail = ride.assignedDriver.email;
 
-    console.log(patientEmail, driverEmail);
+//     console.log(patientEmail, driverEmail);
 
-    try {
-        await withTransaction(async () => {
-            // Update assignedDriver's SOS to false
-            await executeQuery('UPDATE users SET sos = false WHERE email = ?', [driverEmail]);
+//     try {
+//         // await withTransaction(async () => {
+//         // Update assignedDriver's SOS to false
+//         await executeQuery('UPDATE users SET sos = false WHERE email = ?', [driverEmail]);
 
-            // Update patient's SOS to false and clear SOSRideId
-            await executeQuery('UPDATE users SET sos = false, sosRideId = null WHERE email = ?', [patientEmail]);
+//         // Update patient's SOS to false and clear SOSRideId
+//         await executeQuery('UPDATE users SET sos = false, sosRideId = null WHERE email = ?', [patientEmail]);
 
-            // Update ride status to 'completed'
-            await executeQuery('UPDATE rides SET status = "completed" WHERE rideId = ?', [rideId]);
+//         // Update ride status to 'completed'
+//         await executeQuery('UPDATE rides SET status = "completed" WHERE rideId = ?', [rideId]);
 
-            console.log('everyone updated');
+//         console.log('everyone updated');
 
-            // GET ALL USERS AND ALERT HOSPITALS
-            const { results: pregnantWomanUsers } = await executeQuery('SELECT * FROM users WHERE userType = "pregnant woman"');
+//         // GET ALL USERS AND ALERT HOSPITALS
+//         const { results: pregnantWomanUsers } = await executeQuery('SELECT * FROM users WHERE userType = "pregnant woman"');
 
-            console.log(pregnantWomanUsers);
+//         console.log(pregnantWomanUsers);
 
-            // EMIT TO SOCKET (ALERT HOSPITALS)
-            io.emit('newSos', { pregnantWomanUsers });
+//         // EMIT TO SOCKET (ALERT HOSPITALS)
+//         io.emit('newSos', { pregnantWomanUsers });
 
-            // EMIT TO USER
-            io.emit('rideEnded', { message: 'ride completed' });
-        });
+//         // EMIT TO USER
+//         io.emit('rideEnded', { message: 'ride completed' });
+//         // });
 
-        res.status(200).json({ message: 'Ride completed successfully.' });
-    } catch (error) {
-        console.error('Error completing ride:', error);
-        res.status(500).json({ error: 'An error occurred while completing the ride.' });
-    }
-};
+//         res.status(200).json({ message: 'Ride completed successfully.' });
+//     } catch (error) {
+//         console.error('Error completing ride:', error);
+//         res.status(500).json({ error: 'An error occurred while completing the ride.' });
+//     }
+// };
 
 
 // exports.getAllUsers = async (req, res) => {
@@ -1386,6 +1386,56 @@ exports.endTrip = async (req, res) => {
 //         res.status(500).json({ error: 'Internal server error' });
 //     }
 // }
+exports.endTrip = async (req, res) => {
+    const { ride } = req.body;
+    const { rideId } = ride;
+    const io = req.io;
+
+    const patientEmail = ride.patient.email;
+    const driverEmail = ride.assignedDriver.email;
+
+    try {
+        await withTransaction(async () => {
+            // Retrieve ride, patient, and driver ID
+            const rideRow = await executeQuery('SELECT id FROM rides WHERE rideId = ?', [rideId]);
+            console.log(rideRow);
+            if (!rideRow) {
+                return res.status(404).json({ success: false, message: 'Ride not found.' });
+            }
+            // const rideId = rideRow[0].id;
+
+            const patientRow = await executeQuery('SELECT id FROM users WHERE email = ?', [patientEmail]);
+            if (!patientRow) {
+                return res.status(404).json({ success: false, message: 'patient not found.' });
+            }
+            const patientId = patientRow[0].id;
+
+            const driverRow = await executeQuery('SELECT id FROM users WHERE email = ?', [driverEmail]);
+            if (!driverRow) {
+                return res.status(404).json({ success: false, message: 'driver not found.' });
+            }
+            const driverId = driverRow[0].id;
+
+            // Update ride, patient, and driver data
+            await executeQuery('UPDATE rides SET status = "completed" WHERE id = ?', [rideId]);
+            await executeQuery('UPDATE users SET sos = 0, sosRideId = null WHERE id = ?', [patientId]);
+            await executeQuery('UPDATE users SET sos = 0 WHERE id = ?', [driverId]);
+
+            // Fetch pregnant women users
+            const [pregnantWomanRows] = await executeQuery('SELECT id, ... FROM users WHERE userType = "pregnant woman"');
+            const pregnantWomanUsers = pregnantWomanRows.map(row => ({ id: row.id, ...row }));
+
+            // Emit events
+            io.emit('newSos', { pregnantWomanUsers });
+            io.emit('rideEnded', { message: 'ride completed' });
+        });
+
+        res.status(200).json({ message: 'Ride completed successfully.' });
+    } catch (error) {
+        console.error('Error completing ride:', error);
+        res.status(500).json({ error: 'An error occurred while completing the ride.' });
+    }
+};
 
 exports.getAllUsers = async (req, res) => {
     try {
