@@ -1391,39 +1391,27 @@ exports.endTrip = async (req, res) => {
     const { rideId } = ride;
     const io = req.io;
 
-    const patientEmail = ride.patient.email;
-    const driverEmail = ride.assignedDriver.email;
+    console.log('ride', ride);
+
+    const { email: patientEmail } = JSON.parse(ride.patient);
+    const { email: driverEmail } = JSON.parse(ride.assignedDriver);
+
+    // console.log(patientEmail, driverEmail);
 
     try {
         await withTransaction(async () => {
-            // Retrieve ride, patient, and driver ID
-            const rideRow = await executeQuery('SELECT id FROM rides WHERE rideId = ?', [rideId]);
-            console.log(rideRow);
-            if (!rideRow) {
-                return res.status(404).json({ success: false, message: 'Ride not found.' });
-            }
-            // const rideId = rideRow[0].id;
-
-            const patientRow = await executeQuery('SELECT id FROM users WHERE email = ?', [patientEmail]);
-            if (!patientRow) {
-                return res.status(404).json({ success: false, message: 'patient not found.' });
-            }
-            const patientId = patientRow[0].id;
-
-            const driverRow = await executeQuery('SELECT id FROM users WHERE email = ?', [driverEmail]);
-            if (!driverRow) {
-                return res.status(404).json({ success: false, message: 'driver not found.' });
-            }
-            const driverId = driverRow[0].id;
-
             // Update ride, patient, and driver data
-            await executeQuery('UPDATE rides SET status = "completed" WHERE id = ?', [rideId]);
-            await executeQuery('UPDATE users SET sos = 0, sosRideId = null WHERE id = ?', [patientId]);
-            await executeQuery('UPDATE users SET sos = 0 WHERE id = ?', [driverId]);
+            await executeQuery('UPDATE rides SET status = "completed" WHERE rideId = ?', [rideId]);
+            await executeQuery('UPDATE users SET sos = 0, sosRideId = null WHERE email = ?', [patientEmail]);
+            await executeQuery('UPDATE users SET sos = 0 WHERE email = ?', [driverEmail]);
 
             // Fetch pregnant women users
-            const [pregnantWomanRows] = await executeQuery('SELECT id, ... FROM users WHERE userType = "pregnant woman"');
-            const pregnantWomanUsers = pregnantWomanRows.map(row => ({ id: row.id, ...row }));
+            const { results: pregnantWomanRows } = await executeQuery('SELECT * FROM users WHERE userType = "pregnant woman"');
+
+            const pregnantWomanUsers = pregnantWomanRows.map((woman) => {
+                return JSON.parse(JSON.stringify(woman))
+            });
+            // console.log('pregnantWomanUsers', pregnantWomanUsers);
 
             // Emit events
             io.emit('newSos', { pregnantWomanUsers });
