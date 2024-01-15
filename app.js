@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword, logout, logoutDriver, uploadImage } = require('./controllers/userController');
+const { saveUser, verifyCode, resendCode, storePassword, login, resetEmail, resetPassword, logout, logoutDriver, uploadImage, updateProfile } = require('./controllers/userController');
 const { saveLocation, getNearbyDrivers, getDriverDetails, saveToken, acceptRide, getUserDetails, getUserRideDetails, rejectRide, updateRide, findClosestHospital, endTrip, getAllUsers, nearbyHospitals } = require('./controllers/dashboardController');
 
 //Setting up cors
@@ -96,6 +96,8 @@ app.post('/logout', logout);
 app.post('/logoutDriver', logoutDriver);
 // API endpoint for uploading an image and associating it with a user
 app.post('/upload/:email', upload.single('image'), uploadImage);
+
+app.put('/update-profile/:id', updateProfile);
 
 // DASHBOARD ROUTES (PATIENT AND DRIVER)
 app.post('/saveLocation', saveLocation);

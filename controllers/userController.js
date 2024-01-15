@@ -824,3 +824,44 @@ exports.uploadImage = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 }
+
+exports.updateProfile = async (req, res) => {
+    const id = req.params.id;
+    const {
+        firstname,
+        lastname,
+        gender,
+        dob,
+        email,
+        phone,
+        address,
+        state
+    } = req.body;
+
+    try {
+        // Ensure all required fields are present
+        if (!firstname || !lastname || !email || !gender || !dob || !phone || !address || !state) {
+            return res.status(400).json({ error: 'Incomplete data' });
+        }
+
+        // Update user details in the database
+        await connection.query(
+            'UPDATE users SET firstname=?, lastname=?, gender=?, dob=?, email=?, phone=?, address=?, state=? WHERE id=?',
+            [firstname, lastname, gender, dob, email, phone, address, state, id], (error, results) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(404).json({ error: error.message });
+                }
+
+                // Check if the user was found and updated
+                if (results.length === 0) {
+                    return res.status(404).json({ error: 'User not found' });
+                } else
+                    res.status(200).json({ message: 'User Updated', success: true });
+            }
+        );
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+}

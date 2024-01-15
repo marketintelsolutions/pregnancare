@@ -43,8 +43,8 @@ const { connection, withTransaction, executeQuery } = require('../database/db');
 // }
 exports.saveLocation = async (req, res) => {
     console.log('request made');
-
     const { user, coordinates, address } = req.body;
+    console.log(coordinates);
 
     try {
         // Check if the user exists in the MySQL database
@@ -229,7 +229,7 @@ exports.getNearbyDrivers = async (req, res) => {
         await connection.query(selectMotherQuery, [email], async (error, motherResults) => {
             if (error) {
                 console.log(error);
-                return
+                return res.status(404).json({ success: false, message: error.message })
             } else {
                 if (motherResults.length === 0) {
                     return res.status(404).json({ success: false, message: 'Mother not found.' });
@@ -255,12 +255,8 @@ exports.getNearbyDrivers = async (req, res) => {
 
                             const modifiedDriverData = JSON.parse(JSON.stringify(driverData))
 
-                            console.log('driverData', JSON.parse(JSON.stringify(driverData)));
-                            // const driverCoords = coordinates
-
                             // Check if the driver is within 15 km using the haversine formula
                             const distance = haversineDistance(coordinates, driverCoords);
-
 
                             if (distance <= 15) {
                                 // Save updated data back to MySQL and add the promise to our array
@@ -1446,6 +1442,7 @@ exports.getAllUsers = async (req, res) => {
 
 exports.nearbyHospitals = async (req, res) => {
     try {
+
         // Extract driver coordinates from the request body
         const { lat, lon } = req.body;
 
@@ -1464,8 +1461,6 @@ exports.nearbyHospitals = async (req, res) => {
         // Send a GET request to the Google Places API
         const response = await axios.get(apiUrl);
         const hospitals = response.data.results
-
-        console.log(hospitals);
 
         if (response.data.status === 'OK') {
             // If results are returned, find the closest hospital
