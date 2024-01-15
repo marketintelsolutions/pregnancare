@@ -23,6 +23,7 @@ module.exports = {
       },
       boxShadow: {
         mapShadow: '30px 35px 45px 0px rgba(209, 217, 230, 0.48), 30px 28px 38px 0px rgba(209, 217, 230, 0.40), 30px 24px 34px 0px rgba(209, 217, 230, 0.34), 30px 54px 67px 0px rgba(209, 217, 230, 0.67)',
+        submitBtn: '0px 8px 30px 0px rgba(0, 191, 178, 0.10)'
       }
     },
   },

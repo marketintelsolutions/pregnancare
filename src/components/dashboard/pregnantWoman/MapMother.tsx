@@ -61,6 +61,8 @@ function Map({ user, userDetails, ride }) {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
 
+          console.log(lat, lng, "lat lng");
+
           // save location to state
           dispatch(
             setLocation({

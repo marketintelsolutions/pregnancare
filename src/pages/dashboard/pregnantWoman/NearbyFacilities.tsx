@@ -11,7 +11,8 @@ const NearbyFacilities = () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const { lat, lng } = user.coordinates;
+    const { lat, lng } = JSON.parse(user.coordinates);
+
     axios
       .post(`${baseUrl}/getNearbyHospitals`, {
         lat: lat,

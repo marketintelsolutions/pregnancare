@@ -38,6 +38,10 @@ function MapHealthcare({ user, ride }) {
     (state: RootState) => state.healthcare.coordinates
   );
 
+  console.log(user);
+
+  console.log("location", location);
+
   const dispatch = useDispatch();
 
   const motherCoord = { ...location } || { lat: 0, lng: 0 };
@@ -46,16 +50,22 @@ function MapHealthcare({ user, ride }) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const lat = user?.coordinates && user.coordinates.lat;
-          const lng = user?.coordinates && user.coordinates.lng;
+          const coordinates = JSON.parse(user && user.coordinates);
+          // const lat = user?.coordinates && user.coordinates.lat;
+          // const lng = user?.coordinates && user.coordinates.lng;
+          const lat = coordinates?.lat;
+          const lng = coordinates?.lng;
+
+          console.log("lat lng", lat, lng);
 
           // save location to state
-          dispatch(
-            setLocation({
-              lat,
-              lng,
-            })
-          );
+          coordinates &&
+            dispatch(
+              setLocation({
+                lat,
+                lng,
+              })
+            );
         },
         (err) => {
           dispatch(setError(err.message));
