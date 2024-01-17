@@ -14,6 +14,8 @@ const DriverForm = () => {
     genotype: "",
     image: { name: null },
     userType: "driver",
+    carName: "",
+    plateNo: "",
   };
 
   const postURL = `${process.env.REACT_APP_BASE_URL}/saveUser`;
@@ -47,7 +49,7 @@ const DriverForm = () => {
           onChange={handleChange}
         />
         {errors.name && (
-          <span className="text-red-500 text-sm">Name is required.</span>
+          <span className="text-danger-red text-sm">Name is required.</span>
         )}
       </div>
       {/* EMAIL */}
@@ -68,7 +70,7 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.email && (
-          <span className="text-red-500 text-sm">Email is required.</span>
+          <span className="text-danger-red text-sm">Email is required.</span>
         )}
       </div>
 
@@ -90,7 +92,7 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.dob && (
-          <span className="text-red-500 text-sm">Dob is required.</span>
+          <span className="text-danger-red text-sm">Dob is required.</span>
         )}
       </div>
       {/* L/NO */}
@@ -111,7 +113,49 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.lno && (
-          <span className="text-red-500 text-sm">L/No is required.</span>
+          <span className="text-danger-red text-sm">L/No is required.</span>
+        )}
+      </div>
+      {/* CAR NAME */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor="carName"
+          className="text-[#12141D] text-sm font-medium leading-5"
+        >
+          Car Name
+        </label>
+        <input
+          type="text"
+          name="carName"
+          id="carName"
+          placeholder="e.g Toyota Land Cruiser"
+          value={formData.carName}
+          onChange={handleChange}
+          className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
+        />
+        {errors.carName && (
+          <span className="text-danger-red text-sm">Car Name is required.</span>
+        )}
+      </div>
+      {/* PLATE NO */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor="carName"
+          className="text-[#12141D] text-sm font-medium leading-5"
+        >
+          Plate No
+        </label>
+        <input
+          type="text"
+          name="plateNo"
+          id="plateNo"
+          placeholder="e.g AUD5784DE"
+          value={formData.plateNo}
+          onChange={handleChange}
+          className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
+        />
+        {errors.plateNo && (
+          <span className="text-danger-red text-sm">Plate No is required.</span>
         )}
       </div>
       {/* ADDRESS */}
@@ -132,7 +176,7 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.address && (
-          <span className="text-red-500 text-sm">Address is required.</span>
+          <span className="text-danger-red text-sm">Address is required.</span>
         )}
       </div>
       {/* SEX*/}
@@ -153,7 +197,7 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.sex && (
-          <span className="text-red-500 text-sm">Sex is required.</span>
+          <span className="text-danger-red text-sm">Sex is required.</span>
         )}
       </div>
       {/* EXP DATE */}
@@ -174,7 +218,9 @@ const DriverForm = () => {
           className={`rounded-lg p-3 placeholder-[#A8A8A8)] bg-[#F4F4F4]`}
         />
         {errors.expdate && (
-          <span className="text-red-500 text-sm">Exp. Date is required.</span>
+          <span className="text-danger-red text-sm">
+            Exp. Date is required.
+          </span>
         )}
       </div>
       {/* GENOTYPE */}

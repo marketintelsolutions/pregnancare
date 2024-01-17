@@ -35,8 +35,6 @@ function Map({ user, userDetails, ride }) {
 
   const dispatch = useDispatch();
 
-  console.log(ride);
-
   let mapWidth = ride !== null ? "866px" : "559px";
   const mapContainerStyle = {
     width: mapWidth,
@@ -44,15 +42,10 @@ function Map({ user, userDetails, ride }) {
   };
 
   const motherCoord = { ...location } || { lat: 0, lng: 0 };
-  // const motherCoord = userDetails.patientCoordinates || { lat: 0, lng: 0 };
-  // console.log("motherCoord", motherCoord);
-  // console.log("driverCoord", driverCoord);
-
-  //   console.log(user);
 
   // Define your backend endpoint URL
   const BACKEND_URL = `${process.env.REACT_APP_BASE_URL}/saveLocation`;
-  const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
+  // const isPlotted = useSelector((state: RootState) => state.map.isPlotted);
 
   useEffect(() => {
     if (navigator.geolocation) {

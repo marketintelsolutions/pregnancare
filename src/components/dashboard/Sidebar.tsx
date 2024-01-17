@@ -25,7 +25,7 @@ const Sidebar = () => {
     <section className="w-80 bg-coolblue h-auto min-h-screen px-5">
       <div className="profile flex flex-col items-center gap-11 mt-12">
         <img
-          src={`http://localhost:8080/${user.imgUrl}`}
+          src={`http://${user.imgUrl}`}
           alt="avatar"
           className="w-36 h-36 rounded-full object-cover"
         />

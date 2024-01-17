@@ -39,7 +39,9 @@ const Content = ({ user }) => {
     (state: RootState) => state.user.selectedHospitalCoordinates
   );
 
-  console.log("driver", driver);
+  const { carName, plateNo, trips, rating, imgUrl } = ride?.assignedDriver
+    ? JSON.parse(ride.assignedDriver)
+    : { carName: "", plateNo: "", trips: "", rating: "", imgUrl: "" };
 
   const dispatch = useDispatch();
 
@@ -246,26 +248,28 @@ const Content = ({ user }) => {
               <div className="flex items-end">
                 <span>{driver.name}</span>
                 <img
-                  src={driver.imgUrl}
+                  src={`http://${imgUrl}`}
                   alt="car"
                   className="w-[108px] h-[108px] object-cover rounded-full"
                 />
               </div>
               <div className="flex items-center">
                 <img src={car} alt="car" />
-                <span>Toyota Fj Crusier - 5FJXK1</span>
+                <span>
+                  {carName} - {plateNo}
+                </span>
               </div>
               <div className="flex items-center">
                 <img src={star} alt="star" />
-                <span>Rating - 4.2</span>
+                <span>Rating - {rating}</span>
               </div>
               <div className="flex items-center">
                 <img src={trip} alt="trip" />
-                <span>Trips - 2,239</span>
+                <span>Trips - {trips}</span>
               </div>
               <div className="flex items-center">
                 <img src={driverImg} alt="driver" />
-                <span>Years - 2</span>
+                <span>Years - {"< 1"}</span>
               </div>
             </div>
           )}
